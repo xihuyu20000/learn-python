@@ -5,7 +5,14 @@
     <title>Title</title>
 </head>
 <body>
-回传的内容{{code}}
-<p>{{url_for('static', filename='1.css')}}</p>
+<p>{{code|safe}}</p>
+<p>config内容：{{config['DEBUG']}}</p>
+<p>request内容：{{request.args}}</p>
+<p>session内容：{{session}}</p>
+<p>g内容：{{g.db}}</p>
+
+{% for msg in get_flashed_messages() %}
+<p>{{msg}}</p>
+{% endfor %}
 </body>
 </html>

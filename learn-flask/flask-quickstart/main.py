@@ -1,10 +1,19 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, session, g, flash
 from markupsafe import escape
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'adfadfsadf'
 @app.route('/')
 def index():
-    code =url_for('static', filename='1.css')
+    code ="<font color='red'>hello world!</font>"
+    request.args = {'name':'zhagnsan'}
+    session['username'] = 'aaaaaaa'
+    g.db = 'sqlite3'
+
+    flash('发生一个错误，用户名出错')
+    flash('发生一个错误，密码出错')
+
+
     return render_template('index.html', code=code)
 @app.get('/login')
 def login_get():
