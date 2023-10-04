@@ -49,5 +49,5 @@ def error501(error):
 def user(id):
     return str(id)
 
-
+app.test_request_context()
 
