@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, url_for, session, g, flash
+from flask import Flask, render_template, request, url_for, session, g, flash, redirect, abort
 from markupsafe import escape
 
 app = Flask(__name__)
@@ -29,7 +29,12 @@ def login_post():
     for fname in request.files.keys():
         request.files[fname].save(fname)
         print('文件名', fname)
-    return url_for('index')
+    abort(501)
+    return redirect(url_for('index'))
+
+@app.errorhandler(501)
+def error501(error):
+    return '发生了一个501错误'
 
 # @app.route('/login', methods=['GET','POST'])
 # def login():
