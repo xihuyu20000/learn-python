@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, url_for, session, g, flash
 from markupsafe import escape
 
@@ -23,6 +25,10 @@ def login_post():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
     print(f'用户名{username=}  密码{password=}')
+
+    for fname in request.files.keys():
+        request.files[fname].save(fname)
+        print('文件名', fname)
     return url_for('index')
 
 # @app.route('/login', methods=['GET','POST'])
@@ -37,3 +43,6 @@ def login_post():
 @app.route('/user/<id>')
 def user(id):
     return str(id)
+
+
+
