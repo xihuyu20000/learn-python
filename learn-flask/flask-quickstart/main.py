@@ -4,7 +4,7 @@ from markupsafe import escape
 app = Flask(__name__)
 @app.route('/')
 def index():
-    code ="<script>window.close();</script>"
+    code =url_for('static', filename='1.css')
     return render_template('index.html', code=code)
 @app.get('/login')
 def login_get():
