@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{project_title}}</title>
+
+</head>
+<body>
+    {{tbl_config}}
+    <table class="simple-table">
+        <thead>
+        <tr>
+            {% for item in tbl_config%}
+            <td style="width:{{item.width}}px">{{item.label}}</td>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in tbl_data %}
+        <tr>
+            {% for k,v in item.items() %}
+            <td>{{v}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+</body>
+</html>
