@@ -26,6 +26,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 SciTools/output
+SciTools/node_modules
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

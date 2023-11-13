@@ -12,3 +12,4 @@ flask
 jinja2
 psutil
 schedule
+auto-py-to-exe
