@@ -1,0 +1,7 @@
+loguru
+pytest
+coverage
+flask
+flask-sqlalchemy
+xlrd
+pandas

@@ -59,8 +59,5 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)  # 创建GUI
     ui = MasterWindows()  # 创建PyQt设计的窗体对象
-    ui.setStyleSheet("""
-    background-color: rgb(110,110,110);
-    """)
     ui.show()  # 显示窗体
     sys.exit(app.exec())  # 程序关闭时退出进程
