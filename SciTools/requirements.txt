@@ -7,3 +7,5 @@ lxml
 pandas
 openpyxl
 pyecharts
+flask
+jinja2
