@@ -18,4 +18,4 @@ cov.save()
 cov.report(show_missing=True)
 
 # 生成HTML覆盖率结果报告
-cov.html_report(directory="res_html")
+cov.html_report(directory="output/res_html")

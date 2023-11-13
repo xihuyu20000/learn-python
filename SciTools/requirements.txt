@@ -11,3 +11,4 @@ pyecharts
 flask
 jinja2
 psutil
+schedule
