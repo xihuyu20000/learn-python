@@ -1,0 +1,20 @@
+"""
+调用python模块，运行其中的run()方法
+"""
+import importlib
+import os
+
+from core import ROOT_DIR, debug, abs_path, error
+
+
+def test_run_scripts():
+    """
+    加载爬虫脚本，并运行
+    """
+    # 获取所有以get_开头的py文件
+    ss = [d for d in os.listdir(abs_path('scripts')) if d.startswith('get_')]
+    # 去掉.py后缀
+    ss = [d.replace('.py', '') for d in ss]
+    for s in ss:
+        mod = importlib.import_module(f'scripts.{s}')
+        assert mod.run()

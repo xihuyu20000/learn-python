@@ -1,13 +1,12 @@
 """
 专门解析各种数据来源的文件，输出的格式必须统一是BiblioModel
 """
-import os
 import re
 from typing import Dict, List
 
 import pandas as pd
 
-from core import debug
+from core import abs_path
 
 
 # 作者，机构，关键词
@@ -65,18 +64,14 @@ class BiblioModel:
                            kws=kws, abs=abs)
 
 
-def abs_path(filename: str) -> str:
-    if not os.path.isabs(filename):
-        root_dir = os.path.dirname(os.path.abspath('__file__'))
-        filename = os.path.join(root_dir, filename)
-    debug(f'文件路径{filename}')
-    assert os.path.exists(filename)
-    return filename
+
+
 
 class ParserData:
     @staticmethod
     def parse_file(filename: str):
         assert None
+
     @staticmethod
     def parse_save_excel(ds, excelname: str):
         """
@@ -93,10 +88,12 @@ class ParserData:
         df.to_excel(writer)
         writer._save()
 
+
 class cnki_gbt_7714_2015(ParserData):
     # 在线文献的类型
     ONLINE_MEDIAS = ['DB/OL', 'DB/MT', 'DB/CD', 'M/CD', 'CP/DK', 'J/OL', 'EB/OL']
 
+    @staticmethod
     def __match_doctype(line: str):
         # *后面的？表示非贪婪模式
         return re.search(r'\[.*?\].', line)
@@ -135,7 +132,7 @@ class cnki_gbt_7714_2015(ParserData):
         target = re.search(r'^\[\d+\]', line)
         dataset['no'] = int(target.group()[1:-1])
         # 去掉序号后的行
-        line = line.replace(target.group(), '')
+        line: str = line.replace(target.group(), '')
 
         # 2 文献类型
         dataset['doctype'] = cnki_gbt_7714_2015.__refdoc_style(line)
@@ -205,8 +202,9 @@ class cnki_refworks(ParserData):
         ds = []
         with open(filename, 'r', encoding='utf-8') as f:
             NO = 1
-            values = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '',
-                      'AB': ''}
+            values: Dict[str, int|str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '',
+                                     'K1': '',
+                                     'AB': ''}
             for linone, line in enumerate(f.readlines()):
                 # 前2个字母是具体的key
                 name = line[:2].strip()

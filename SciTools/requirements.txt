@@ -1,6 +1,9 @@
 pyside6
 loguru
 pytest
+mypy
+requests
+lxml
 pandas
 openpyxl
 pyecharts
