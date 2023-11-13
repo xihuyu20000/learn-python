@@ -2,7 +2,6 @@
 
 """
 
-
 APP_NAME = "我的地盘我做主"
 
 WEB_SERVER_PORT = 5000

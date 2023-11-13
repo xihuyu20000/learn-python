@@ -1,12 +1,13 @@
-"""
-专门解析各种数据来源的文件，输出的格式必须统一是BiblioModel
-"""
 import re
 from typing import Dict, List
 
 import pandas as pd
 
 from core import abs_path
+
+"""
+专门解析各种数据来源的文件，输出的格式必须统一是BiblioModel
+"""
 
 
 # 作者，机构，关键词
@@ -64,13 +65,7 @@ class BiblioModel:
                            kws=kws, abs=abs)
 
 
-
-
-
 class ParserData:
-    @staticmethod
-    def parse_file(filename: str):
-        assert None
 
     @staticmethod
     def parse_save_excel(ds, excelname: str):
@@ -202,9 +197,10 @@ class cnki_refworks(ParserData):
         ds = []
         with open(filename, 'r', encoding='utf-8') as f:
             NO = 1
-            values: Dict[str, int|str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '',
-                                     'K1': '',
-                                     'AB': ''}
+            values: Dict[str, int | str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
+                                            'FD': '',
+                                            'K1': '',
+                                            'AB': ''}
             for linone, line in enumerate(f.readlines()):
                 # 前2个字母是具体的key
                 name = line[:2].strip()

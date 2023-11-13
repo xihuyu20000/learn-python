@@ -1,13 +1,15 @@
-
-import os
 import sys
 import time
 
-from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QObject, Slot
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication
+
+"""
+使用QWebEngineWidget显示html内容
+"""
+
 
 class Handlers(QObject):
 

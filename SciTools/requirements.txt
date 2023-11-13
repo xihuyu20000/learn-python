@@ -1,6 +1,7 @@
 pyside6
 loguru
 pytest
+coverage
 mypy
 requests
 lxml
@@ -9,3 +10,4 @@ openpyxl
 pyecharts
 flask
 jinja2
+psutil

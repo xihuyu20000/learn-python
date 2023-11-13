@@ -8,16 +8,13 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QMainWindow,
-    QMenuBar, QSizePolicy, QSpacerItem, QStackedWidget,
-    QStatusBar, QToolButton, QVBoxLayout, QWidget)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
+                            QSize, Qt)
+from PySide6.QtGui import (QCursor,
+                           QFont, QIcon)
+from PySide6.QtWidgets import (QFrame, QHBoxLayout, QMenuBar, QSizePolicy, QSpacerItem, QStackedWidget,
+                               QStatusBar, QToolButton, QVBoxLayout, QWidget)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -117,7 +114,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
-
         self.horizontalLayout.addWidget(self.frame)
 
         self.mainContainer = QStackedWidget(self.centralwidget)
@@ -156,8 +152,8 @@ class Ui_MainWindow(object):
 
         self.mainContainer.setCurrentIndex(4)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -169,4 +165,3 @@ class Ui_MainWindow(object):
         self.gbl_btn_user_center.setText(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4e2d\u5fc3", None))
         self.gbl_btn_bi_tool.setText(QCoreApplication.translate("MainWindow", u"BI\u5de5\u5177", None))
     # retranslateUi
-

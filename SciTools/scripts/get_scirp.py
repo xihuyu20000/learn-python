@@ -1,8 +1,8 @@
 """
 
 """
-import os
 import re
+
 from core import get_html
 
 
@@ -24,4 +24,3 @@ def run():
         datasets.append(line_data)
 
     return datasets
-

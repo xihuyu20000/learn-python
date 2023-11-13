@@ -4,9 +4,12 @@
 todo 同义词、数据去重、空值补全
 """
 from collections import Counter
-from pprint import pprint, PrettyPrinter
 
 import pandas as pd
+
+"""
+处理数据
+"""
 
 
 def count_yearly(df):
@@ -17,6 +20,7 @@ def count_yearly(df):
     :return:
     """
     print(df.groupby('pubyear').size())
+
 
 def kw_freq(df):
     """
@@ -29,6 +33,7 @@ def kw_freq(df):
     df2 = Counter(df2)
     print(df2)
 
+
 def doctype_freq(df):
     """
     文献类型的频次
@@ -39,6 +44,7 @@ def doctype_freq(df):
     df2 = Counter(df2)
     print(df2)
 
+
 def source_freq(df):
     """
     来源的频次
@@ -48,6 +54,7 @@ def source_freq(df):
     df2 = df['source'].tolist()
     df2 = Counter(df2)
     print(df2)
+
 
 def author_freq(df):
     """
@@ -60,6 +67,7 @@ def author_freq(df):
     df2 = Counter(df2)
     print(df2)
 
+
 def org_freq(df):
     """
     机构文献数量
@@ -71,11 +79,12 @@ def org_freq(df):
     df2 = Counter(df2)
     print(df2)
 
+
 if __name__ == '__main__':
     # pd.set_option('display.max_columns', None)
     # pd.set_option('display.max_rows', None)
     pd.set_option('expand_frame_repr', False)
-    from core.parse_data import cnki_gbt_7714_2015, cnki_refworks
+    from core.parse_data import cnki_refworks
 
     filename = '../files/CNKI-refworks3.txt'
     ds = cnki_refworks.parse_file(filename)

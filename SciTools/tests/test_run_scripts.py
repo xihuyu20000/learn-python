@@ -4,7 +4,7 @@
 import importlib
 import os
 
-from core import ROOT_DIR, debug, abs_path, error
+from core import abs_path
 
 
 def test_run_scripts():

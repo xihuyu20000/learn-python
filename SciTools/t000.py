@@ -12,8 +12,11 @@ from pandas import DataFrame, isnull
 
 from core.parse_data import cnki_refworks
 
-
 ## 参考  https://blog.csdn.net/weixin_44247218/article/details/115213652
+"""
+python表格，表头有右键菜单
+"""
+
 
 class DataTable(QWidget):
     rowCount = 0  # 单页可以显示的数据条数
@@ -42,8 +45,6 @@ class DataTable(QWidget):
         self.horizontalLayout.addWidget(self.table)
         self.horizontalLayout.addWidget(self.scrollbar)
 
-     
-
     def showContextMenu(self, pos):
 
         contextMenu = QMenu(self)
@@ -51,12 +52,13 @@ class DataTable(QWidget):
         actionB = contextMenu.addAction(u'删除')
         actionA.triggered.connect(partial(self.cmHandler, 'a'))
         actionB.triggered.connect(partial(self.cmHandler, 'b'))
-         # 菜单显示前，将它移动到鼠标点击的位置
+        # 菜单显示前，将它移动到鼠标点击的位置
         contextMenu.move(QtGui.QCursor().pos())
         contextMenu.show()
 
     def cmHandler(self, ll):
-            print(self, ll)
+        print(self, ll)
+
     def signal_setup(self):
         self.scrollbar.valueChanged.connect(self.scrollbar_emit)
 
@@ -116,8 +118,9 @@ class DataTable(QWidget):
 
 
 if __name__ == '__main__':
-    te_data = cnki_refworks.parse_file('../files/CNKI-refworks2.txt')
-
+    te_data = cnki_refworks.parse_file('files/CNKI-refworks2.txt')
+    # 转为dict类型
+    te_data = [model.to_dict() for model in te_data]
     df = pd.DataFrame(te_data)
 
     app = QApplication(sys.argv)
