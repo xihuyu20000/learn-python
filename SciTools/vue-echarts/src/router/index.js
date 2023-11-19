@@ -42,11 +42,7 @@ const routes = [
     name: "CoKws2",
     component: () => import(`../views/CoKws2.vue`),
   },
-  {
-    path: "/CoKws3",
-    name: "CoKws3",
-    component: () => import(`../views/CoKws3.vue`),
-  },
+
   {
     path: "/Parent",
     name: "Parent",

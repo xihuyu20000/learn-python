@@ -35,10 +35,7 @@
         <el-icon><setting /></el-icon>
         <router-link to="/CoKws2">关键词共现2</router-link>
       </el-menu-item>
-      <el-menu-item index="8">
-        <el-icon><setting /></el-icon>
-        <router-link to="/CoKws3">关键词共现3</router-link>
-      </el-menu-item>
+
       <el-menu-item index="4">
         <el-icon><setting /></el-icon>
         <router-link to="/Parent">父子传值</router-link>

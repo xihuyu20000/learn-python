@@ -48,17 +48,23 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 20,
                 shadowColor: "#b457ff",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  // 由中心向四周渐变
-                  {
-                    offset: 0,
-                    color: "rgba(180, 87, 255, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(180, 87, 255, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "red",
+                    },
+                    {
+                      offset: 1,
+                      color: "green",
+                    },
+                  ],
+                  global: false,
+                },
               },
             },
           },
@@ -72,16 +78,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#04f2a7",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(4, 242, 164, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(4, 242, 164, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(234, 242, 164, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(4, 242, 4, 1)",
+                    },
+                  ],
+                },
               },
             },
             category: 1,
@@ -97,16 +109,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#04f2a7",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(4, 242, 164, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(4, 242, 164, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(4, 242, 164, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(4, 242, 164, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
@@ -121,16 +139,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#04f2a7",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(4, 242, 164, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(4, 242, 164, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(4, 242, 164, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(4, 242, 164, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
@@ -145,16 +169,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#04f2a7",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(4, 242, 164, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(4, 242, 164, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(4, 242, 164, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(4, 242, 164, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
@@ -169,16 +199,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#82dffe",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(130, 223, 254, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(130, 223, 254, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(130, 223, 254, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(130, 223, 254, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
@@ -193,16 +229,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#82dffe",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(130, 223, 254, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(130, 223, 254, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(130, 223, 254, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(130, 223, 254, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
@@ -216,16 +258,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#82dffe",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(130, 223, 254, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(130, 223, 254, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(130, 223, 254, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(130, 223, 254, 1)",
+                    },
+                  ],
+                },
               },
             },
             category: 2,
@@ -240,16 +288,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#82dffe",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(130, 223, 254, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(130, 223, 254, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(130, 223, 254, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(130, 223, 254, 1)",
+                    },
+                  ],
+                },
               },
             },
             category: 2,
@@ -265,16 +319,22 @@ onMounted(async () => {
                 borderWidth: 1,
                 shadowBlur: 10,
                 shadowColor: "#82dffe",
-                color: new echarts.graphic.RadialGradient(0.5, 0.5, 1.0, [
-                  {
-                    offset: 0,
-                    color: "rgba(130, 223, 254, 0.1)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(130, 223, 254, 1)",
-                  },
-                ]),
+                color: {
+                  type: "radial",
+                  x: 0.5,
+                  y: 0.5,
+                  r: 0.5,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(130, 223, 254, 0.1)",
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(130, 223, 254, 1)",
+                    },
+                  ],
+                },
               },
             },
           },
