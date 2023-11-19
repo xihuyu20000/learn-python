@@ -36,18 +36,23 @@ def test100():
     filename = 'files/CNKI-GBT 7714-2015 格式引文(新).txt'
     ds = cnki_gbt_7714_2015.parse_file(filename)
     assert len(ds) == 500
-    cnki_gbt_7714_2015.parse_save_excel(ds, 'output/a.xlsx')
+    cnki_gbt_7714_2015.save_excel(ds, 'output/a.xlsx')
 
 
 def test200():
-    filename = 'files/CNKI-refworks.txt'
-    ds = cnki_refworks.parse_file(filename)
-    assert len(ds) == 500
-    cnki_refworks.parse_save_excel(ds, 'output/b.xlsx')
+    filenames = [f'files/cnki/CNKI-文献计量{i}.txt' for i in range(1,6)]
+    cnki_refworks.combine_files(filenames, 'files/cnki/合并.txt')
 
 
 def test201():
-    filename = 'files/CNKI-refworks3.txt'
+    filename = 'files/cnki/合并.txt'
     ds = cnki_refworks.parse_file(filename)
-    assert len(ds) == 500
-    cnki_refworks.parse_save_excel(ds, 'output/c.xlsx')
+    cnki_refworks.save_excel(ds, 'output/cnki-提取.xlsx')
+
+
+def test202():
+    filename = 'files/cnki/合并.txt'
+    ds = cnki_refworks.parse_file(filename)
+    ds = cnki_refworks.distinct(ds)
+    cnki_refworks.save_excel(ds, 'output/cnki-去重.xlsx')
+

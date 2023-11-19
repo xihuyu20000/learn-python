@@ -2,9 +2,9 @@ from core import Logger, OS
 
 
 def test_Logger():
-    Logger.debug('a', 'b')
-    Logger.info('c', 'd')
-    Logger.error('e', 'f')
+    Logger.debug('ab')
+    Logger.info('cd')
+    Logger.error('ef')
     assert True
 
 def test_os():

@@ -2,12 +2,15 @@
 
 """
 import os
+import sys
 from typing import Any
 
 import psutil
 import requests
 from loguru import logger
 from lxml import etree
+
+import settings
 
 ROOT_DIR = os.path.abspath(os.path.dirname('SciTools'))
 
@@ -19,19 +22,26 @@ def abs_path(filename: str) -> str:
     assert os.path.exists(filename)
     return filename
 
-
+logger.remove()
+logger.add(sys.stderr, level=settings.LOG_LEVEL)
 class Logger():
-    @staticmethod
-    def debug(*msg):
-        logger.debug(' '.join(msg))
 
     @staticmethod
-    def info(*msg):
-        logger.info(' '.join(msg))
+    def trace(msg:str):
+        logger.trace(msg)
 
     @staticmethod
-    def error(*msg):
-        logger.error(' '.join(msg))
+    def debug(msg:str):
+        logger.debug(msg)
+
+    @staticmethod
+    def info(msg:str):
+        logger.info(msg)
+
+    @staticmethod
+    def error(msg:str):
+        logger.error(msg)
+
 
 class OS:
     @staticmethod
@@ -91,6 +101,7 @@ class OS:
         except Exception as ex:
             print('获取系统版本失败，错误：' + str(ex))
             return '未知系统版本.'
+
     @staticmethod
     def __ToSizeInt(byte: int, target: str) -> int:
         '''
@@ -131,6 +142,7 @@ class OS:
         }
 
         return memInfo
+
 
 def get_html(url):
     headers = {

@@ -1,87 +1,39 @@
+import os.path
 import re
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import pandas as pd
 
-from core import abs_path
+from core import abs_path, ROOT_DIR
+from core.models import BiblioModel
 
 """
 专门解析各种数据来源的文件，输出的格式必须统一是BiblioModel
 """
 
 
-# 作者，机构，关键词
 
-# = namedtuple('BiblioModel', ['doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs'])
-
-class BiblioModel:
-    def __init__(self, doctype='', authors='', orgs='', title='', source='', pubyear='', kws='', abs=''):
-        self.doctype = doctype
-        self.authors = authors
-        self.orgs = orgs
-        self.title = title
-        self.source = source
-        self.pubyear = pubyear
-        self.kws = kws
-        self.abs = abs
-
-    def to_dict(self):
-        return {'doctype': self.doctype, 'authors': self.authors, 'orgs': self.orgs, 'title': self.title,
-                'source': self.source, 'pubyear': self.pubyear, 'kws': self.kws, 'abs': self.abs}
-
-    @staticmethod
-    def from_cnki_gbt7714_2015(raw: Dict):
-        # 'doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs'
-        doctype = raw['doctype']
-        authors = ','.join([a.strip() for a in raw['authors'].strip().split(',') if a.strip()])
-        orgs = ''
-        title = raw['title']
-        source = raw['source']
-        pubyear = ''
-        kws = ''
-        abs = ''
-
-        return BiblioModel(doctype=doctype, authors=authors, orgs=orgs, title=title, source=source, pubyear=pubyear,
-                           kws=kws, abs=abs)
-
-    @staticmethod
-    def from_cnki_refworks(raw: Dict):
-        # 'doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs'
-        doctype = raw['RT']
-        authors = ','.join([a.strip() for a in raw['A1'].strip().split(';') if a.strip()])
-        orgs = ','.join([a.strip() for a in raw['AD'].strip().split(';') if a.strip()])
-        title = raw['T1']
-        source = raw['JF']
-        pubyear = ''
-        kws = ','.join([a.strip() for a in raw['K1'].strip().split(',') if a.strip()])
-        abs = raw['AB']
-
-        if len(raw['YR']) > 0:
-            pubyear = raw['YR']
-        elif len(raw['FD']) > 0:
-            pubyear = raw['FD'][:4]
-
-        return BiblioModel(doctype=doctype, authors=authors, orgs=orgs, title=title, source=source, pubyear=pubyear,
-                           kws=kws, abs=abs)
 
 
 class ParserData:
 
     @staticmethod
-    def parse_save_excel(ds, excelname: str):
+    def save_excel(dataset:List[BiblioModel], excelname: str):
         """
 
-        :param ds:
+        :param dataset:
         :param excelname:
         """
         # 转为dict类型
-        ds = [model.to_dict() for model in ds]
-        df = pd.DataFrame(ds)
+        dataset = [model.to_dict() for model in dataset]
+        df = pd.DataFrame(dataset)
         # index从1开始
         df.index += 1
         writer = pd.ExcelWriter(excelname)
         df.to_excel(writer)
         writer._save()
+
+
 
 
 class cnki_gbt_7714_2015(ParserData):
@@ -189,13 +141,31 @@ class cnki_refworks(ParserData):
                   , 'K1'  # 关键词
                   , 'AB'  # 摘要
                   )
+    @staticmethod
+    def combine_files(filenames: List[str]|Tuple[str, ...], newname:str):
+        """
+        合并cnki的多个refworks文件
+        """
+        newname = os.path.join(ROOT_DIR, newname)
+        if os.path.exists(newname):
+            os.remove(newname)
+
+        with open(newname, 'a', encoding='utf-8') as newfile:
+            for file in filenames:
+                with open(abs_path(file), encoding='utf-8') as singlefile:
+                    newfile.writelines(singlefile.readlines())
+                    newfile.write('\n')
+
 
     @staticmethod
-    def parse_file(filename: str):
+    def parse_file(filename: str) -> List[BiblioModel]:
+        """
+        解析cnki的refworks格式的数据
+        """
         filename = abs_path(filename)
 
         ds = []
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, encoding='utf-8') as f:
             NO = 1
             values: Dict[str, int | str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
                                             'FD': '',
@@ -217,6 +187,19 @@ class cnki_refworks(ParserData):
                               'AB': ''}
 
         return ds
+
+    @staticmethod
+    def distinct(dataset:List[BiblioModel]) -> List[BiblioModel]:
+        """
+        数据去重
+        """
+        newresult = []
+        for m in dataset:
+            if m not in newresult:
+                newresult.append(m)
+        return newresult
+
+
 
 
 if __name__ == '__main__':

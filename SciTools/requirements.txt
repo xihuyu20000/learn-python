@@ -10,6 +10,7 @@ openpyxl
 pyecharts
 flask
 jinja2
+pyecharts
 psutil
 schedule
 auto-py-to-exe
