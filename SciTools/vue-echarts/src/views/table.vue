@@ -1,6 +1,19 @@
 <template>
   <div>
-    <vxe-grid v-bind="gridOptions"></vxe-grid>
+    <vxe-grid v-bind="gridOptions">
+      <template #toolbar_buttons>
+        <vxe-button>新增公式列</vxe-button>
+        <vxe-button>新增汇总列</vxe-button>
+        <vxe-button>新增赋值列</vxe-button>
+        <vxe-button>条件标签列</vxe-button>
+        <vxe-button>分组汇总</vxe-button>
+        <vxe-button>过滤</vxe-button>
+        <vxe-button>排序</vxe-button>
+        <vxe-button>拆分行</vxe-button>
+        <vxe-button>拆分列</vxe-button>
+        <vxe-button>去除重复行</vxe-button>
+      </template></vxe-grid
+    >
   </div>
 </template>
     
@@ -18,9 +31,10 @@ const gridOptions = reactive({
     resizable: true,
   },
   toolbarConfig: {
-    export: true,
     custom: true,
-    slots: {},
+    slots: {
+      buttons: "toolbar_buttons",
+    },
   },
   columns: [
     { type: "seq", width: 60 },

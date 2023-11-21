@@ -1,8 +1,23 @@
 <template>
-  <div class="echart" ref="chartDom"></div>
+  <el-container>
+    <el-aside width="200px"> <column-names></column-names> </el-aside>
+    <el-aside width="200px">
+      <chart-icons-table></chart-icons-table>
+    </el-aside>
+    <el-container>
+      <el-header style="margin: 0; padding: 0">
+        <!-- 拖入维度、指标区域 -->
+        <drop-down-data></drop-down-data>
+      </el-header>
+      <el-main style="padding: 0"
+        ><div class="echart" ref="chartDom"></div
+      ></el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script setup>
+import ColumnNames from "./ColumnNames.vue";
 const echarts = inject("echarts");
 //获取 dom 和 父组件数据 并定义"myChart"用于初始化图表
 const chartDom = ref();
