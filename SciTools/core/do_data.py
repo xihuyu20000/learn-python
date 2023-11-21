@@ -4,7 +4,7 @@
 todo 同义词、数据去重、空值补全
 """
 from collections import Counter, defaultdict
-from typing import List
+from typing import List, Any
 
 import pandas as pd
 
@@ -139,8 +139,8 @@ class CoStat:
         return result
 
     def _co_word2str(self, df2: List[str], min_co=0):
-        weights = defaultdict(int)
-        co_dict = defaultdict(int)
+        weights: defaultdict[Any, int] = defaultdict(int)
+        co_dict: defaultdict[Any, int] = defaultdict(int)
         for line in df2:
             # 统计各个关键词的权重
             for kw in line.split(','):

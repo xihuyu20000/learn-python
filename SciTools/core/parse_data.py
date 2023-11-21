@@ -1,5 +1,6 @@
 import os.path
 import re
+from re import Match
 from typing import Dict, List, Tuple
 
 import pandas as pd
@@ -76,7 +77,7 @@ class cnki_gbt_7714_2015(ParserData):
         dataset['line'] = line.strip()
 
         # 1 序号
-        target = re.search(r'^\[\d+\]', line)
+        target: Match[str] | None = re.search(r'^\[\d+\]', line)
         dataset['no'] = int(target.group()[1:-1])
         # 去掉序号后的行
         line: str = line.replace(target.group(), '')
