@@ -1,6 +1,6 @@
 <script setup>
-import { relation_option } from "../utils/echarts_option";
-import { co_kws } from "../api/data";
+import { relation_option } from "../../utils/echarts_option";
+import { co_kws } from "../../api/data";
 const option = ref({});
 
 onMounted(async () => {

@@ -1,20 +1,20 @@
 <script setup>
 </script>
 <template>
-  <el-aside width="50px" class="container">
-    <div class="item">数据</div>
-    <div class="item">分析</div>
-    <div class="item">图谱</div>
-    <div class="item">报告</div>
-    <div class="item">设置</div>
-    <div class="item myicon">我</div>
+  <el-aside width="50px" class="navcontainer">
+    <div class="navitem">数据</div>
+    <div class="navitem">分析</div>
+    <div class="navitem">图谱</div>
+    <div class="navitem">报告</div>
+    <div class="navitem">设置</div>
+    <div class="navitem myicon">我</div>
   </el-aside>
 </template>
     
 
     
 <style scoped>
-.container {
+.navcontainer {
   width: 50px;
   height: 100vh;
   background-color: DodgerBlue;
@@ -22,7 +22,7 @@
   flex-direction: column;
 }
 
-.item {
+.navitem {
   background-color: #cdcccc;
   width: 50px;
   height: 50px;
