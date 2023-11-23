@@ -19,7 +19,6 @@ onMounted(async () => {
 
 <style scoped>
 .echarts {
-  background-color: #e4e4e4;
 }
 </style>
 

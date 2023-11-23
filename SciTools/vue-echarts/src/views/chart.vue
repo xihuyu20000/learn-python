@@ -1,31 +1,9 @@
 <template>
   <el-container>
-    <el-aside width="150px">
+    <el-aside width="160px">
       <el-menu>
-        <el-menu-item index="1">
-          <router-link to="/FreqYearly">历年发文量</router-link>
-        </el-menu-item>
-        <el-menu-item index="2">
-          <router-link to="/AccFreqYearly">历年累计发文量</router-link>
-        </el-menu-item>
-        <el-menu-item index="3">
-          <router-link to="/AccFreqYearly2">混合累计发文量</router-link>
-        </el-menu-item>
-        <el-menu-item index="4">
-          <router-link to="/FreqAuthors">作者发文量</router-link>
-        </el-menu-item>
-        <el-menu-item index="5">
-          <router-link to="/FreqAuthors2">作者发文量2</router-link>
-        </el-menu-item>
-        <el-menu-item index="6">
-          <router-link to="/CoKws">关键词共现</router-link>
-        </el-menu-item>
-        <el-menu-item index="7">
-          <router-link to="/CoKws2">关键词共现2</router-link>
-        </el-menu-item>
-
-        <el-menu-item index="4">
-          <router-link to="/Parent">父子传值</router-link>
+        <el-menu-item :index="i" v-for="(path, name, i) in urls" :key="i">
+          <router-link :to="path">{{ name }}</router-link>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -33,8 +11,21 @@
   </el-container>
 </template>
     
-<script setup lang='ts'>
+<script setup>
+const urls = ref({
+  历年发文量: "/FreqYearly",
+  历年累计发文量: "/AccFreqYearly",
+  混合累计发文量: "/AccFreqYearly2",
+  作者发文量: "/FreqAuthors",
+  作者发文量2: "/FreqAuthors2",
+  关键词共现: "/CoKws",
+  关键词共现2: "/CoKws2",
+  父子: "/Parent",
+});
 </script>
     
-<style>
+<style scoped>
+.el-menu-item {
+  height: 35px;
+}
 </style>

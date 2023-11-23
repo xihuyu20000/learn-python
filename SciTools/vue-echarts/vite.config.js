@@ -15,6 +15,20 @@ export default defineConfig({
       imports: ["vue"],
     }),
   ],
+
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        javascriptEnabled: true,
+        additionalData: `@import "/src/assets/styles/global.scss";`,
+      },
+    },
+  },
   server: {
     proxy: {
       "/api": {

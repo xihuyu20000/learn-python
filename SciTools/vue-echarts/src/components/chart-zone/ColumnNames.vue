@@ -19,7 +19,7 @@
       <table>
         <tbody>
           <tr class="my-tr" v-for="item in items" :key="item.id">
-            <td>{{ item.label }}</td>
+            <td draggable="true">{{ item.label }}</td>
           </tr>
         </tbody>
       </table>
