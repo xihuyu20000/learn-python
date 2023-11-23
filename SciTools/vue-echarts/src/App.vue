@@ -8,7 +8,7 @@ provide("echarts", echarts);
     <el-container>
       <el-aside width="50px" class="navcontainer">
         <div class="navitem"><router-link to="/table">数据</router-link></div>
-        <div class="navitem"><router-link to="/chart">组件</router-link></div>
+        <div class="navitem"><router-link to="/chart">分析</router-link></div>
         <div class="navitem"><router-link to="/graph">图谱</router-link></div>
         <div class="navitem"><router-link to="/report">报告</router-link></div>
         <div class="navitem">
