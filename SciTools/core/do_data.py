@@ -243,6 +243,13 @@ class Mode2Matrix:
         result = self._parse(df2, 'source', 'kws')
         print(result)
 
+class Algo:
+    def __init__(self):
+        """
+        各种算法
+        """
+        ...
+
 if __name__ == '__main__':
     filename = '../files/CNKI-refworks3.txt'
     ds = cnki_refworks.parse_file(filename)

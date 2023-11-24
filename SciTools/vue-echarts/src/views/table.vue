@@ -47,7 +47,6 @@ const gridOptions = reactive({
     {
       field: "doctype",
       title: "doctype",
-
       sortable: true,
     },
     { field: "kws", title: "kws", sortable: true },

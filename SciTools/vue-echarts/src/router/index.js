@@ -11,6 +11,11 @@ const routes = [
     path: "/chart",
     name: "chart",
     component: () => import(`../views/chart.vue`),
+  },
+  {
+    path: "/schema",
+    name: "schema",
+    component: () => import(`../views/schema.vue`),
     children: [
       {
         path: "/FreqYearly",
@@ -47,14 +52,19 @@ const routes = [
         name: "CoKws2",
         component: () => import(`../views/charts/CoKws2.vue`),
       },
-
       {
-        path: "/Parent",
-        name: "Parent",
-        component: () => import(`../views/charts/Parent.vue`),
+        path: "/BurstTerms",
+        name: "BurstTerms",
+        component: () => import(`../views/charts/BurstTerms.vue`),
+      },
+      {
+        path: "/Pupples",
+        name: "Pupples",
+        component: () => import(`../views/charts/Pupples.vue`),
       },
     ],
   },
+
   {
     path: "/graph",
     name: "graph",

@@ -6,6 +6,7 @@ mypy
 requests
 lxml
 pandas
+scikit-learn
 openpyxl
 pyecharts
 flask
