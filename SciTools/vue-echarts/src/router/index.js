@@ -62,6 +62,11 @@ const routes = [
         name: "Pupples",
         component: () => import(`../views/charts/Pupples.vue`),
       },
+      {
+        path: "/CSChart",
+        name: "CSChart",
+        component: () => import(`../views/charts/CSChart.vue`),
+      },
     ],
   },
 

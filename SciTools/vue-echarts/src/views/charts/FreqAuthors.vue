@@ -10,7 +10,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <base-echart :option="option"></base-echart>
+  <basic-echart :option="option"></basic-echart>
 </template>
 
 <style scoped></style>

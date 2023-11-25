@@ -46,7 +46,6 @@ const cancalDebounce = debounce(resizeHandler, 500);
 onMounted(() => {
   //配置为 svg 形式，预防页面缩放而出现模糊问题；图表过于复杂时建议使用 Canvas
   myChart = echarts.init(chartDom.value, null, { renderer: "svg" });
-  // myChart = echarts.init(chartDom.value)
   myChart.setOption(props.option, true);
   //自适应不同屏幕时改变图表尺寸
   window.addEventListener("resize", cancalDebounce);

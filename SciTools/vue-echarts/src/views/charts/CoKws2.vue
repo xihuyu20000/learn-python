@@ -393,7 +393,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <base-echart class="echarts" :option="option"></base-echart>
+  <basic-echart class="echarts" :option="option"></basic-echart>
 </template>
 
 <style scoped>

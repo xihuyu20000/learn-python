@@ -24,6 +24,7 @@ const urls = ref({
   关键词共现2: "/CoKws2",
   突现词: "/BurstTerms",
   气泡图: "/Pupples",
+  赛博空间图: "/CSChart",
 });
 </script>
     
