@@ -159,7 +159,7 @@ class cnki_refworks(ParserData):
 
 
     @staticmethod
-    def parse_file(filename: str) -> List[BiblioModel]:
+    def parse_file(filename: str) -> Tuple[List[BiblioModel],Tuple]:
         """
         解析cnki的refworks格式的数据
         """
@@ -186,7 +186,6 @@ class cnki_refworks(ParserData):
                     NO += 1
                     values = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '',
                               'AB': ''}
-
         return ds
 
     @staticmethod

@@ -1,4 +1,4 @@
-<template>知识图谱</template>
+<template>报告</template>
     
 <script setup lang='ts'>
 </script>

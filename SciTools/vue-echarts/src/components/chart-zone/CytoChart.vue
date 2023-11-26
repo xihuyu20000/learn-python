@@ -54,7 +54,7 @@ onMounted(() => {
           "line-color": "#ccc",
           "target-arrow-color": "#ccc",
           "target-arrow-shape": "triangle",
-          "curve-style": "bezier",
+          "curve-style": "unbundled-bezier",
         },
       },
     ],

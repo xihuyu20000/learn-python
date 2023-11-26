@@ -1,4 +1,7 @@
-from flask import Flask
+import os
+
+from flask import Flask, request
+from werkzeug.utils import secure_filename
 
 import settings
 from core.do_data import FreqStat, CoStat
@@ -11,9 +14,17 @@ app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'
 
 filename = '../files/CNKI-refworks3.txt'
 
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        file.save(os.path.join('d:/', filename))
+    return '上传成功'
 
 @app.route('/api/detail_table', methods=['GET'])
 def detail_table():
+    # columnNames = ('doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs')
     data = cnki_refworks.parse_file(filename)
     data = [m.to_dict() for m in data]
     return data

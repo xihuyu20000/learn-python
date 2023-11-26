@@ -14,14 +14,18 @@
     "deepmerge": "^4.3.1",
     "echarts": "^5.4.3",
     "element-plus": "^2.4.2",
+    "sortablejs": "^1.15.0",
+    "splitpanes": "^3.1.5",
     "unplugin-vue-components": "^0.25.2",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
+    "vuedraggable": "next",
     "vxe-table": "^4.5.13",
     "xe-utils": "^3.5.14"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
+    "@vitejs/plugin-vue-jsx": "^3.1.0",
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
     "unplugin-auto-import": "^0.16.7",

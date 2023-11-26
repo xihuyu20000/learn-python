@@ -67,6 +67,7 @@ watch(
 <style scoped>
 .echart {
   width: 100%;
-  height: 400px;
+  height: 800px;
+  background: #d5d5d5;
 }
 </style>

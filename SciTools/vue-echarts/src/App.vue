@@ -4,23 +4,23 @@ provide("echarts", echarts);
 </script>
 
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-aside width="50px" class="navcontainer">
-        <div class="navitem"><router-link to="/table">数据</router-link></div>
-        <div class="navitem"><router-link to="/chart">组件</router-link></div>
-        <div class="navitem"><router-link to="/schema">分析</router-link></div>
-        <div class="navitem"><router-link to="/graph">图谱</router-link></div>
-        <div class="navitem"><router-link to="/report">报告</router-link></div>
-        <div class="navitem">
-          <router-link to="/settings">配置</router-link>
-        </div>
-        <div class="navitem myicon">
-          <router-link to="/profile">我</router-link>
-        </div>
-      </el-aside>
-      <el-main> <router-view></router-view></el-main>
-    </el-container>
+  <div
+    style="display: flex; width: 100%; height: 100%; background-color: #f2f2f2"
+  >
+    <div style="width: 50px; min-width: 50px" class="navcontainer">
+      <div class="navitem"><router-link to="/table">数据</router-link></div>
+      <div class="navitem"><router-link to="/chart">组件</router-link></div>
+      <div class="navitem"><router-link to="/schema">分析</router-link></div>
+      <div class="navitem"><router-link to="/graph">图谱</router-link></div>
+      <div class="navitem"><router-link to="/report">报告</router-link></div>
+      <div class="navitem">
+        <router-link to="/settings">配置</router-link>
+      </div>
+      <div class="navitem">
+        <router-link to="/mine">我</router-link>
+      </div>
+    </div>
+    <div style="flex-grow: 1"><router-view></router-view></div>
   </div>
 </template>
 
@@ -42,13 +42,10 @@ provide("echarts", echarts);
     line-height: 60px;
     border-radius: 2px;
     cursor: pointer;
-  }
 
-  .myicon {
-    position: absolute;
-    bottom: 0;
-
-    border-radius: 0;
+    a:link {
+      text-decoration: none;
+    }
   }
 }
 
