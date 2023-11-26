@@ -1,21 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%; display: flex">
-    <div style="width: 150px; display: flex; flex-direction: column">
-      <div
-        style="
-          height: 100px;
-          max-height: 100px;
-          background-color: #ababab;
-          margin: 0 auto;
-        "
-      >
-        <uploaded></uploaded>
-      </div>
-      <div style="flex: 1"></div>
-      <div style="height: 32px; margin: 0 auto">
-        <el-button primary>定时更新数据</el-button>
-      </div>
-    </div>
+    <uploaded></uploaded>
     <div style="flex: 1">
       <vxe-grid v-bind="gridOptions" height="auto" ref="edTable">
         <template #toolbar_buttons>
