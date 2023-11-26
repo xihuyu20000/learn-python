@@ -7,14 +7,32 @@ import settings
 from core.do_data import FreqStat, CoStat
 from core.parse_data import cnki_refworks
 from server import acc_sum
+from cfg import PathInfo
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.config['JSONIFY_MIMETYPE'] = 'application/json;charset=utf-8'
 
-filename = '../files/CNKI-refworks3.txt'
 
-@app.route('/api/upload', methods=['POST'])
+
+
+def __list_datafiles():
+    dir = PathInfo.get('data_dir')
+    return [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+@app.get('/api/list_datafiles')
+def list_datafiles():
+    return __list_datafiles()
+@app.get('/api/get_config_datadir')
+def get_config_datadir():
+    return PathInfo.get('data_dir')
+
+
+@app.post('/api/save_config')
+def save_config():
+    data = request.get_json(silent=True)
+    PathInfo.update('data_dir', data['data_dir'])
+    return 'ok'
+@app.post('/api/upload')
 def upload_file():
     if request.method == 'POST':
         file = request.files['file']
@@ -22,10 +40,13 @@ def upload_file():
         file.save(os.path.join('d:/', filename))
     return '上传成功'
 
-@app.route('/api/detail_table', methods=['GET'])
-def detail_table():
+@app.get('/api/detail_table/<index>')
+def detail_table(index):
+    path = __list_datafiles()
+    path = path[int(index)]
+    path = os.path.join(dir, path)
     # columnNames = ('doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs')
-    data = cnki_refworks.parse_file(filename)
+    data = cnki_refworks.parse_file(path)
     data = [m.to_dict() for m in data]
     return data
 

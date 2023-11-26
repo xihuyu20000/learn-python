@@ -1,21 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%; display: flex">
-    <div style="width: 150px; display: flex; flex-direction: column">
-      <div
-        style="
-          height: 100px;
-          max-height: 100px;
-          background-color: #ababab;
-          margin: 0 auto;
-        "
-      >
-        <uploaded></uploaded>
-      </div>
-      <div style="flex: 1"></div>
-      <div style="height: 32px; margin: 0 auto">
-        <el-button primary>定时更新数据</el-button>
-      </div>
-    </div>
+    <uploaded></uploaded>
     <div style="flex: 1">
       <vxe-grid v-bind="gridOptions" height="auto" ref="edTable">
         <template #toolbar_buttons>
@@ -38,7 +23,7 @@
 <script setup>
 import Sortable from "sortablejs";
 import { onMounted, nextTick, getCurrentInstance } from "vue";
-import { detail_table } from "../../api/data";
+import { detail_table } from "@/api/data";
 const edTable = ref(null);
 
 // 统计每一列的空行数量
@@ -56,7 +41,7 @@ const countNull = (list, field) => {
 let oldList = [],
   newList = [];
 const columnDrop = () => {
-  const $table = getCurrentInstance().ctx.$refs.edTable;
+  const $table = edTable.value;
   nextTick(() => {
     let sortable2 = Sortable.create(
       $table.$el.querySelector(
@@ -93,17 +78,15 @@ const columnDrop = () => {
           const currRow = fullColumn.splice(oldColumnIndex, 1)[0];
           fullColumn.splice(newColumnIndex, 0, currRow);
           $table.loadColumn(fullColumn);
-          console.log("新的列", fullColumn);
         },
       }
     );
   });
 };
 /** 保存 */
-function saveRows() {
-  const $table = getCurrentInstance().ctx.$refs.edTable;
-  console.log($table.getRecordset());
-}
+const saveRows = () => {
+  console.log(edTable.value.getRecordset());
+};
 const gridOptions = reactive({
   border: true,
   stripe: true,
@@ -180,7 +163,7 @@ const gridOptions = reactive({
     ajax: {
       query: ({ page, sort, filters }) => {
         return detail_table().then((resp) => {
-          return resp.data;
+          return resp;
         });
       },
     },
@@ -259,6 +242,8 @@ const gridOptions = reactive({
   },
 });
 
+// 加载数据
+function load_data() {}
 onMounted(() => {
   columnDrop();
 });

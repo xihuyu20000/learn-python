@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%; display: flex">
-    <uploaded></uploaded>
+    <uploaded @refresh="refreshGrid"></uploaded>
     <div style="flex: 1">
       <vxe-grid v-bind="gridOptions" height="auto" ref="edTable">
         <template #toolbar_buttons>
@@ -21,11 +21,12 @@
 </template>
     
 <script setup>
+import { useMainStore } from "../../store";
 import Sortable from "sortablejs";
 import { onMounted, nextTick, getCurrentInstance } from "vue";
-import { detail_table } from "../../api/data";
+import { detail_table } from "@/api/data";
 const edTable = ref(null);
-
+const mainStore = useMainStore();
 // 统计每一列的空行数量
 const countNull = (list, field) => {
   let count = 0;
@@ -162,8 +163,8 @@ const gridOptions = reactive({
   proxyConfig: {
     ajax: {
       query: ({ page, sort, filters }) => {
-        return detail_table().then((resp) => {
-          return resp.data;
+        return detail_table(mainStore.current_datafile_index).then((resp) => {
+          return resp;
         });
       },
     },
@@ -242,6 +243,11 @@ const gridOptions = reactive({
   },
 });
 
+// 刷新表格数据
+const refreshGrid = (index) => {
+  console.log("传过来的文件名", index);
+  edTable.value.commitProxy("query");
+};
 onMounted(() => {
   columnDrop();
 });

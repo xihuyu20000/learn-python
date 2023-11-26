@@ -37,4 +37,48 @@ service.interceptors.response.use(
   }
 );
 
-export default service;
+/**
+ * 封装get方法
+ * @param url
+ * @param data
+ * @returns {Promise}
+ */
+export function get(url, params = {}) {
+  // service.defaults.headers = {
+  //   "Content-Type": "application/json; charset=utf-8",
+  // };
+  return new Promise((resolve, reject) => {
+    service
+      .get(url, {
+        params: params,
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
+
+/**
+ * 封装post请求
+ * @param url
+ * @param data
+ * @returns {Promise}
+ */
+export function post(url, data = {}) {
+  // service.defaults.headers = {
+  //   "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+  // };
+  return new Promise((resolve, reject) => {
+    service.post(url, data).then(
+      (response) => {
+        resolve(response.data);
+      },
+      (err) => {
+        reject(err);
+      }
+    );
+  });
+}
