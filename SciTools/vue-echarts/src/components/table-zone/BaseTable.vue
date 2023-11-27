@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%; display: flex">
-    <uploaded @refresh="refreshGrid"></uploaded>
+    <data-file-list @refresh="refreshGrid"></data-file-list>
     <div style="flex: 1">
       <vxe-grid v-bind="gridOptions" height="auto" ref="edTable">
         <template #toolbar_buttons>
@@ -11,8 +11,9 @@
           <vxe-button>分组汇总</vxe-button>
           <vxe-button>过滤</vxe-button>
           <vxe-button>排序</vxe-button>
-          <vxe-button>拆分行</vxe-button>
+
           <vxe-button>拆分列</vxe-button>
+          <vxe-button @click="refresh">刷新</vxe-button>
           <vxe-button @click="saveRows">保存</vxe-button>
         </template>
       </vxe-grid>
@@ -23,9 +24,13 @@
 <script setup>
 import { useMainStore } from "../../store";
 import Sortable from "sortablejs";
-import { onMounted, nextTick, getCurrentInstance } from "vue";
+import { onMounted, nextTick } from "vue";
 import { detail_table } from "@/api/data";
+// 数据表格本身
 const edTable = ref(null);
+// 数据文件类型
+const dataStyle = ref("cnki");
+// 数据存储对象
 const mainStore = useMainStore();
 // 统计每一列的空行数量
 const countNull = (list, field) => {
@@ -163,7 +168,10 @@ const gridOptions = reactive({
   proxyConfig: {
     ajax: {
       query: ({ page, sort, filters }) => {
-        return detail_table(mainStore.current_datafile_index).then((resp) => {
+        return detail_table(
+          dataStyle.value,
+          mainStore.current_datafile_index
+        ).then((resp) => {
           return resp;
         });
       },
@@ -244,8 +252,9 @@ const gridOptions = reactive({
 });
 
 // 刷新表格数据
-const refreshGrid = (index) => {
-  console.log("传过来的文件名", index);
+const refreshGrid = (style, index) => {
+  dataStyle.value = style;
+  console.log("传过来的文件名", style, index);
   edTable.value.commitProxy("query");
 };
 onMounted(() => {

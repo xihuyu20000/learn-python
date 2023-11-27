@@ -26,6 +26,20 @@ def list_datafiles():
 def get_config_datadir():
     return PathInfo.get('data_dir')
 
+@app.post('/api/combine_datafiles')
+def combine_datafiles():
+    data = request.get_json(silent=True)
+
+    files = [fname for i, fname in enumerate(__list_datafiles()) if i in data['ids']]
+
+    dir = PathInfo.get('data_dir')
+    with open(os.path.join(dir, data['newfilename']), 'w', encoding='utf-8') as writer:
+        for f in files:
+            with open(os.path.join(dir, f), encoding='utf-8') as reader:
+                writer.writelines(reader.readlines())
+                writer.write('\r\n')
+
+    return "ok"
 
 @app.post('/api/save_config')
 def save_config():
@@ -40,11 +54,13 @@ def upload_file():
         file.save(os.path.join('d:/', filename))
     return '上传成功'
 
-@app.get('/api/detail_table/<index>')
-def detail_table(index):
+@app.get('/api/detail_table/<style>/<index>')
+def detail_table(style, index):
+    print('需要解析的文件类型', style)
     path = __list_datafiles()
     path = path[int(index)]
-    path = os.path.join(dir, path)
+
+    path = os.path.join(PathInfo.get('data_dir'), path)
     # columnNames = ('doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs')
     data = cnki_refworks.parse_file(path)
     data = [m.to_dict() for m in data]

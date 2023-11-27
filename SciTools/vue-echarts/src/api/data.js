@@ -1,5 +1,10 @@
 import { get, post } from "../utils/request";
 
+// 合并数据文件
+export function combine_datafiles(data) {
+  return post("/combine_datafiles", data);
+}
+// 显示所有数据文件
 export function list_datafiles() {
   return get("/list_datafiles");
 }
@@ -13,8 +18,8 @@ export function save_config(data) {
   return post("/save_config", data);
 }
 // 表格
-export function detail_table(index) {
-  return get("/detail_table/" + index);
+export function detail_table(style, index) {
+  return get("/detail_table/" + style + "/" + index);
 }
 
 // 历年发文量
