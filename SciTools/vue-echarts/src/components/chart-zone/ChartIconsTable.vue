@@ -1,101 +1,181 @@
 <template>
-  <el-container style="margin: 0; padding: 0">
-    <span style="margin-bottom: 5px">图表类型</span>
-    <el-header style="height: 120px; margin: 0; padding: 0">
-      <div class="chart-style-icon">
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格1" />
+  <div style="width: 150px; height: 100vh">
+    <el-collapse accordion v-model="activeCollapseItem">
+      <el-collapse-item
+        :name="index"
+        v-for="(styleList, seriealName, index) in chartStyles"
+        :key="index"
+      >
+        <template #title> <el-icon></el-icon>{{ seriealName }} </template>
+        <div class="big-box">
+          <div
+            class="box"
+            v-for="(chart, i) in styleList"
+            :key="i"
+            @dblclick="choose_chart_style($event, chart)"
+          >
+            <img
+              draggable="true"
+              src="../../assets/1.jpg"
+              :title="chart.title"
+            />
+            <span class="title">{{ chart.name }}</span>
+          </div>
         </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格2" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格3" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格4" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格5" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格6" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格7" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格8" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格1" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格2" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格3" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格4" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格5" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格6" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格7" />
-        </div>
-        <div class="icon">
-          <img src="../../assets/biaoge.png" alt="表格8" />
-        </div>
-      </div>
-    </el-header>
-    <el-tabs :stretch="true">
-      <el-tab-pane label="样式" name="first">
-        <div class="input-item">
-          <span class="input-label">颜色</span
-          ><vxe-input style="width: 150px" size="mini"></vxe-input>
-        </div>
-        <div class="input-item">
-          <span class="input-label">大小</span>
-          <vxe-input style="width: 150px" size="mini"></vxe-input>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="数据" name="second">数据</el-tab-pane>
-      <el-tab-pane label="事件" name="third">事件</el-tab-pane>
-    </el-tabs>
-  </el-container>
+      </el-collapse-item>
+    </el-collapse>
+  </div>
 </template>
     
-<script setup lang='ts'>
+<script setup>
+import { useMainStore } from "../../store";
+import { VXETable } from "vxe-table";
+// 数据存储对象
+const mainStore = useMainStore();
+// 激活的折叠面板
+const activeCollapseItem = ref(["0"]);
+
+// 图表类型
+const chartStyles = ref({
+  折线图: [
+    {
+      cno: 1001,
+      name: "基础折线图",
+      pic: "../../../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+      color: "",
+    },
+    {
+      cno: 1002,
+      name: "基础面积图",
+      pic: "@/assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+      color: "",
+    },
+    {
+      cno: 1003,
+      name: "折叠图堆叠",
+      pic: "@/assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+      color: "",
+    },
+    {
+      cno: 1004,
+      name: "堆叠面积图",
+      pic: "@/assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+      color: "",
+    },
+  ],
+  柱状图: [
+    {
+      name: "基础折线图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "基础面积图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "折叠图堆叠",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "堆叠面积图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+  ],
+  饼图: [
+    {
+      name: "基础折线图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "基础面积图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "折叠图堆叠",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+    {
+      name: "堆叠面积图",
+      pic: "../../assets/1.jpg",
+      type: "line",
+      title: "图片说明",
+    },
+  ],
+  面积图: [],
+  环饼图: [],
+  散点图: [],
+  雷达图: [],
+  雷达图: [],
+  树形图: [],
+  关系图: [],
+});
+// 选中图表类型
+function choose_chart_style(event, chart) {
+  console.log(chart);
+  mainStore.save_current_chartstyle_index(chart.cno);
+  //TODO  改变选中图片的背景色
+  VXETable.modal.message({
+    content: "选中图表——" + chart.name,
+    status: "success",
+  });
+}
 </script>
     
-<style scoped>
-.chart-style-icon {
-  width: 100%;
-
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-}
-.chart-style-icon .icon {
-}
-.chart-style-icon .icon img {
-  width: 25px;
+<style lang="scss" >
+.el-collapse-item__header {
   height: 25px;
+  background-color: #faebeb;
+  font-size: 1em;
 }
-.chart-style-icon .icon img:hover {
-  background-color: red;
+.el-collapse-item__content {
+  padding-bottom: 0px;
 }
+.big-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 60px;
+    .title {
+      font-size: 0.7em;
+    }
 
-.input-item {
-  margin-bottom: 5px;
-}
-.input-label {
-  font-size: 14px;
-  margin-right: 5px;
+    img {
+      width: 30px;
+      height: 30px;
+      vertical-align: text-bottom;
+    }
+    img:hover {
+      cursor: pointer;
+    }
+  }
 }
 </style>

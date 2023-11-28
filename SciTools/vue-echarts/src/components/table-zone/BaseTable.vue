@@ -4,16 +4,7 @@
     <div style="flex: 1">
       <vxe-grid v-bind="gridOptions" height="auto" ref="edTable">
         <template #toolbar_buttons>
-          <vxe-button>新增公式列</vxe-button>
-          <vxe-button>新增汇总列</vxe-button>
-          <vxe-button>新增赋值列</vxe-button>
-          <vxe-button>条件标签列</vxe-button>
-          <vxe-button>分组汇总</vxe-button>
-          <vxe-button>过滤</vxe-button>
-          <vxe-button>排序</vxe-button>
-
-          <vxe-button>拆分列</vxe-button>
-          <vxe-button @click="refresh">刷新</vxe-button>
+          <vxe-button @click="refreshGrid">刷新</vxe-button>
           <vxe-button @click="saveRows">保存</vxe-button>
         </template>
       </vxe-grid>
@@ -91,11 +82,11 @@ const columnDrop = () => {
 };
 /** 保存 */
 const saveRows = () => {
-  console.log(edTable.value.getRecordset());
+  let fullData = edTable.value.getTableData().fullData;
+  console.log(fullData[0]);
 };
 const gridOptions = reactive({
   border: true,
-  stripe: true,
   showFooter: true,
   autorResize: true,
   showOverflow: true,

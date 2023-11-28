@@ -62,7 +62,7 @@ def detail_table(style, index):
 
     path = os.path.join(PathInfo.get('data_dir'), path)
     # columnNames = ('doctype', 'authors', 'orgs', 'title', 'source', 'pubyear', 'kws', 'abs')
-    data = cnki_refworks.parse_file(path)
+    data = cnki_refworks.parse_file([path])
     data = [m.to_dict() for m in data]
     return data
 
@@ -72,7 +72,11 @@ def freq_yearly():
     """
     历年发文量
     """
-    data = cnki_refworks.parse_file(filename)
+    path = __list_datafiles()
+    path = path[1]
+
+    path = os.path.join(PathInfo.get('data_dir'), path)
+    data = cnki_refworks.parse_file([path])
     freqStat = FreqStat(data)
     result = freqStat.freq_yearly()
 

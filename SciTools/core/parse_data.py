@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 
 import pandas as pd
 
-from core import abs_path, ROOT_DIR
+from core import abs_path, ROOT_DIR, Logger
 from core.models import BiblioModel
 
 """
@@ -159,34 +159,36 @@ class cnki_refworks(ParserData):
 
 
     @staticmethod
-    def parse_file(filename: str) -> Tuple[List[BiblioModel],Tuple]:
+    def parse_file(abs_filenames: List[str]) -> Tuple[List[BiblioModel],Tuple]:
         """
         解析cnki的refworks格式的数据
         """
-        filename = abs_path(filename)
-
         ds = []
-        with open(filename, encoding='utf-8') as f:
-            NO = 1
-            values: Dict[str, int | str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
-                                            'FD': '',
-                                            'K1': '',
-                                            'AB': ''}
-            for linone, line in enumerate(f.readlines()):
-                # 前2个字母是具体的key
-                name = line[:2].strip()
-                if name in cnki_refworks.CORE_ITEMS:
-                    values[name] = line[2:].strip()
+        Logger.debug('解析的文件名'+' '.join(abs_filenames))
+        for filename in abs_filenames:
+            with open(filename, encoding='utf-8') as f:
+                NO = 1
+                values: Dict[str, int | str] = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
+                                                'FD': '',
+                                                'K1': '',
+                                                'AB': ''}
+                for linone, line in enumerate(f.readlines()):
+                    # 前2个字母是具体的key
+                    name = line[:2].strip()
+                    if name in cnki_refworks.CORE_ITEMS:
+                        values[name] = line[2:].strip()
 
-                # 空行，表示上一条结束，新的一条开始
-                if len(line.strip()) == 0:
-                    if values and len(values['RT']) > 0:
-                        ds.append(BiblioModel.from_cnki_refworks(values))
-                    # 每次初始化数据
-                    NO += 1
-                    values = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '',
-                              'AB': ''}
+                    # 空行，表示上一条结束，新的一条开始
+                    if len(line.strip()) == 0:
+                        if values and len(values['RT']) > 0:
+                            ds.append(BiblioModel.from_cnki_refworks(values))
+                        # 每次初始化数据
+                        NO += 1
+                        values = {'NO': NO, 'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '',
+                                  'AB': ''}
+
         return ds
+
 
     @staticmethod
     def distinct(dataset:List[BiblioModel]) -> List[BiblioModel]:

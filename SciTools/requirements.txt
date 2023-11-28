@@ -5,6 +5,7 @@ coverage
 mypy
 requests
 lxml
+toml
 pandas
 scikit-learn
 openpyxl

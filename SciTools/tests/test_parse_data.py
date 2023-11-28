@@ -1,8 +1,7 @@
 """
 
 """
-
-from core.parse_data import cnki_gbt_7714_2015, cnki_refworks, BiblioModel
+from core.models import BiblioModel
 
 
 def test001():

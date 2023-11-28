@@ -8,13 +8,16 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
-                            QSize, Qt)
-from PySide6.QtGui import (QCursor,
-                           QFont, QIcon)
-from PySide6.QtWidgets import (QFrame, QHBoxLayout, QMenuBar, QSizePolicy, QSpacerItem, QStackedWidget,
-                               QStatusBar, QToolButton, QVBoxLayout, QWidget)
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QMainWindow,
+    QMenuBar, QSizePolicy, QSpacerItem, QStackedWidget,
+    QStatusBar, QToolButton, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -41,7 +44,7 @@ class Ui_MainWindow(object):
         font = QFont()
         font.setBold(True)
         self.gbl_btn_menu.setFont(font)
-        self.gbl_btn_menu.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_menu.setCursor(QCursor(Qt.ArrowCursor))
         icon = QIcon()
         icon.addFile(u"icons/biaochaxun.png", QSize(), QIcon.Normal, QIcon.Off)
         self.gbl_btn_menu.setIcon(icon)
@@ -55,7 +58,7 @@ class Ui_MainWindow(object):
         self.gbl_btn_my_analysis.setMinimumSize(QSize(60, 70))
         self.gbl_btn_my_analysis.setMaximumSize(QSize(60, 70))
         self.gbl_btn_my_analysis.setFont(font)
-        self.gbl_btn_my_analysis.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_my_analysis.setCursor(QCursor(Qt.ArrowCursor))
         self.gbl_btn_my_analysis.setIcon(icon)
         self.gbl_btn_my_analysis.setIconSize(QSize(50, 50))
         self.gbl_btn_my_analysis.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -67,7 +70,7 @@ class Ui_MainWindow(object):
         self.gbl_btn_public_data.setMinimumSize(QSize(60, 70))
         self.gbl_btn_public_data.setMaximumSize(QSize(60, 70))
         self.gbl_btn_public_data.setFont(font)
-        self.gbl_btn_public_data.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_public_data.setCursor(QCursor(Qt.ArrowCursor))
         self.gbl_btn_public_data.setIcon(icon)
         self.gbl_btn_public_data.setIconSize(QSize(50, 50))
         self.gbl_btn_public_data.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -79,7 +82,7 @@ class Ui_MainWindow(object):
         self.gbl_btn_mis.setMinimumSize(QSize(60, 70))
         self.gbl_btn_mis.setMaximumSize(QSize(60, 70))
         self.gbl_btn_mis.setFont(font)
-        self.gbl_btn_mis.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_mis.setCursor(QCursor(Qt.ArrowCursor))
         self.gbl_btn_mis.setIcon(icon)
         self.gbl_btn_mis.setIconSize(QSize(50, 50))
         self.gbl_btn_mis.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -91,7 +94,7 @@ class Ui_MainWindow(object):
         self.gbl_btn_user_center.setMinimumSize(QSize(60, 70))
         self.gbl_btn_user_center.setMaximumSize(QSize(60, 70))
         self.gbl_btn_user_center.setFont(font)
-        self.gbl_btn_user_center.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_user_center.setCursor(QCursor(Qt.ArrowCursor))
         self.gbl_btn_user_center.setIcon(icon)
         self.gbl_btn_user_center.setIconSize(QSize(50, 50))
         self.gbl_btn_user_center.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -103,7 +106,7 @@ class Ui_MainWindow(object):
         self.gbl_btn_bi_tool.setMinimumSize(QSize(60, 70))
         self.gbl_btn_bi_tool.setMaximumSize(QSize(60, 70))
         self.gbl_btn_bi_tool.setFont(font)
-        self.gbl_btn_bi_tool.setCursor(QCursor(Qt.OpenHandCursor))
+        self.gbl_btn_bi_tool.setCursor(QCursor(Qt.ArrowCursor))
         self.gbl_btn_bi_tool.setIcon(icon)
         self.gbl_btn_bi_tool.setIconSize(QSize(50, 50))
         self.gbl_btn_bi_tool.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -113,6 +116,7 @@ class Ui_MainWindow(object):
         self.verticalSpacer = QSpacerItem(20, 61, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
+
 
         self.horizontalLayout.addWidget(self.frame)
 
@@ -152,8 +156,8 @@ class Ui_MainWindow(object):
 
         self.mainContainer.setCurrentIndex(4)
 
-        QMetaObject.connectSlotsByName(MainWindow)
 
+        QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -165,3 +169,4 @@ class Ui_MainWindow(object):
         self.gbl_btn_user_center.setText(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4e2d\u5fc3", None))
         self.gbl_btn_bi_tool.setText(QCoreApplication.translate("MainWindow", u"BI\u5de5\u5177", None))
     # retranslateUi
+

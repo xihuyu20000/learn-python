@@ -1,30 +1,33 @@
 <template>
-  <vxe-select placeholder="员工表">
-    <vxe-option
-      v-for="num in 15"
-      :key="num"
-      :value="num"
-      :label="`选项${num}`"
-    ></vxe-option>
-  </vxe-select>
-  <hr />
-  <div>员工表</div>
-  <vxe-list
-    class="my-table-list"
-    height="200"
-    :data="datalist"
-    :scroll-y="{ enabled: true, gt: 60, sItem: '.my-tr' }"
-  >
-    <template #default="{ items }">
-      <table>
-        <tbody>
-          <tr class="my-tr" v-for="item in items" :key="item.id">
-            <td draggable="true">{{ item.label }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-  </vxe-list>
+  <div style="width: 200px">
+    <vxe-select placeholder="员工表">
+      <vxe-option
+        v-for="num in 15"
+        :key="num"
+        :value="num"
+        :label="`选项${num}`"
+      ></vxe-option>
+    </vxe-select>
+    <hr />
+    <div>员工表</div>
+    <vxe-list
+      class="my-table-list"
+      height="200"
+      :data="datalist"
+      :scroll-y="{ enabled: true, gt: 60, sItem: '.my-tr' }"
+    >
+      <template #default="{ items }">
+        <table>
+          <tbody>
+            <tr class="my-tr" v-for="item in items" :key="item.id">
+              <td draggable="true">{{ item.label }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+    </vxe-list>
+    <chart-style-event></chart-style-event>
+  </div>
 </template>
     
 <script setup>

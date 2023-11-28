@@ -1,73 +1,39 @@
 <template>
-  <el-container>
-    <el-aside width="200px"> <column-names></column-names> </el-aside>
-    <el-aside width="200px">
-      <chart-icons-table></chart-icons-table>
-    </el-aside>
-    <el-container>
-      <el-header style="margin: 0; padding: 0">
-        <!-- 拖入维度、指标区域 -->
-        <drop-down-data></drop-down-data>
-      </el-header>
-      <el-main style="padding: 0"
-        ><div class="echart" ref="chartDom"></div
-      ></el-main>
-    </el-container>
-  </el-container>
+  <div style="width: 100%; height: 100%; display: flex">
+    <chart-icons-table></chart-icons-table>
+    <column-names></column-names>
+    <div style="flex: 1">
+      <sub-chart-1001
+        :option="option"
+        v-if="1001 == mainStore.current_chartstyle_index"
+      ></sub-chart-1001>
+      <sub-chart-1002
+        v-if="1002 == mainStore.current_chartstyle_index"
+      ></sub-chart-1002>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import ColumnNames from "./ColumnNames.vue";
-const echarts = inject("echarts");
-//获取 dom 和 父组件数据 并定义"myChart"用于初始化图表
-const chartDom = ref();
-let myChart = null;
-const props = defineProps({
-  option: Object,
-});
-//重绘图表函数
-const resizeHandler = () => {
-  myChart.resize();
-};
-//设置防抖，保证无论拖动窗口大小，只执行一次获取浏览器宽高的方法
-const debounce = (fun, delay) => {
-  let timer;
-  return function () {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-      fun();
-    }, delay);
-  };
-};
-const cancalDebounce = debounce(resizeHandler, 500);
-//页面成功渲染，开始绘制图表
-onMounted(() => {
-  //配置为 svg 形式，预防页面缩放而出现模糊问题；图表过于复杂时建议使用 Canvas
-  myChart = echarts.init(chartDom.value, null, { renderer: "svg" });
-  myChart.setOption(props.option, true);
-  //自适应不同屏幕时改变图表尺寸
-  window.addEventListener("resize", cancalDebounce);
-});
-//页面销毁前，销毁事件和实例
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", cancalDebounce);
-  myChart.dispose();
-});
-//监听图表数据时候变化，重新渲染图表
-watch(
-  () => props.option,
-  () => {
-    myChart.setOption(props.option, true);
+import { useMainStore } from "../../store";
+// 数据存储对象
+const mainStore = useMainStore();
+
+const option = ref({
+  xAxis: {
+    type: "category",
+    data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   },
-  { deep: true }
-);
+  yAxis: {
+    type: "value",
+  },
+  series: [
+    {
+      data: [150, 230, 224, 218, 135, 147, 260],
+      type: "line",
+    },
+  ],
+});
 </script>
 <style scoped>
-.echart {
-  width: 100%;
-  height: 800px;
-  background: #d5d5d5;
-}
 </style>

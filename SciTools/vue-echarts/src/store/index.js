@@ -5,15 +5,20 @@ export const useMainStore = defineStore("main", {
 
   state: () => ({
     current_datafile_index: "",
+    current_chartstyle_index: "",
   }),
 
   getters: {
     int: (current_datafile_index) => state.current_datafile_index,
+    int: (current_chartstyle_index) => state.current_chartstyle_index,
   },
 
   actions: {
     save_current_datafile_index(i) {
       this.current_datafile_index = i;
+    },
+    save_current_chartstyle_index(i) {
+      this.current_chartstyle_index = i;
     },
   },
 
