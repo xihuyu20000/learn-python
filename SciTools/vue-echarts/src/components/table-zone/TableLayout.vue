@@ -248,6 +248,7 @@ const refreshGrid = (style, index) => {
   console.log("传过来的文件名", style, index);
   edTable.value.commitProxy("query");
 };
+
 onMounted(() => {
   columnDrop();
 });

@@ -146,7 +146,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <basic-echart class="echarts" :option="option"></basic-echart>
+  <chart-layout :option="option"></chart-layout>
 </template>
 
 <style scoped>

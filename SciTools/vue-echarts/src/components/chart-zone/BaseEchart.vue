@@ -1,30 +1,16 @@
 <template>
-  <el-container>
-    <el-aside width="200px"> <column-names></column-names> </el-aside>
-    <el-aside width="200px">
-      <chart-icons-table></chart-icons-table>
-    </el-aside>
-    <el-container>
-      <el-header style="margin: 0; padding: 0">
-        <!-- 拖入维度、指标区域 -->
-        <drop-down-data></drop-down-data>
-      </el-header>
-      <el-main style="padding: 0"
-        ><div class="echart" ref="chartDom"></div
-      ></el-main>
-    </el-container>
-  </el-container>
+  <div class="echart" ref="chartDom"></div>
 </template>
 
 <script setup>
-import ColumnNames from "./ColumnNames.vue";
+import { useMainStore } from "../../store";
+// 数据存储对象
+const mainStore = useMainStore();
+// 引入echarts组件
 const echarts = inject("echarts");
 //获取 dom 和 父组件数据 并定义"myChart"用于初始化图表
 const chartDom = ref();
 let myChart = null;
-const props = defineProps({
-  option: Object,
-});
 //重绘图表函数
 const resizeHandler = () => {
   myChart.resize();
@@ -46,7 +32,9 @@ const cancalDebounce = debounce(resizeHandler, 500);
 onMounted(() => {
   //配置为 svg 形式，预防页面缩放而出现模糊问题；图表过于复杂时建议使用 Canvas
   myChart = echarts.init(chartDom.value, null, { renderer: "svg" });
-  myChart.setOption(props.option, true);
+  // myChart = echarts.init(chartDom.value)
+  let opt = mainStore.get_current_chart_option;
+  myChart.setOption(opt, true);
   //自适应不同屏幕时改变图表尺寸
   window.addEventListener("resize", cancalDebounce);
 });
@@ -57,9 +45,9 @@ onBeforeUnmount(() => {
 });
 //监听图表数据时候变化，重新渲染图表
 watch(
-  () => props.option,
+  () => mainStore.get_current_chart_option,
   () => {
-    myChart.setOption(props.option, true);
+    myChart.setOption(mainStore.get_current_chart_option, true);
   },
   { deep: true }
 );
@@ -67,7 +55,6 @@ watch(
 <style scoped>
 .echart {
   width: 100%;
-  height: 800px;
-  background: #d5d5d5;
+  height: 100%;
 }
 </style>

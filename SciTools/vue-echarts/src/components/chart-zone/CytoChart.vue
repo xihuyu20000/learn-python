@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-aside width="200px"> <column-names></column-names> </el-aside>
+    <el-aside width="200px"> </el-aside>
     <el-aside width="200px">
       <chart-icons-table></chart-icons-table>
     </el-aside>
@@ -15,7 +15,7 @@
 
 <script setup>
 import { onMounted } from "vue";
-import ColumnNames from "./ColumnNames.vue";
+
 import cytoscape from "cytoscape";
 
 const props = defineProps({

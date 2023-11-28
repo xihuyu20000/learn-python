@@ -1,11 +1,11 @@
 import CytoChart from "./chart-zone/CytoChart.vue";
-import BasicEChart from "./chart-zone/BasicEChart.vue";
-import BaseTable from "./table-zone/BaseTable.vue";
+import ChartLayout from "./chart-zone/ChartLayout.vue";
+import TableLayout from "./table-zone/TableLayout.vue";
 
 export default {
   install(Vue) {
     Vue.component("CytoChart", CytoChart);
-    Vue.component("BasicEChart", BasicEChart);
-    Vue.component("BaseTable", BaseTable);
+    Vue.component("ChartLayout", ChartLayout);
+    Vue.component("TableLayout", TableLayout);
   },
 };

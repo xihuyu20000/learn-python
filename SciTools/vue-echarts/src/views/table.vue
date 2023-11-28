@@ -1,5 +1,5 @@
 <template>
-  <base-table></base-table>
+  <table-layout></table-layout>
 </template>
     
 <script setup>

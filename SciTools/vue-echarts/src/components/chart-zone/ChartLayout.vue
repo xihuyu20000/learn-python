@@ -1,14 +1,14 @@
 <template>
   <div style="width: 100%; height: 100%; display: flex">
     <chart-icons-table></chart-icons-table>
-    <column-names></column-names>
+    <chart-data-style></chart-data-style>
     <div style="flex: 1">
       <sub-chart-1001
         :option="option"
-        v-if="1001 == mainStore.current_chartstyle_index"
+        v-if="1001 == mainStore.get_current_chartstyle_index"
       ></sub-chart-1001>
       <sub-chart-1002
-        v-if="1002 == mainStore.current_chartstyle_index"
+        v-if="1002 == mainStore.get_current_chartstyle_index"
       ></sub-chart-1002>
     </div>
   </div>

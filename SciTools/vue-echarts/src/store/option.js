@@ -1,3 +1,92 @@
+export function option_mapping(i) {
+  if (i >= 1001) {
+    let option1001 = {
+      title: {
+        text: "Stacked Line",
+        textStyle: {},
+      },
+      tooltip: {
+        trigger: "axis",
+      },
+      legend: {
+        data: ["Email", "Union Ads", "Video Ads", "Direct", "Search Engine"],
+      },
+      grid: {
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
+      },
+      toolbox: {
+        feature: {
+          saveAsImage: {},
+        },
+      },
+      xAxis: {
+        type: "category",
+        boundaryGap: false,
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      },
+      yAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          name: "Email",
+          type: "line",
+          stack: "Total",
+          data: [120, 132, 101, 134, 90, 230, 210],
+        },
+        {
+          name: "Union Ads",
+          type: "line",
+          stack: "Total",
+          data: [220, 182, 191, 234, 290, 330, 310],
+        },
+        {
+          name: "Video Ads",
+          type: "line",
+          stack: "Total",
+          data: [150, 232, 201, 154, 190, 330, 410],
+        },
+        {
+          name: "Direct",
+          type: "line",
+          stack: "Total",
+          data: [320, 332, 301, 334, 390, 330, 320],
+        },
+        {
+          name: "Search Engine",
+          type: "line",
+          stack: "Total",
+          data: [820, 932, 901, 934, 1290, 1330, 1320],
+        },
+      ],
+    };
+    return option1001;
+  }
+  // 返回默认值，保证不报错
+  return {
+    title: {
+      textStyle: {},
+    },
+    legend: {},
+    xAxis: {
+      type: "category",
+      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [
+      {
+        data: [150, 230, 224, 218, 135, 147, 260],
+        type: "line",
+      },
+    ],
+  };
+}
+
 export function line_option(p_title = "", p_xAxis = [], y_serials = []) {
   let result = [];
   y_serials.map((item) => {
@@ -50,43 +139,7 @@ export function line_option(p_title = "", p_xAxis = [], y_serials = []) {
   };
   return option;
 }
-
 export function pie_option(p_title = "", y_data = []) {
-  let option = {
-    title: {
-      text: p_title,
-      left: "left",
-    },
-    tooltip: {
-      trigger: "item",
-      formatter: "{a} <br/>{b} : {c} ({d}%)",
-    },
-    toolbox: {
-      show: true,
-      feature: {
-        mark: { show: true },
-        dataView: { show: true, readOnly: false },
-        restore: { show: true },
-        saveAsImage: { show: true },
-      },
-    },
-    series: [
-      {
-        name: "姓名",
-        type: "pie",
-        radius: "55%",
-        center: ["40%", "50%"],
-        data: y_data,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-      },
-    ],
-  };
   return option;
 }
 
