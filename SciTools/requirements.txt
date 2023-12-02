@@ -16,4 +16,5 @@ jinja2
 pyecharts
 psutil
 schedule
-auto-py-to-exe
+jieba
+datasketch

@@ -51,6 +51,7 @@
     
 <script setup>
 import { useMainStore } from "@/store";
+import { onMounted } from "vue";
 // 数据存储对象
 const mainStore = useMainStore();
 // 配置对象
@@ -113,6 +114,14 @@ watch(
     immediate: true,
   }
 );
+
+onMounted(() => {
+  let oldoption = mainStore.get_current_chart_option;
+  console.log("加载默认配置", oldoption.title.show, oldoption.title.text);
+  newoption.value.showingTitle = oldoption.title.show;
+  newoption.value.titleText = oldoption.title.text;
+  // newoption.value.titleFontSize = oldoption.title.textStyle.fontSize;
+});
 </script>
     
 <style lang="scss" scoped>

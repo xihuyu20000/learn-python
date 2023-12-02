@@ -172,6 +172,7 @@ function choose_chart_style(event, chart) {
 }
 
 onMounted(() => {
+  // 激活面板
   activePane.value = mainStore.get_active_chart_collapse_item;
 });
 </script>

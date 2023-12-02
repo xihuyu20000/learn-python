@@ -1,15 +1,17 @@
 export function option_mapping(i) {
-  if (i >= 1001) {
-    let option1001 = {
+  console.log("图表配置编号", i);
+  if (i == 1001) {
+    return {
       title: {
-        text: "Stacked Line",
+        show: true,
+        text: "aaa",
         textStyle: {},
       },
       tooltip: {
         trigger: "axis",
       },
       legend: {
-        data: ["Email", "Union Ads", "Video Ads", "Direct", "Search Engine"],
+        data: ["邮箱", "Union Ads", "Video Ads", "Direct", "搜索引擎"],
       },
       grid: {
         left: "3%",
@@ -25,14 +27,14 @@ export function option_mapping(i) {
       xAxis: {
         type: "category",
         boundaryGap: false,
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        data: ["星期一", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       },
       yAxis: {
         type: "value",
       },
       series: [
         {
-          name: "Email",
+          name: "邮箱",
           type: "line",
           stack: "Total",
           data: [120, 132, 101, 134, 90, 230, 210],
@@ -56,31 +58,57 @@ export function option_mapping(i) {
           data: [320, 332, 301, 334, 390, 330, 320],
         },
         {
-          name: "Search Engine",
+          name: "搜索引擎",
           type: "line",
           stack: "Total",
           data: [820, 932, 901, 934, 1290, 1330, 1320],
         },
       ],
     };
-    return option1001;
+  }
+  if (i == 1002) {
+    return {
+      title: {
+        show: true,
+        text: "bbb",
+        textStyle: {},
+      },
+      legend: {},
+      xAxis: {
+        type: "category",
+        boundaryGap: false,
+        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "星期日"],
+      },
+      yAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          data: [820, 932, 901, 934, 1290, 1330, 1320],
+          type: "line",
+          areaStyle: {},
+        },
+      ],
+    };
   }
   // 返回默认值，保证不报错
   return {
     title: {
+      show: true,
+      text: "ccc",
       textStyle: {},
     },
     legend: {},
     xAxis: {
       type: "category",
-      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      data: ["Mon", "Tue", "Wed", "星期四", "Fri", "Sat", "Sun"],
     },
     yAxis: {
       type: "value",
     },
     series: [
       {
-        data: [150, 230, 224, 218, 135, 147, 260],
+        data: [1150, 230, 224, 218, 135, 147, 260],
         type: "line",
       },
     ],

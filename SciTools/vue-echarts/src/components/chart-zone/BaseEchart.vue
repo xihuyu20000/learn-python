@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useMainStore } from "../../store";
+import { useMainStore } from "@/store";
 // 数据存储对象
 const mainStore = useMainStore();
 // 引入echarts组件
@@ -45,8 +45,16 @@ onBeforeUnmount(() => {
 });
 //监听图表数据时候变化，重新渲染图表
 watch(
-  () => mainStore.get_current_chart_option,
+  () => [
+    mainStore.get_current_chartstyle_index,
+    mainStore.get_current_chart_option,
+  ],
   () => {
+    console.log(
+      "配置项变化",
+      mainStore.get_current_chartstyle_index,
+      mainStore.get_current_chart_option
+    );
     myChart.setOption(mainStore.get_current_chart_option, true);
   },
   { deep: true }
