@@ -3,34 +3,32 @@ import re
 import sys
 import time
 from collections import Counter
+from signal import signal
 from typing import List
-
 import jieba
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, Signal, QThread
+from PySide6.QtCore import Qt, Signal, QThread, QAbstractTableModel
 from PySide6.QtGui import QIcon, QAction, QBrush, QColor
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication, QSplitter, QSizePolicy, \
     QFrame, QHBoxLayout, QPushButton, QSpacerItem, QToolButton, QToolBar, QTabWidget, QFileDialog, QLineEdit, QMenu, \
     QTableWidgetItem, QTableWidget, QListWidget, \
     QAbstractItemView, QMessageBox, QMainWindow, QTextEdit, QLabel, QButtonGroup, QRadioButton, QComboBox, QSlider, \
-    QHeaderView
+    QHeaderView, QTableView
 from loguru import logger
 from pandas import DataFrame
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from zhon.hanzi import punctuation
 
-from cleaner.toolkit import ListKit, TableKit, FrameKit, VBoxKit, HBoxKit, PushButtonKit, OKButtonKit
+from cleaner.toolkit import ListKit
 
 logger.add("clean.log", encoding="utf-8", enqueue=True, rotation="500MB", retention="10 days")
 
 import secrets
-
-
 class Utils:
     @staticmethod
-    def resort_columns(old_names:List[str], new_names:List[str]):
+    def resort_columns(old_names, new_names):
         """
         新插入的列，位于原有列的后面
         """
@@ -42,15 +40,13 @@ class Utils:
             old_names.insert(i + 1, new1)
 
         return old_names
-
     @staticmethod
-    def calculate_cosine_similarity(text1: str, text2: str):
+    def calculate_cosine_similarity(text1:str, text2:str):
         vectorizer = CountVectorizer()
         corpus = [text1, text2]
         vectors = vectorizer.fit_transform(corpus)
         similarity = cosine_similarity(vectors)
         return similarity[0][1]
-
     @staticmethod
     def calculate_jaccard_similarity(arr1, arr2):
         set1, set2 = set(arr1), set(arr2)
@@ -59,7 +55,6 @@ class Utils:
         if union == 0:
             return 0
         return intersection / union
-
     @staticmethod
     def generate_random_color():
         """
@@ -71,13 +66,11 @@ class Utils:
         return red, green, blue
 
     @staticmethod
-    def has_Chinese_or_punctuation(ws):
+    def has_Chinese_or_punctuation( ws):
         return Utils.has_Chinese(ws) or Utils.has_punctuation(ws)
-
     @staticmethod
     def has_Chinese(ws):
         return any([True if '\u4e00' <= w <= '\u9fff' else False for w in jieba.lcut(ws)])
-
     @staticmethod
     def has_punctuation(ws):
         # 中文符号
@@ -104,6 +97,7 @@ class Worker(QThread):
                 self.valve.emit(self.a)
             if self.a >= 2000:  # self.a>2000程序结束
                 return
+
 
 
 class Cfg:
@@ -173,23 +167,34 @@ class DataFileWidget(QFrame):
 
     def __init__(self, parent=None):
         super(DataFileWidget, self).__init__(parent)
-        mainLayout = VBoxKit(self)
-
+        mainLayout = QVBoxLayout(self)
+        mainLayout.setContentsMargins(0, 0, 0, 0)
+        mainLayout.setSpacing(0)
+        # 工具栏
         toolbar = QFrame()
         toolbar.setFixedHeight(20)
         mainLayout.addWidget(toolbar)
 
-        toolbar_layout = HBoxKit(toolbar)
-        btn1 = PushButtonKit('数据文件', callback=self.action_datafiles_load)
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.setContentsMargins(0, 0, 0, 0)
+        toolbar_layout.setSpacing(0)
+        toolbar.setLayout(toolbar_layout)
+        btn1 = QPushButton()
+        btn1.setText('数据文件')
+        btn1.clicked.connect(self.action_datafiles_load)
         toolbar_layout.addWidget(btn1)
 
         # 选项1
         option1 = QFrame()
         option1.setFixedHeight(20)
         mainLayout.addWidget(option1)
-        option1_layout = HBoxKit(option1)
+        option1_layout = QHBoxLayout(option1)
+        option1_layout.setContentsMargins(0, 0, 0, 0)
+        option1_layout.setSpacing(0)
 
-        option1_btn = PushButtonKit('格式：', fix_width=50, callback=lambda: self.action_option1_btn(option1_format))
+        option1_btn = QPushButton('格式：')
+        option1_btn.setFixedWidth(50)
+        option1_btn.clicked.connect(lambda: self.action_option1_btn(option1_format))
         option1_layout.addWidget(option1_btn)
 
         option1_format = QLineEdit()
@@ -197,9 +202,11 @@ class DataFileWidget(QFrame):
         option1_layout.addWidget(option1_format)
 
         # 按钮——解析
-        btn2 = PushButtonKit('解析', callback=lambda: self.action_datafiles_parse(option1_format))
+        btn2 = QToolButton()
+        btn2.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        btn2.setText('解析')
         toolbar_layout.addWidget(btn2)
-
+        btn2.clicked.connect(lambda: self.action_datafiles_parse(option1_format))
         # 弹簧条
         toolbar_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -211,7 +218,6 @@ class DataFileWidget(QFrame):
 
     def default_value(self, option1_format):
         self.action_datafiles_load()
-        # 所有的文件留下
         paths = [os.path.join(Cfg.formats, name) for name in os.listdir(Cfg.formats) if
                  os.path.isfile(os.path.join(Cfg.formats, name))]
         if paths:
@@ -226,15 +232,13 @@ class DataFileWidget(QFrame):
         self.signal_statusbar.emit('加载 {0} 个数据文件'.format(len(fnames)))
 
     def action_datafiles_parse(self, option1_format):
-        logger.info('解析数据文件')
-
         if len(self.listKit.selected_indexes()) == 0:
             QMessageBox.critical(self, '错误', '请在下面选择1个文件，才可以解析')
             return
         if len(option1_format.text()) == 0:
             QMessageBox.critical(self, '错误', '请在下面选择格式文件，才可以解析')
             return
-
+        logger.info('解析数据文件')
         t1 = time.time()
         filenames = [os.path.join(Cfg.datafiles, name) for name in self.listKit.selected_names()]
         df = Parser.parse_cnki(filenames)
@@ -265,27 +269,35 @@ class DataModelWidget(QFrame):
 
     def __init__(self, parent=None):
         super(DataModelWidget, self).__init__(parent)
-        mainLayout = VBoxKit(self)
-
+        mainLayout = QVBoxLayout(self)
+        mainLayout.setContentsMargins(0, 0, 0, 0)
+        mainLayout.setSpacing(0)
         toolbar = QWidget()
         toolbar.setFixedHeight(20)
         self.listKit = ListKit(single_selection=True)
         mainLayout.addWidget(toolbar)
         mainLayout.addWidget(self.listKit)
 
-        toolbar_layout = HBoxKit(toolbar)
-
-        btn1 = PushButtonKit('数据模型', callback=self.action_datamodel_load)
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.setContentsMargins(0, 0, 0, 0)
+        toolbar_layout.setSpacing(0)
+        toolbar.setLayout(toolbar_layout)
+        btn1 = QToolButton()
+        btn1.setText('数据模型')
+        btn1.clicked.connect(self.action_datamodel_load)
         toolbar_layout.addWidget(btn1)
 
-        btn2 = PushButtonKit('显示', callback=self.action_datamodel_parse)
+        btn2 = QToolButton()
+        btn2.setText('显示')
+        btn2.clicked.connect(self.action_datamodel_parse)
         toolbar_layout.addWidget(btn2)
 
-        # 弹簧条
         toolbar_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        self.action_datamodel_load()
+        self.default_value()
 
+    def default_value(self):
+        self.action_datamodel_load()
 
     def setMain(self, main):
         self.main = main
@@ -306,7 +318,6 @@ class DataModelWidget(QFrame):
         if len(self.listKit.selected_indexes()) == 0:
             QMessageBox.critical(self, '错误', '请在下面选择1个文件，才可以解析')
             return
-
         fname = self.listKit.selected_names()[0]
         t1 = time.time()
         df = pd.read_pickle(os.path.join(Cfg.models, fname), compression='gzip')
@@ -320,7 +331,7 @@ class DataModelWidget(QFrame):
 
 class PopupMetadata(QFrame):
     """
-    元数据，对话框
+    复制列，对话框
     """
 
     def __init__(self, parent=None, title=''):
@@ -329,17 +340,19 @@ class PopupMetadata(QFrame):
         self.setWindowTitle(title)
 
         self.resize(700, 600)
-        main_layout = VBoxKit(self)
+        main_layout = QVBoxLayout(self)
 
         main_layout.addWidget(QLabel('数据统计'))
-        table_stat = TableKit()
+        table_stat = QTableWidget()
         main_layout.addWidget(table_stat)
 
         main_layout.addWidget(QLabel('数据分布'))
         tab_freq = QTabWidget()
         main_layout.addWidget(tab_freq)
 
-        btn_ok = OKButtonKit('OK', self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         main_layout.addWidget(btn_ok)
 
         self.init_table_stat(table_stat)
@@ -347,7 +360,6 @@ class PopupMetadata(QFrame):
 
     def init_table_stat(self, table_stat):
         df = self.get_dataset()
-        # 判断nulls必须放在这里，不能放到下面
         nulls = (df.isna().sum() + df.eq('').sum())
         df = df.describe()
         # 丢掉行
@@ -355,42 +367,74 @@ class PopupMetadata(QFrame):
         # 空值情况
         df.loc['nulls'] = nulls
         # 重命名索引
-        df.rename(index={'count': '总数', 'unique': '唯一', 'freq': '众频', 'nulls': '空值'}, inplace=True)
-        # 填充表格
-        table_stat.init_dataset(df)
+        df.rename(index={'count':'总数', 'unique':'唯一', 'freq':'众频', 'nulls':'空值'}, inplace=True)
+
+        table_stat.setColumnCount(df.shape[1])
+        table_stat.setRowCount(df.shape[0])
+        table_stat.setHorizontalHeaderLabels(df.columns)
+
+        for i, row in enumerate(df.index):
+            for j, col in enumerate(df.columns):
+                item = QTableWidgetItem(str(df.at[row, col]))
+                table_stat.setItem(i, j, item)
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+
+        for i, row in enumerate(df.index.tolist()):
+            table_stat.setVerticalHeaderItem(i, QTableWidgetItem(row))
 
     def init_table_freq(self, tab_freq):
         df = self.get_dataset()
         for i, name in enumerate(df.columns):
             tab_freq.addTab(self.__create_tab_widget(df.loc[:, name].tolist()), name)
 
-    def action_ok(self):
-        self.close()
-
-
-    def get_dataset(self):
-        return self.parent.tableKit.get_dataset()
 
     def __create_tab_widget(self, datalist):
-        datalist = sum([row.split(Cfg.seperator) for row in datalist], [])
+        datalist = sum([row.split(Cfg.seperator) for row in datalist],[])
         datalist = Counter(datalist)
-        datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-        df = pd.DataFrame(datalist, columns=['词语', '频次'])
-        table1 = TableKit(vertical_header_hide=True)
-        table1.init_dataset(df)
+        datalist = sorted(datalist.items(), key=lambda x:x[1], reverse=True)
+
+        table1 = QTableWidget()
+        table1.verticalHeader().hide()
+        table1.setColumnCount(2)
+        table1.setRowCount(len(datalist))
+        table1.setHorizontalHeaderLabels(['词语','频次'])
+        for i in range(len(datalist)):
+            for j in range(2):
+                item = QTableWidgetItem(str(datalist[i][j]))
+                table1.setItem(i, j, item)
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+
 
         ########################################################################
         # 统计频次的出现次数
         datalist = [item[1] for item in datalist]
         datalist = Counter(datalist)
-        datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-        df2 = pd.DataFrame(datalist, columns=['词语频次', '次数'])
-        table2 = TableKit(vertical_header_hide=True)
-        table2.init_dataset(df2)
+        datalist = sorted(datalist.items(), key=lambda x:x[1], reverse=True)
 
-        widget = FrameKit()
-        return widget.add_widgets(table1, table2)
+        table2 = QTableWidget()
+        table2.verticalHeader().hide()
+        table2.setColumnCount(2)
+        table2.setRowCount(len(datalist))
+        table2.setHorizontalHeaderLabels(['词语频次','次数'])
+        for i in range(len(datalist)):
+            for j in range(2):
+                item = QTableWidgetItem(str(datalist[i][j]))
+                table2.setItem(i, j, item)
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
 
+
+        widget = QFrame()
+        hlayout = QHBoxLayout(widget)
+        hlayout.setContentsMargins(15,10,5,5)
+        hlayout.addWidget(table1)
+        hlayout.addWidget(table2)
+        return widget
+
+    def action_ok(self):
+        self.close()
+
+    def get_dataset(self):
+        return self.parent.datasetTable.df
 
 
 class PopupRowDistinct(QWidget):
@@ -406,7 +450,9 @@ class PopupRowDistinct(QWidget):
         self.setWindowTitle(title)
 
         self.resize(200, 500)
-        container_layout = VBoxKit(self)
+        container_layout = QVBoxLayout(self)
+        container_layout.setContentsMargins(0,0,0,0)
+        container_layout.setSpacing(0)
 
         main_widget = QFrame()
         main_widget.setFixedHeight(150)
@@ -418,9 +464,12 @@ class PopupRowDistinct(QWidget):
         left_frame = QFrame()
         left_frame.setFixedWidth(50)
         main_layout.addWidget(left_frame)
-        left_layout = VBoxKit(left_frame)
+        left_layout = QVBoxLayout(left_frame)
+        left_layout.setContentsMargins(0,0,0,0)
+        left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('可以多选'))
-        self.column_names = ListKit(single_selection=False)
+        self.column_names = QListWidget()
+        self.column_names.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         left_layout.addWidget(self.column_names)
         ##################################################################
         # 中间是内容
@@ -452,36 +501,46 @@ class PopupRowDistinct(QWidget):
         vaLable.setFixedWidth(20)
         row2layout.addWidget(vaLable)
 
+
         ### 第3行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        center_layout.addWidget(self.label_msg)
+        center_layout.addWidget( self.label_msg)
 
         ### 第4行
-        btn_ok = OKButtonKit('OK', callback=lambda: self.action_ok(slider_horizon.value()))
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(lambda :self.action_ok(slider_horizon.value()))
         center_layout.addWidget(btn_ok)
+
 
         #####################################################
         ## 最下面是表格工具栏
         table_toolbar = QFrame()
         table_toolbar_layout = QHBoxLayout(table_toolbar)
-        table_toolbar_layout.setContentsMargins(0, 10, 0, 0)
+        table_toolbar_layout.setContentsMargins(0,10,0,0)
         container_layout.addWidget(table_toolbar)
 
-        btn1 = PushButtonKit('删除该分组', callback=self.action_not_combine)
-        btn2 = PushButtonKit('合并该分组', callback=self.action_combine_current_group)
-        btn3 = PushButtonKit('合并所有分组', callback=self.action_combine_all)
+        btn1 = QPushButton('删除该分组')
+        btn2 = QPushButton('合并该分组')
+        btn3 = QPushButton('合并所有分组')
+        btn1.clicked.connect(self.action_not_combine)
+        btn2.clicked.connect(self.action_combine_current_group)
+        btn3.clicked.connect(self.action_combine_all)
         table_toolbar_layout.addWidget(btn1)
         table_toolbar_layout.addWidget(btn2)
         table_toolbar_layout.addWidget(btn3)
         #  最下面是表格
         self.group_dataset = []
-        self.group_table = TableKit(single_select=True, vertical_header_hide=True)
+        self.group_table = QTableWidget()
+        self.group_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.group_table.setSelectionBehavior(QAbstractItemView.SelectItems)
+        self.group_table.verticalHeader().hide()
         container_layout.addWidget(self.group_table)
 
-    def action_ok(self, limited: int):
+    def action_ok(self, limited:int):
         logger.error('行去重，这里还有大问题，多次点击ok有问题')
-        names = self.column_names.selected_names()
+        names = [item.text() for item in self.column_names.selectedItems()]
 
         t1 = time.time()
         words = []
@@ -504,19 +563,20 @@ class PopupRowDistinct(QWidget):
         for i in range(len(words)):
             group_no += 1
             self.color_map[group_no] = Utils.generate_random_color()
-            for j in range(i + 1, len(words)):
+            for j in range(i+1, len(words)):
                 simil = Utils.calculate_jaccard_similarity(words[i], words[j])
                 # print(i, j, words[i], '|||', words[j], simil)
                 # 相似度v是小于1的数字
-                if simil * 100 >= limited:
+                if simil*100 >=limited:
                     pairs.append([i, group_no, simil])
                     pairs.append([j, group_no, simil])
+
 
         # 封装一下
         self.group_dataset = []
         for item in pairs:
             # 分别是行号、组名、相似度
-            row0 = [item[0], item[1], '{:.1f}'.format(item[2] * 100)]
+            row0 = [item[0], item[1],  '{:.1f}'.format(item[2]*100)]
             # 取出原始列，插入到集合中
             row0.extend(df.loc[item[0], names].tolist())
             self.group_dataset.append(row0)
@@ -530,15 +590,23 @@ class PopupRowDistinct(QWidget):
 
     def action_not_combine(self):
         logger.info('删除该分组，不合并')
-        rows = self.group_table.get_selected_rows()
-        # rows = [item.row() for item in self.group_table.selectedItems()]
+        rows = [item.row() for item in self.group_table.selectedItems()]
         if not rows:
             QMessageBox.critical(self, '错误', '请选择一行')
             return
-
         row_no = rows[0]
         self.__delete_group_table(row_no, False)
 
+    def __delete_group_table(self, row_no, can_delete):
+        group_no = self.group_dataset[int(row_no)][1]
+        original_nos = [row[0] for row in self.group_dataset if row[1] == group_no]
+        self.group_dataset = [row for row in self.group_dataset if row[0] not in original_nos]
+        self.__fill_table_data()
+        if can_delete:
+            df = self.get_df()
+            print('保留的行号', original_nos[0])
+            df.drop(original_nos[1:], inplace=True)
+            self.set_df(df)
     def action_combine_current_group(self):
         logger.error('合并该分组')
         rows = [item.row() for item in self.group_table.selectedItems()]
@@ -548,10 +616,11 @@ class PopupRowDistinct(QWidget):
         row_no = rows[0]
         self.__delete_group_table(row_no, True)
 
+
     def action_combine_all(self):
         logger.error('合并所有分组')
 
-        if self.group_table.rowCount() == 0:
+        if self.group_table.rowCount()==0:
             QMessageBox.critical(self, '错误', '请选进行分组，再执行合并')
             return
 
@@ -567,58 +636,47 @@ class PopupRowDistinct(QWidget):
         df = df.iloc[original_nos, :]
         self.set_df(df)
 
-    def set_column_names(self, names):
-        if names is not None:
-            self.column_names.set_dataset(names)
-
-    def get_df(self):
-        return self.parent.tableKit.get_dataset()
-
-    def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
-
-    def value_changed(self, lbl, val):
-        lbl.setText(str(val))
-
     def __fill_table_data(self):
         logger.info('开始在table显示')
         # 表格的列名
-        table_headers = ['原行号', '组名', '相似度(%)']
+        table_headers = ['原行号', '组名','相似度(%)']
         table_headers.extend(self.header_names)
-        df = pd.DataFrame(columns=table_headers, data=self.group_dataset)
-        self.group_table.init_dataset(df)
-        # # 在表格中显示分组
-        # self.group_table.setColumnCount(len(table_headers))
-        # self.group_table.setRowCount(len(self.group_dataset))
-        # self.group_table.setHorizontalHeaderLabels(table_headers)
-        # self.group_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        #
-        # for i in range(len(self.group_dataset)):
-        #     for j in range(len(self.group_dataset[i])):
-        #         # 行号默认从0开始，手工+1
-        #         cell_value = self.group_dataset[i][j] + 1 if j == 0 else self.group_dataset[i][j]
-        #         # 组名
-        #         cell_value = f'{cell_value}组' if j == 1 else cell_value
-        #         self.group_table.setItem(i, j, QTableWidgetItem(str(cell_value)))
-        #         # 背景色
-        #         if j == 1:
-        #             c = self.color_map[self.group_dataset[i][1]]
-        #             self.group_table.item(i, j).setForeground(QBrush(QColor(c[0], c[1], c[2])))
-        #         self.group_table.item(i, j).setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+        # 在表格中显示分组
+        self.group_table.setColumnCount(len(table_headers))
+        self.group_table.setRowCount(len(self.group_dataset))
+        self.group_table.setHorizontalHeaderLabels(table_headers)
+        self.group_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
 
-    def __delete_group_table(self, row_no, can_delete):
-        group_no = self.group_dataset[int(row_no)][1]
-        original_nos = [row[0] for row in self.group_dataset if row[1] == group_no]
-        self.group_dataset = [row for row in self.group_dataset if row[0] not in original_nos]
-        self.__fill_table_data()
-        if can_delete:
-            df = self.get_df()
-            print('保留的行号', original_nos[0])
-            df.drop(original_nos[1:], inplace=True)
-            self.set_df(df)
+        for i in range(len(self.group_dataset)):
+            for j in range(len(self.group_dataset[i])):
+                # 行号默认从0开始，手工+1
+                cell_value = self.group_dataset[i][j] + 1 if j == 0 else self.group_dataset[i][j]
+                # 组名
+                cell_value = f'{cell_value}组' if j==1 else cell_value
+                self.group_table.setItem(i, j, QTableWidgetItem(str(cell_value)))
+                # 背景色
+                if j == 1:
+                    c = self.color_map[self.group_dataset[i][1]]
+                    self.group_table.item(i, j).setForeground(QBrush(QColor(c[0], c[1], c[2])))
+                self.group_table.item(i, j).setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
 
 
+
+    def set_column_names(self, names):
+        if names is not None:
+            self.column_names.clear()
+            self.column_names.addItems(names)
+            self.column_names.setCurrentRow(0)
+
+    def get_df(self):
+        return self.parent.datasetTable.df
+
+    def set_df(self, df):
+        self.parent.datasetTable.set_df(df)
+
+    def value_changed(self, lbl, val):
+        lbl.setText(str(val))
 
 class PopupSplitColumn(QFrame):
     """
@@ -636,9 +694,12 @@ class PopupSplitColumn(QFrame):
         # 左侧是表头列表，单选
         left_frame = QFrame()
         main_layout.addWidget(left_frame)
-        left_layout = VBoxKit(left_frame)
+        left_layout = QVBoxLayout(left_frame)
+        left_layout.setContentsMargins(0,0,0,0)
+        left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('只能单选'))
-        self.column_names = ListKit(single_selection=True)
+        self.column_names = QListWidget()
+        self.column_names.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         left_layout.addWidget(self.column_names)
         ##################################################################
         # 右侧是内容
@@ -680,16 +741,16 @@ class PopupSplitColumn(QFrame):
         # 第3行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
 
         # 第4行
 
-        btn_ok = OKButtonKit('OK', callback=lambda: self.action_ok(cb1.currentText().strip(), le1.text(), cb2.currentText().strip(),
-                                                      le2.text().strip()))
-
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(lambda :self.action_ok(cb1.currentText().strip(), le1.text(), cb2.currentText().strip(), le2.text().strip()))
         right_layout.addWidget(btn_ok)
 
-    def action_ok(self, split_style:str, le1:str, get_style:str, le2:str):
+    def action_ok(self, split_style, le1, get_style, le2):
         """
         split_style 表示按分隔符还是按字符数
         le1 表示具体的分隔符还是具体的字符数
@@ -697,12 +758,9 @@ class PopupSplitColumn(QFrame):
         """
 
         logger.error('拆分列')
-        names = self.column_names.selected_names
+        names = [item.text() for item in self.column_names.selectedItems()]
         name = names[0]
 
-        if len(le1.strip())==0:
-            QMessageBox.critical(self, '错误', '请在拆分方式后，输入内容')
-            return
 
         m = re.compile(r'^[1-9]\d*$')
         if '字符' in split_style and not m.match(le1):
@@ -716,6 +774,7 @@ class PopupSplitColumn(QFrame):
         le2 = int(le2)
         df = self.get_df()
 
+
         t1 = time.time()
         if '分隔符' in split_style:
             df['xxxyyyzzz'] = df[name].apply(lambda x: x.split(le1))
@@ -725,7 +784,7 @@ class PopupSplitColumn(QFrame):
         new_names = []
         if '前' in get_style:
             for i in range(le2):
-                new_name = f'{name}-{i + 1}'
+                new_name = f'{name}-{i+1}'
                 new_names.append(new_name)
                 df[new_name] = df['xxxyyyzzz'].map(lambda x: self.get_from_limit(i, x, le2))
         if '第' in get_style:
@@ -741,7 +800,7 @@ class PopupSplitColumn(QFrame):
         self.set_df(df)
         t2 = time.time()
         error = '分隔符含有中文或中文字符\r\n' if Utils.has_Chinese_or_punctuation(le1) else ''
-        msg = error + '拆分{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], 1, round(t2 - t1, 2))
+        msg = error+'拆分{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], 1, round(t2 - t1, 2))
         self.label_msg.setText(msg)
 
     def split_string_by_length(self, string, length):
@@ -752,24 +811,25 @@ class PopupSplitColumn(QFrame):
         result = re.findall(pattern, string)
         return result
 
-    def get_from_limit(self, i: int, arr: List[str], limit: int):
-        if limit <= len(arr):
+    def get_from_limit(self, i:int, arr:List[str], limit:int):
+        if limit<=len(arr):
             return arr[i]
         else:
-            if i < len(arr):
+            if i<len(arr):
                 return arr[i]
             else:
                 return ''
-
     def set_column_names(self, names):
         if names is not None:
-            self.column_names.set_dataset(names)
+            self.column_names.clear()
+            self.column_names.addItems(names)
+            self.column_names.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
 class PopupReplaceValue(QFrame):
@@ -789,7 +849,7 @@ class PopupReplaceValue(QFrame):
         left_frame = QFrame()
         main_layout.addWidget(left_frame)
         left_layout = QVBoxLayout(left_frame)
-        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setContentsMargins(0,0,0,0)
         left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('可以多选'))
         self.column_widget = QListWidget()
@@ -876,16 +936,20 @@ class PopupReplaceValue(QFrame):
         row1layout.addWidget(rbt0)
         row1layout.addWidget(rbt1)
 
+
         # 第4行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
 
         # 第5行
-        btn_ok = OKButtonKit('OK', callback=
-            lambda: self.action_ok(tabwidget.currentIndex(), old_lineEdit.text(), new_lineEdit.text(), rbt1.isChecked(),
-                                   other_linedit.text(), rbt00.isChecked()))
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+
+        btn_ok.clicked.connect(lambda :self.action_ok(tabwidget.currentIndex(), old_lineEdit.text(),new_lineEdit.text(), rbt1.isChecked(), other_linedit.text(), rbt00.isChecked()))
         right_layout.addWidget(btn_ok)
+
+
 
     def action_ok(self, current_tab_index, old_sep, new_sep, is_new, other_char, is_reserved):
         logger.info('替换值')
@@ -893,13 +957,9 @@ class PopupReplaceValue(QFrame):
         if names:
             df = self.get_df()
 
-            new_names = []
             t1 = time.time()
             for col in names:
                 new_col = col + '-new' if is_new else col
-                if is_new:
-                    new_names.append(new_col)
-
                 if current_tab_index == 0:
                     df[new_col] = df[col].astype(str).str.replace(old_sep, new_sep).fillna(df[col])
                 if current_tab_index == 1:
@@ -909,11 +969,6 @@ class PopupReplaceValue(QFrame):
                     else:
                         # 删除该字符
                         df[new_col] = df[col].astype(str).str.replace(other_char, '').fillna(df[col])
-
-            # 下面的new_names一定要倒序
-            old_names = df.columns.tolist()
-            old_names = Utils.resort_columns(old_names, sorted(new_names, reverse=True))
-            df = df[old_names]
             self.set_df(df)
             t2 = time.time()
 
@@ -922,6 +977,8 @@ class PopupReplaceValue(QFrame):
             msg = error2 + '替换{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
             self.label_msg.setText(msg)
 
+
+
     def set_column_names(self, names):
         if names is not None:
             self.column_widget.clear()
@@ -929,10 +986,10 @@ class PopupReplaceValue(QFrame):
             self.column_widget.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
 class PopupCopyColumn(QFrame):
@@ -952,7 +1009,7 @@ class PopupCopyColumn(QFrame):
         left_frame = QFrame()
         main_layout.addWidget(left_frame)
         left_layout = QVBoxLayout(left_frame)
-        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setContentsMargins(0,0,0,0)
         left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('可以多选'))
         self.column_names = QListWidget()
@@ -970,9 +1027,11 @@ class PopupCopyColumn(QFrame):
         # 第2行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
         # 第3行
-        btn_ok = OKButtonKit('OK', callback=self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         right_layout.addWidget(btn_ok)
 
     def action_ok(self):
@@ -982,8 +1041,8 @@ class PopupCopyColumn(QFrame):
         df = self.get_df()
         new_names = []
         for col in names:
-            new_names.append(col + '-new')
-            df[col + '-new'] = df[col]
+            new_names.append(col+'-new')
+            df[col+'-new'] = df[col]
 
         old_names = df.columns.tolist()
         old_names = Utils.resort_columns(old_names, new_names)
@@ -994,7 +1053,6 @@ class PopupCopyColumn(QFrame):
 
         msg = '复制{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
         self.label_msg.setText(msg)
-
     def set_column_names(self, names):
         if names is not None:
             self.column_names.clear()
@@ -1002,15 +1060,15 @@ class PopupCopyColumn(QFrame):
             self.column_names.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
 class PopupRenameColumn(QFrame):
     """
-    重命名，对话框
+    复制列，对话框
     """
 
     def __init__(self, parent=None, title=''):
@@ -1026,9 +1084,11 @@ class PopupRenameColumn(QFrame):
 
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        main_layout.addWidget(self.label_msg)
+        main_layout.addWidget( self.label_msg)
 
-        btn_ok = OKButtonKit('OK', callback=self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         main_layout.addWidget(btn_ok)
 
     def action_ok(self):
@@ -1039,17 +1099,15 @@ class PopupRenameColumn(QFrame):
         user_header = {}
         for i in range(rowCount):
             user_header[self.column_names_table.item(i, 0).text()] = self.column_names_table.item(i, 1).text()
-            user_header = {k:v for k,v in user_header.items() if v.strip()}
         self.set_user_header(user_header)
         t2 = time.time()
 
         msg = '重命名列，耗时{0}秒'.format(round(t2 - t1, 2))
         self.label_msg.setText(msg)
-        self.close()
 
     def set_user_header(self, user_header):
-        self.parent.tableKit.set_user_header(user_header)
-
+        self.parent.datasetTable.user_headers = user_header
+        self.parent.datasetTable.flush_user_headers()
 
     def set_column_names(self, names):
         if names is not None:
@@ -1061,7 +1119,7 @@ class PopupRenameColumn(QFrame):
                 item = QTableWidgetItem(str(row))
                 item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                 item.setFlags(Qt.ItemFlag.ItemIsEnabled)
-                self.column_names_table.setItem(i, 0, item)
+                self.column_names_table.setItem(i,0, item)
 
                 item = QTableWidgetItem('')
                 item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable)
@@ -1069,10 +1127,10 @@ class PopupRenameColumn(QFrame):
                 self.column_names_table.setItem(i, 1, item)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_df(df)
+        self.parent.datasetTable.set_df(df)
 
 
 class PopupCombineSynonym(QFrame):
@@ -1089,12 +1147,15 @@ class PopupCombineSynonym(QFrame):
         main_layout = QHBoxLayout(self)
 
         # 左侧是表头列表，单选
-        left_frame = FrameKit(vertical=True)
-        main_layout.addWidget(left_frame.show())
-        left_frame.add_widgets(QLabel('可以多选'))
-
-        self.column_names = ListKit(single_selection=False)
-        left_frame.add_widgets(self.column_names)
+        left_frame = QFrame()
+        main_layout.addWidget(left_frame)
+        left_layout = QVBoxLayout(left_frame)
+        left_layout.setContentsMargins(0,0,0,0)
+        left_layout.setSpacing(0)
+        left_layout.addWidget(QLabel('可以多选'))
+        self.column_names = QListWidget()
+        self.column_names.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        left_layout.addWidget(self.column_names)
         ##################################################################
         # 右侧是内容
         right_frame = QFrame()
@@ -1102,11 +1163,12 @@ class PopupCombineSynonym(QFrame):
 
         right_layout = QVBoxLayout(right_frame)
 
+
         ####第1行
         row1 = QFrame()
         right_layout.addWidget(row1)
         row1_layout = QHBoxLayout(row1)
-        row1_layout.setContentsMargins(0, 0, 0, 0)
+        row1_layout.setContentsMargins(0,0,0,0)
         row1_layout.setSpacing(0)
         row1_layout.addWidget(QLabel('词典'))
         le1 = QLineEdit()
@@ -1115,7 +1177,8 @@ class PopupCombineSynonym(QFrame):
         btn1 = QPushButton('...')
         btn1.setFixedWidth(30)
         row1_layout.addWidget(btn1)
-        btn1.clicked.connect(lambda: self.action_btn1(le1))
+        btn1.clicked.connect(lambda :self.action_btn1(le1))
+
 
         ####第2行
         row2 = QFrame()
@@ -1135,23 +1198,22 @@ class PopupCombineSynonym(QFrame):
         #### 第3行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
 
         #### 第4行
-        btn_ok = OKButtonKit('OK', callback=lambda: self.action_ok(le1.text(), rbt1.isChecked()))
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(lambda :self.action_ok(le1.text(), rbt1.isChecked()))
         right_layout.addWidget(btn_ok)
 
-        main_layout.setStretch(0, 1)
+        main_layout.setStretch(0,1)
         main_layout.setStretch(1, 3)
-
-    def action_ok(self, dict_path, is_new: bool):
+    def action_ok(self, dict_path, is_new:bool):
         logger.info('同义词合并')
-        names = self.column_names.selected_names()
-
+        names = [item.text() for item in self.column_names.selectedItems()]
         if dict_path is None or dict_path.strip() == "":
             QMessageBox.critical(self, '错误', '请选择词典')
             return
-
         t1 = time.time()
         # key是被替换的词，value是新词【第1个】
         words_dict = {}
@@ -1161,31 +1223,25 @@ class PopupCombineSynonym(QFrame):
             for line in lines:
                 words = line.split(';')
                 # 一行一个词，那么长度是1
-                if len(words) > 1:
+                if len(words)>1:
                     tgt = words[0]
                     for org in words[1:]:
                         words_dict[org] = tgt
 
         df = self.get_df()
-
-        new_names = []
         # 遍历每一列，对每一列的每一个值，进行替换处理
         for col in names:
-            col_new = col + '-new' if is_new else col
-            if is_new:
-                new_names.append(col_new)
-            df[col_new] = df[col].apply(lambda x: self.__replace(x, words_dict))
-
-        old_names = df.columns.tolist()
-        old_names = Utils.resort_columns(old_names, new_names)
-        df = df[old_names]
+            col_new = col+'-new' if is_new else col
+            df[col_new] = df[col].apply(lambda x:self.__replace(x, words_dict))
         self.set_df(df)
         t2 = time.time()
 
         msg = '合并{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
         self.label_msg.setText(msg)
-
-
+    def __replace(self, line, words_dict):
+        keys = words_dict.keys()
+        words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
+        return ';'.join(words)
     def action_btn1(self, input):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
@@ -1195,22 +1251,19 @@ class PopupCombineSynonym(QFrame):
         )
         logger.error(filePath)
         input.setText(filePath)
-
     def set_column_names(self, names):
         if names is not None:
-            self.column_names.set_dataset(names)
+            self.column_names.clear()
+            self.column_names.addItems(names)
+            self.column_names.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
-    def __replace(self, line, words_dict):
-        keys = words_dict.keys()
-        words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
-        return ';'.join(words)
 class PopupStopWords(QFrame):
     """
     停用词，对话框
@@ -1228,7 +1281,7 @@ class PopupStopWords(QFrame):
         left_frame = QFrame()
         main_layout.addWidget(left_frame)
         left_layout = QVBoxLayout(left_frame)
-        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setContentsMargins(0,0,0,0)
         left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('可以多选'))
         self.column_names = QListWidget()
@@ -1241,11 +1294,12 @@ class PopupStopWords(QFrame):
 
         right_layout = QVBoxLayout(right_frame)
 
+
         ####第1行
         row1 = QFrame()
         right_layout.addWidget(row1)
         row1_layout = QHBoxLayout(row1)
-        row1_layout.setContentsMargins(0, 0, 0, 0)
+        row1_layout.setContentsMargins(0,0,0,0)
         row1_layout.setSpacing(0)
         row1_layout.addWidget(QLabel('词典'))
         le1 = QLineEdit()
@@ -1254,7 +1308,8 @@ class PopupStopWords(QFrame):
         btn1 = QPushButton('...')
         btn1.setFixedWidth(30)
         row1_layout.addWidget(btn1)
-        btn1.clicked.connect(lambda: self.action_btn1(le1))
+        btn1.clicked.connect(lambda :self.action_btn1(le1))
+
 
         ####第2行
         row2 = QFrame()
@@ -1274,22 +1329,22 @@ class PopupStopWords(QFrame):
         #### 第3行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
 
         ####  第4行
-        btn_ok = OKButtonKit('OK', callback=lambda: self.action_ok(le1.text(), rbt1.isChecked()))
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(lambda :self.action_ok(le1.text(), rbt1.isChecked()))
         right_layout.addWidget(btn_ok)
 
-        main_layout.setStretch(0, 1)
+        main_layout.setStretch(0,1)
         main_layout.setStretch(1, 3)
-
-    def action_ok(self, dict_path, is_new: bool):
+    def action_ok(self, dict_path, is_new:bool):
         logger.info('停用词')
         names = [item.text() for item in self.column_names.selectedItems()]
         if dict_path is None or dict_path.strip() == "":
             QMessageBox.critical(self, '错误', '请选择词典')
             return
-
         t1 = time.time()
         # key是被替换的词，value是新词【第1个】
         words_set = set()
@@ -1300,25 +1355,19 @@ class PopupStopWords(QFrame):
                 words_set.update(line.split(';'))
 
         df = self.get_df()
-        new_names = []
         # 遍历每一列，对每一列的每一个值，进行替换处理
         for col in names:
-            col_new = col + '-new' if is_new else col
-            if is_new:
-                new_names.append(col_new)
-            df[col_new] = df[col].apply(lambda x: self.__replace(x, words_set))
-
-        old_names = df.columns.tolist()
-        old_names = Utils.resort_columns(old_names, new_names)
-        df = df[old_names]
+            col_new = col+'-new' if is_new else col
+            df[col_new] = df[col].apply(lambda x:self.__replace(x, words_set))
         self.set_df(df)
-
         t2 = time.time()
 
         msg = '处理{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
         self.label_msg.setText(msg)
 
-
+    def __replace(self, line, words_set):
+        words = [w for w in line.split(Cfg.seperator) if w not in words_set]
+        return ';'.join(words)
     def action_btn1(self, input):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
@@ -1328,7 +1377,6 @@ class PopupStopWords(QFrame):
         )
         logger.error(filePath)
         input.setText(filePath)
-
     def set_column_names(self, names):
         if names is not None:
             self.column_names.clear()
@@ -1336,15 +1384,13 @@ class PopupStopWords(QFrame):
             self.column_names.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
+        return self.parent.datasetTable.df
 
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
-    def __replace(self, line, words_set):
-        words = [w for w in line.split(Cfg.seperator) if w not in words_set]
-        return ';'.join(words)
+
 class PopupCompareColumns(QFrame):
     """
     列对比，对话框
@@ -1362,7 +1408,7 @@ class PopupCompareColumns(QFrame):
         left_frame = QFrame()
         main_layout.addWidget(left_frame)
         left_layout = QVBoxLayout(left_frame)
-        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setContentsMargins(0,0,0,0)
         left_layout.setSpacing(0)
         left_layout.addWidget(QLabel('只能选择两列'))
         self.column_names = QListWidget()
@@ -1375,6 +1421,7 @@ class PopupCompareColumns(QFrame):
 
         right_layout = QVBoxLayout(right_frame)
 
+
         ####第1行
         btn_reset = QPushButton('恢复颜色')
         btn_reset.clicked.connect(self.action_reset)
@@ -1386,10 +1433,13 @@ class PopupCompareColumns(QFrame):
         #### 第3行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        right_layout.addWidget(self.label_msg)
+        right_layout.addWidget( self.label_msg)
+
 
         ####  第4行
-        btn_ok = OKButtonKit('OK', callback=self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         right_layout.addWidget(btn_ok)
 
     def action_reset(self):
@@ -1401,16 +1451,15 @@ class PopupCompareColumns(QFrame):
         table = self.get_table()
         for i in range(df.shape[0]):
             for col in indexes:
-                table.set_bgcolor(i, col, '#FFFFFF')
+                table.item(i, col).setBackground(QBrush(QColor(255,255,255)))
 
         t2 = time.time()
         msg = '清除{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
         self.label_msg.setText(msg)
-
     def action_ok(self):
         logger.info('列对比')
         indexes = [item.row() for item in self.column_names.selectedIndexes()]
-        if len(indexes) != 2:
+        if len(indexes) !=2:
             QMessageBox.critical(self, '错误', '只能选择2列')
             return
 
@@ -1419,7 +1468,7 @@ class PopupCompareColumns(QFrame):
         table = self.get_table()
         for i in range(df.shape[0]):
             if df.iloc[i, indexes[0]] != df.iloc[i, indexes[1]]:
-                table.set_bgcolor(i, indexes[1], '#a3a9a8')
+                table.item(i, indexes[1]).setBackground(QBrush(QColor(192,192,192)))
         t2 = time.time()
         msg = '对比{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
         self.label_msg.setText(msg)
@@ -1427,7 +1476,6 @@ class PopupCompareColumns(QFrame):
     def __replace(self, line, words_set):
         words = [w for w in line.split(Cfg.seperator) if w not in words_set]
         return ';'.join(words)
-
     def action_btn1(self, input):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
@@ -1437,7 +1485,6 @@ class PopupCompareColumns(QFrame):
         )
         logger.error(filePath)
         input.setText(filePath)
-
     def set_column_names(self, names):
         if names is not None:
             self.column_names.clear()
@@ -1445,13 +1492,11 @@ class PopupCompareColumns(QFrame):
             self.column_names.setCurrentRow(0)
 
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
-
+        return self.parent.datasetTable.df
     def get_table(self):
-        return self.parent.tableKit
-
+        return self.parent.datasetTable
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
+        self.parent.datasetTable.set_df(df)
 
 
 class PopupModifyValue(QFrame):
@@ -1474,7 +1519,7 @@ class PopupModifyValue(QFrame):
         #### 第2行
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        main_layout.addWidget(self.label_msg)
+        main_layout.addWidget( self.label_msg)
 
         ####  第3行
         ff = QFrame()
@@ -1489,6 +1534,7 @@ class PopupModifyValue(QFrame):
         btn_ok.clicked.connect(self.action_ok)
         ff_layout.addWidget(btn_ok)
 
+
     def action_reset(self):
         logger.info('列对比')
         df = self.get_df()
@@ -1496,13 +1542,13 @@ class PopupModifyValue(QFrame):
         for i in range(table.rowCount()):
             for j in range(table.columnCount()):
                 table.item(i, j).setFlags(Qt.ItemFlag.ItemIsEnabled)
-                if df.iloc[i, j] != table.item(i, j).text():
-                    df.iloc[i, j] = table.item(i, j).text()
+                if df.iloc[i, j]!=table.item(i,j).text():
+                    df.iloc[i, j] = table.item(i,j).text()
         self.set_df(df)
+
 
         msg = '禁止修改'
         self.label_msg.setText(msg)
-
     def action_ok(self):
         logger.info('列对比')
 
@@ -1515,15 +1561,13 @@ class PopupModifyValue(QFrame):
         msg = '允许修改'
         self.label_msg.setText(msg)
 
+
     def get_df(self):
-        return self.parent.tableKit.get_dataset()
-
+        return self.parent.datasetTable.df
     def get_table(self):
-        return self.parent.tableKit
-
+        return self.parent.datasetTable
     def set_df(self, df):
-        self.parent.tableKit.set_dataset(df)
-
+        self.parent.datasetTable.set_df(df)
 
 class PopupOneclick(QFrame):
     """
@@ -1542,9 +1586,11 @@ class PopupOneclick(QFrame):
 
         self.label_msg = QLabel()
         self.label_msg.setStyleSheet("color:red;")
-        main_layout.addWidget(self.label_msg)
+        main_layout.addWidget( self.label_msg)
 
-        btn_ok = OKButtonKit('OK', callback=self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         main_layout.addWidget(btn_ok)
 
     def action_ok(self):
@@ -1552,7 +1598,6 @@ class PopupOneclick(QFrame):
 
         # msg = '清除{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
         # self.label_msg.setText(msg)
-
 
 class PopupHistory(QFrame):
     """
@@ -1572,32 +1617,36 @@ class PopupHistory(QFrame):
             for line in reader.readlines():
                 tt = line[:19]
                 msg = line.split(' - ')[1].strip()
-                listWidget.addItem(tt + '  ' + msg)
+                listWidget.addItem(tt+'  '+msg)
         main_layout.addWidget(listWidget)
 
-        btn_ok = OKButtonKit('OK', callback=self.action_ok)
+        btn_ok = QPushButton('OK')
+        btn_ok.setStyleSheet("color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);");
+        btn_ok.clicked.connect(self.action_ok)
         main_layout.addWidget(btn_ok)
 
     def action_ok(self):
         logger.info('操作历史')
         self.close()
 
-
 class DatasetFrame(QWidget):
     signal_statusbar = Signal(str)
 
-    def __init__(self, main = None):
+    def __init__(self):
         super().__init__()
-        self.main = main
-        main_layout = VBoxKit(self)
 
-        # 数据表格
-        self.tableKit = TableKit(column_sortable=True, header_horizontal_movable=True)
-        # 状态栏显示消息
-        self.tableKit.signal_info.connect(self.show_statusbar)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        self.datasetTable = DatasetFrame.DatasetTable()
+        self.datasetTable.signal_statusbar.connect(self.show_statusbar)
 
         main_layout.addWidget(self.build_toolbar())
-        main_layout.addWidget(self.tableKit)
+        main_layout.addWidget(self.datasetTable)
+
+    def set_main(self, main):
+        self.main = main
 
     def build_toolbar(self):
         top_toolbar = QToolBar(self)
@@ -1622,10 +1671,6 @@ class DatasetFrame(QWidget):
 
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '行去重', self.action_distinct))
 
-        top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '删除行', self.action_row_delete))
-
-        top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '删除列', self.action_column_delete))
-
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '一键清洗', self.action_oneclick))
 
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '操作历史', self.action_history))
@@ -1638,17 +1683,29 @@ class DatasetFrame(QWidget):
 
         return top_toolbar
 
+    def _gen_toolbutton(self, icon, text, action):
+        """
+        生成工具按钮
+        """
+        btn1 = QToolButton(self)
+        btn1.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        btn1.setIcon(QIcon(icon))
+        btn1.setText(text)
+        btn1.clicked.connect(action)
+        return btn1
+
     def action_metadata(self):
         logger.info('元数据')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
-
         self.popupMetadata = PopupMetadata(self, '元数据')
         self.popupMetadata.show()
 
     def action_model_save(self):
         logger.info('保存模型')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据，无法保存')
             return
 
         filePath, _ = QFileDialog.getSaveFileName(
@@ -1663,7 +1720,8 @@ class DatasetFrame(QWidget):
 
     def action_download(self):
         logger.info('下载数据')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据，无法下载')
             return
 
         filePath, _ = QFileDialog.getSaveFileName(
@@ -1678,42 +1736,42 @@ class DatasetFrame(QWidget):
 
     def action_rename_column(self):
         logger.info('重命名列')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
-
         self.popupRenameColumn = PopupRenameColumn(self, '重命名')
         self.popupRenameColumn.set_column_names(self.get_df().columns)
         self.popupRenameColumn.show()
 
     def action_copy_column(self):
         logger.info('复制列')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
-
         self.popupCopyColumn = PopupCopyColumn(self, '复制列')
         self.popupCopyColumn.set_column_names(self.get_df().columns)
         self.popupCopyColumn.show()
 
     def action_split_column(self):
         logger.info('拆分列')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
-
         self.popupSplitColumn = PopupSplitColumn(self, '拆分列')
         self.popupSplitColumn.set_column_names(self.get_df().columns)
         self.popupSplitColumn.show()
-
     def action_replace_column(self):
         logger.info('替换值')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
         self.popupReplaceValue = PopupReplaceValue(self, '替换值')
         self.popupReplaceValue.set_column_names(self.get_df().columns)
         self.popupReplaceValue.show()
-
     def action_combine_synonym(self):
         logger.info('合并同义词')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
         self.popupCombineSynonym = PopupCombineSynonym(self, '合并词')
         self.popupCombineSynonym.set_column_names(self.get_df().columns)
@@ -1721,7 +1779,8 @@ class DatasetFrame(QWidget):
 
     def action_stop_words(self):
         logger.info('停用词')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
         self.popupStopWords = PopupStopWords(self, '停用词')
         self.popupStopWords.set_column_names(self.get_df().columns)
@@ -1729,7 +1788,8 @@ class DatasetFrame(QWidget):
 
     def action_compare_columns(self):
         logger.info('列对比')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
         self.popupCompareColumns = PopupCompareColumns(self, '列对比')
         self.popupCompareColumns.set_column_names(self.get_df().columns)
@@ -1737,25 +1797,25 @@ class DatasetFrame(QWidget):
 
     def action_modify_value(self):
         logger.info('修改值')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
 
         self.popupModifyValue = PopupModifyValue(self, '修改值')
         self.popupModifyValue.show()
-
     def action_distinct(self):
         logger.info('行去重')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
         self.popupRowDistinct = PopupRowDistinct(self, '行去重')
         self.popupRowDistinct.set_column_names(self.get_df().columns)
         self.popupRowDistinct.show()
-
     def action_oneclick(self):
         logger.info('一键清洗')
-        if self.__no_data():
+        if self.get_df() is None:
+            QMessageBox.critical(self, '错误', '下面表格没有数据')
             return
-
         self.popupOneclick = PopupOneclick(self, '一键清洗')
         self.popupOneclick.show()
 
@@ -1763,122 +1823,106 @@ class DatasetFrame(QWidget):
         logger.info('操作历史')
         self.popupHistory = PopupHistory(self, '操作历史')
         self.popupHistory.show()
-
-    def action_row_delete(self):
-        logger.info('删除行')
-        if self.__no_data():
-            return
-        self.tableKit.remove_selected_rows()
-        self.signal_statusbar.emit('删除行 ')
-
-    def action_column_delete(self):
-        logger.info('删除列')
-        if self.__no_data():
-            return
-        self.tableKit.remove_selected_columns()
-        self.signal_statusbar.emit('删除列 ')
-
-
     def set_df(self, df):
-        self.tableKit.set_dataset(df)
+        self.datasetTable.set_df(df)
 
     def get_df(self):
-        return self.tableKit.get_dataset()
+        return self.datasetTable.df
 
     def show_statusbar(self, msg):
         self.signal_statusbar.emit(msg)
 
+    class DatasetTable(QTableWidget):
+        signal_statusbar = Signal(str)
 
-    def _gen_toolbutton(self, icon, text, action):
-        """
-        生成工具按钮
-        """
-        btn1 = QToolButton(self)
-        btn1.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        btn1.setIcon(QIcon(icon))
-        btn1.setText(text)
-        btn1.clicked.connect(action)
-        return btn1
+        def __init__(self):
+            super().__init__()
+            self.df:DataFrame = None
 
-    def __no_data(self):
-        if self.tableKit.has_dataset():
-            return False
-        QMessageBox.critical(self, '错误', '下面表格没有数据，无法保存')
-        return True
+            self.user_headers = None
+            self.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.customContextMenuRequested.connect(self.show_body_context_menu)
+            self.setSortingEnabled(True)
+            self.horizontalHeader().setSectionsMovable(True)
 
-    # class DatasetTable(QTableWidget):
-    #     signal_statusbar = Signal(str)
-    #
-    #     def __init__(self):
-    #         super().__init__()
-    #         self.df: DataFrame = None
-    #
-    #         self.user_headers = None
-    #         self.setContextMenuPolicy(Qt.CustomContextMenu)
-    #         self.customContextMenuRequested.connect(self.show_body_context_menu)
-    #         self.setSortingEnabled(True)
-    #         self.horizontalHeader().setSectionsMovable(True)
-    #
-    #     def set_df(self, df: DataFrame):
-    #         self.df = df
-    #         self.__fillData()
-    #
-    #     def flush_user_headers(self):
-    #         if self.user_headers:
-    #             headers = []
-    #
-    #             for k in self.df.columns:
-    #                 v = self.user_headers[k]
-    #                 # 如果v是空，取k
-    #                 v = v if v.strip() != '' else k
-    #                 headers.append(v)
-    #
-    #             self.setHorizontalHeaderLabels(headers)
-    #
-    #     def __fillData(self):
-    #         """
-    #         填充数据，并显示统计信息
-    #         """
-    #         self.df.reset_index(drop=True, inplace=True)
-    #         self.setColumnCount(self.df.shape[1])
-    #         self.setRowCount(self.df.shape[0])
-    #         self.setHorizontalHeaderLabels(self.df.columns)
-    #         for i, row in self.df.iterrows():
-    #             for j, _ in enumerate(row):
-    #                 item = QTableWidgetItem(str(self.df.iloc[i, j]))
-    #                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-    #                 self.setItem(i, j, item)
-    #
-    #     def show_body_context_menu(self):
-    #         """
-    #         显示数据的右键菜单
-    #         """
-    #         body_menu = QMenu(self)
-    #
-    #         self.act_column_chooseall = QAction('选中列')
-    #         self.act_column_chooseall.triggered.connect(self.action_column_chooseall)
-    #         body_menu.addAction(self.act_column_chooseall)
-    #
-    #         self.act_row_delete = QAction('删除行')
-    #         self.act_row_delete.triggered.connect(self.action_row_delete)
-    #         body_menu.addAction(self.act_row_delete)
-    #
-    #         self.act_column_delete = QAction('删除列')
-    #         self.act_column_delete.triggered.connect(self.action_column_delete)
-    #         body_menu.addAction(self.act_column_delete)
-    #
-    #         body_menu.move(QtGui.QCursor().pos())
-    #         body_menu.show()
-    #
-    #     def update_table_cell(self):
-    #
-    #         # items 是一个列表，每个元素是QTableWidgetItem
-    #         items = self.selectedItems()
-    #         if len(items) == 0:
-    #             return
-    #         item = items[0]
-    #         self.df.iloc[item.row(), item.column()] = item.text()
-    #         self.signal_statusbar.emit('更新数据 ' + item.text())
+
+        def set_df(self, df: DataFrame):
+            self.df = df
+            self.__fillData()
+
+        def flush_user_headers(self):
+            if self.user_headers:
+                headers = []
+
+                for k in self.df.columns:
+                    v = self.user_headers[k]
+                    # 如果v是空，取k
+                    v = v if v.strip() != '' else k
+                    headers.append(v)
+
+                self.setHorizontalHeaderLabels(headers)
+        def __fillData(self):
+            """
+            填充数据，并显示统计信息
+            """
+            self.df.reset_index(drop=True, inplace=True)
+            self.setColumnCount(self.df.shape[1])
+            self.setRowCount(self.df.shape[0])
+            self.setHorizontalHeaderLabels(self.df.columns)
+            for i, row in self.df.iterrows():
+                for j, _ in enumerate(row):
+                    item = QTableWidgetItem(str(self.df.iloc[i, j]))
+                    item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+                    self.setItem(i, j, item)
+
+        def show_body_context_menu(self):
+            """
+            显示数据的右键菜单
+            """
+            body_menu = QMenu(self)
+
+            self.act_column_chooseall = QAction('选中列')
+            self.act_column_chooseall.triggered.connect(self.action_column_chooseall)
+            body_menu.addAction(self.act_column_chooseall)
+
+            self.act_row_delete = QAction('删除行')
+            self.act_row_delete.triggered.connect(self.action_row_delete)
+            body_menu.addAction(self.act_row_delete)
+
+            self.act_column_delete = QAction('删除列')
+            self.act_column_delete.triggered.connect(self.action_column_delete)
+            body_menu.addAction(self.act_column_delete)
+
+            body_menu.move(QtGui.QCursor().pos())
+            body_menu.show()
+
+        def action_column_chooseall(self):
+            cols = [index.column() for index in self.selectedIndexes()]
+            self.selectColumn(cols[0])
+
+        def action_row_delete(self):
+            rows = sorted([index.row() for index in self.selectedIndexes()], reverse=True)
+            self.df.drop(rows, inplace=True)
+            self.__fillData()
+            self.signal_statusbar.emit('删除行 ' + ' , '.join([str(i) for i in rows]))
+
+        def action_column_delete(self):
+            cols = sorted([index.column() for index in self.selectedIndexes()], reverse=True)
+            col_names = [self.df.columns[i] for i in cols]
+            col_names = list(set(col_names))
+            self.df.drop(col_names, axis=1, inplace=True)
+            self.__fillData()
+            self.signal_statusbar.emit('删除列 ' + ' , '.join(col_names))
+
+        def update_table_cell(self):
+
+            # items 是一个列表，每个元素是QTableWidgetItem
+            items = self.selectedItems()
+            if len(items) == 0:
+                return
+            item = items[0]
+            self.df.iloc[item.row(), item.column()] = item.text()
+            self.signal_statusbar.emit('更新数据 ' + item.text())
 
 
 class DataConfigWidget(QWidget):
@@ -1903,6 +1947,7 @@ class DataConfigWidget(QWidget):
         stop_linedit = self.__add_row_file(left_layout, '停用词', right_showtext)
         tongyi_linedit = self.__add_row_file(left_layout, '同义词', right_showtext)
 
+
         # 弹簧条
         left_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
@@ -1920,7 +1965,6 @@ class DataConfigWidget(QWidget):
         row1.addWidget(lineedit1)
 
         return lineedit1
-
     def __add_row_file(self, left_layout, text, right_showtext=None):
 
         row1 = DataConfigWidget.__build_config_row(left_layout)
@@ -1943,7 +1987,6 @@ class DataConfigWidget(QWidget):
         row1.addWidget(btn1)
 
         return lineedit1
-
     @staticmethod
     def __build_config_row(parent):
         container = QWidget()
@@ -2034,7 +2077,8 @@ class CleanWidget(QMainWindow):
         # 中间的tabwidget
         center_widget = QTabWidget(self)
         center_layout.addWidget(center_widget)
-        self.tab_dataset = DatasetFrame(self)
+        self.tab_dataset = DatasetFrame()
+        self.tab_dataset.set_main(self)
         self.tab_dataset.signal_statusbar.connect(self.showStatusbarMessage)
         center_widget.addTab(self.tab_dataset, '数据')
         self.tab_config = DataConfigWidget()
@@ -2076,6 +2120,7 @@ class CleanWidget(QMainWindow):
             self.start_btn.setText("开始")
             self.work.pause = True
             return
+
 
 
 if __name__ == '__main__':

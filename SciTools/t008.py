@@ -1,5 +1,3 @@
-import jieba
-
 from cleaner.clean import Utils
-
-print(Utils.has_Chinese_or_punctuation('；') )
+a = Utils.calculate_jaccard_similarity(['啊啊','不不不','大是大非'], ['啊啊','不不不','大是大非'])
+print(a)
