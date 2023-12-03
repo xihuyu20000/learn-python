@@ -1481,36 +1481,38 @@ class PopupModifyValue(QFrame):
         ff_layout = QHBoxLayout(ff)
         main_layout.addWidget(ff)
 
-        btn_reset = QPushButton('保存修改')
-        btn_reset.clicked.connect(self.action_reset)
-        ff_layout.addWidget(btn_reset)
-
-        btn_ok = QPushButton('允许修改')
+        btn_ok = QPushButton('开始修改')
         btn_ok.clicked.connect(self.action_ok)
         ff_layout.addWidget(btn_ok)
 
-    def action_reset(self):
-        logger.info('列对比')
-        df = self.get_df()
-        table = self.get_table()
-        for i in range(table.rowCount()):
-            for j in range(table.columnCount()):
-                table.item(i, j).setFlags(Qt.ItemFlag.ItemIsEnabled)
-                if df.iloc[i, j] != table.item(i, j).text():
-                    df.iloc[i, j] = table.item(i, j).text()
-        self.set_df(df)
+        btn_reset = QPushButton('停止修改')
+        btn_reset.clicked.connect(self.action_reset)
+        ff_layout.addWidget(btn_reset)
 
-        msg = '禁止修改'
+
+    def action_reset(self):
+        logger.info('停止修改')
+
+        # df = self.get_df()
+        table = self.get_table()
+        table.set_item_writable(False)
+
+        # for i in range(df.shape[0]):
+        #     for j in range(df.shape[1]):
+        #         if df.iloc[i, j] != table.item(i, j).text():
+        #             df.iloc[i, j] = table.item(i, j).text()
+        # self.set_df(df)
+
+        msg = '停止修改'
         self.label_msg.setText(msg)
 
     def action_ok(self):
         logger.info('列对比')
 
+        df = self.get_df()
         table = self.get_table()
 
-        for i in range(table.rowCount()):
-            for j in range(table.columnCount()):
-                table.item(i, j).setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable)
+        table.set_item_writable(True)
 
         msg = '允许修改'
         self.label_msg.setText(msg)
@@ -1626,9 +1628,12 @@ class DatasetFrame(QWidget):
 
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '删除列', self.action_column_delete))
 
+        top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '分词', self.action_oneclick))
+
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '一键清洗', self.action_oneclick))
 
         top_toolbar.addWidget(self._gen_toolbutton('./icons/riqi.png', '操作历史', self.action_history))
+
 
         top_toolbar.addWidget(QLabel('     '))
 

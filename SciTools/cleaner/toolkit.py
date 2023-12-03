@@ -130,6 +130,9 @@ class TableKit(QFrame):
         self._model.pub_set_bgcolor(i, j, color)
     def set_user_header(self, data):
         self._model.pub_set_user_header(data)
+
+    def set_item_writable(self,writable=False):
+        self._model.pub_set_item_writable(writable)
     def init_dataset(self, df):
         # 1、更新模型
         self._model.pub_update_dataset(df, inplace_index=False, reset_index=False)
@@ -155,7 +158,10 @@ class TableKit(QFrame):
             super().__init__()
             self._user_headers = dict()
             self._data = data
+            # 存储背景颜色，key是i_j
             self._backgrounds = {}
+            # 是否允许修改
+            self._cell_writable = False
 
         def data(self, index, role):
             """
@@ -190,15 +196,33 @@ class TableKit(QFrame):
                     return self._user_headers[key] if key in self._user_headers else key
 
                 if orientation == Qt.Vertical:
-                    # print('列索引', self._data.index, section)
                     return str(self._data.index[section])
 
+        def flags(self, index):
+            # 设置单元格的标志，允许编辑
+            if self._cell_writable:
+                return Qt.ItemIsEnabled | Qt.ItemIsEditable
+            else:
+                return Qt.ItemIsEnabled
+
+        def setData(self, index, value, role=Qt.EditRole):
+            print(index.isValid(), index.row(), index.column())
+            if index.isValid() and role == Qt.EditRole:
+                # 在这里保存修改后的数据
+                self._data.iloc[index.row(), index.column()] = value
+                self.dataChanged.emit(index, index)
+                return True
+
+            return False
+
         def sort(self, column, order):
-            if len(self._data.columns):
-                self._data.sort_values(self._data.columns[column], ascending = True if order==Qt.AscendingOrder else False, na_position='first', inplace=True)
-                self._data.reset_index(inplace=True, drop=True)
-                print('模型排序', self._data.columns[column], order)
-                logger.error('排序这里有错误')
+            if not self._data.empty:
+                if order == Qt.AscendingOrder:
+                    self._data = self._data.sort_values(self._data.columns[column], ascending=True)
+                else:
+                    self._data = self._data.sort_values(self._data.columns[column], ascending=False)
+
+                self.layoutChanged.emit()
         def pub_update_dataset(self, df, inplace_index, reset_index):
             self.beginResetModel()
             self._data = df
@@ -213,6 +237,9 @@ class TableKit(QFrame):
 
         def pub_set_user_header(self, data):
             self._user_headers = data
+
+        def pub_set_item_writable(self, writable:bool):
+            self._cell_writable = writable
 
 
         def pub_set_bgcolor(self, i:int, j:int, color:str):
