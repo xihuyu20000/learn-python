@@ -16,7 +16,8 @@ class Utils:
     @staticmethod
     def resort_columns(old_names:List[str], new_names:List[str]):
         """
-        新插入的列，位于原有列的后面
+        新插入的列，位于原有列的后面。
+        新的列名，是原列名后面加上了“-new”。其他格式不支持
         """
         for new1 in new_names:
             old_names.remove(new1)
@@ -29,23 +30,18 @@ class Utils:
 
     @staticmethod
     def calculate_cosine_similarity(text1: str, text2: str):
+        """
+        夹角余弦
+        """
         vectorizer = CountVectorizer()
         corpus = [text1, text2]
         vectors = vectorizer.fit_transform(corpus)
         similarity = cosine_similarity(vectors)
         return similarity[0][1]
 
-    @staticmethod
-    def calculate_jaccard_similarity(arr1:List[str], arr2:List[str]):
-        set1, set2 = set(arr1), set(arr2)
-        intersection = len(set1.intersection(set2))
-        union = len(set1.union(set2))
-        if union == 0:
-            return 0
-        return intersection / union
 
     @staticmethod
-    def calculate_jaccard_similarity2(threshold, l1, sentences) ->Dict[int, float]:
+    def calculate_jaccard_similarity(threshold, l1, sentences) ->Dict[int, float]:
         """
         threshold 在 [0.0, 1.0]
         """
@@ -190,4 +186,52 @@ class Parser:
 
         df = pd.DataFrame(ds, dtype='object')
         return df
+    @staticmethod
+    def parse_wos(filenames):
+        """
+        解析wos的数据
+        ER记录结束
+        """
+        ds = []
+        if isinstance(filenames, str):
+            filenames = [filenames]
+        # 字段说明参考https://www.jianshu.com/p/964f3e44e431
 
+        for filename in filenames:
+            with open(filename, encoding='utf-8') as f:
+                flags = ['PT','AU','AF','BA','BF','CA','GP','BE','TI','SO','SE','BS','LA','DT','CT','CY','CL'
+                    ,'SP','AB','C1','C3','RP','EM','RI','OI','CR','NR','TC','Z9','U1','U2','PU','PI','PA'
+                    ,'BN','PY','BP','EP','DI','PG','WC','WE','SC','GA','UT','OA','DA','DE','SN','J9','JI','VL','AR','ID','EI'
+                    ,'PD','IS','FU','FX','PM','SU','SI','EA','HO','D2','PN'
+                    ,'ER','EF']
+                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+
+                flag = ''
+                record = {}
+                for line in lines[2:]:
+                    start = line[:2]
+                    if start in flags:
+                        flag = start
+                        # 是否记录结束
+                        if flag == 'ER':
+                            if record:
+                                ds.append(record)
+                            record = {}
+                            continue
+                        # 文件结束
+                        elif flag =='EF':
+                            if record:
+                                ds.append(record)
+                            break
+                        # 新的字段开始
+                        record[flag] = [line[2:]]
+                    elif start.strip()=='':
+                        # 还是属于上一个字段的内容
+                        record[flag].append(line[3:])
+                    else:
+                        raise Exception('出现新的字段类型 '+flag)
+        print(len(ds))
+
+
+if __name__ == '__main__':
+    Parser.parse_wos('../files/WOS-NLP-1000.txt')

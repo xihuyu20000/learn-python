@@ -49,7 +49,7 @@ class Worker(QThread):
 
 class Cfg:
     table_header_bgcolor = 'lightblue'
-    seperator = ';'
+    seperator = '|'
     workspace = 'D:\工作空间'
     datafiles = os.path.join(workspace, 'datafiles')
     models = os.path.join(workspace, 'models')
@@ -458,7 +458,7 @@ class PopupRowDistinct(QWidget):
             # 计算出相似度
             threshold = int(self.limited) / 100
             assert threshold<=1 and threshold>0
-            result: Dict[int, float] = Utils.calculate_jaccard_similarity2(threshold, source_words, targets)
+            result: Dict[int, float] = Utils.calculate_jaccard_similarity(threshold, source_words, targets)
             # print(threshold, result, source_words, targets)
             # print('比较结果', result)
             if result:
