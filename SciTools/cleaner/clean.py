@@ -3,13 +3,12 @@ import re
 import sys
 import time
 from collections import Counter
-from typing import List
+from typing import List, Set, Dict
 
 import jieba
 import pandas as pd
-from PySide6 import QtGui
 from PySide6.QtCore import Qt, Signal, QThread
-from PySide6.QtGui import QIcon, QAction, QBrush, QColor
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication, QSplitter, QSizePolicy, \
     QFrame, QHBoxLayout, QPushButton, QSpacerItem, QToolButton, QToolBar, QTabWidget, QFileDialog, QLineEdit, QMenu, \
     QTableWidgetItem, QTableWidget, QListWidget, \
@@ -17,71 +16,13 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication, QSplitter, QSi
     QHeaderView
 from loguru import logger
 from pandas import DataFrame
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from zhon.hanzi import punctuation
 
+from cleaner.helper import Parser, Utils, Minhash
 from cleaner.toolkit import ListKit, TableKit, FrameKit, VBoxKit, HBoxKit, PushButtonKit, OKButtonKit
 
 logger.add("clean.log", encoding="utf-8", enqueue=True, rotation="500MB", retention="10 days")
 
 import secrets
-
-
-class Utils:
-    @staticmethod
-    def resort_columns(old_names:List[str], new_names:List[str]):
-        """
-        新插入的列，位于原有列的后面
-        """
-        for new1 in new_names:
-            old_names.remove(new1)
-
-        for new1 in new_names:
-            i = old_names.index(new1[:new1.rfind('-')])
-            old_names.insert(i + 1, new1)
-
-        return old_names
-
-    @staticmethod
-    def calculate_cosine_similarity(text1: str, text2: str):
-        vectorizer = CountVectorizer()
-        corpus = [text1, text2]
-        vectors = vectorizer.fit_transform(corpus)
-        similarity = cosine_similarity(vectors)
-        return similarity[0][1]
-
-    @staticmethod
-    def calculate_jaccard_similarity(arr1, arr2):
-        set1, set2 = set(arr1), set(arr2)
-        intersection = len(set1.intersection(set2))
-        union = len(set1.union(set2))
-        if union == 0:
-            return 0
-        return intersection / union
-
-    @staticmethod
-    def generate_random_color():
-        """
-        生成任意颜色
-        """
-        red = secrets.randbelow(256)
-        green = secrets.randbelow(256)
-        blue = secrets.randbelow(256)
-        return red, green, blue
-
-    @staticmethod
-    def has_Chinese_or_punctuation(ws):
-        return Utils.has_Chinese(ws) or Utils.has_punctuation(ws)
-
-    @staticmethod
-    def has_Chinese(ws):
-        return any([True if '\u4e00' <= w <= '\u9fff' else False for w in jieba.lcut(ws)])
-
-    @staticmethod
-    def has_punctuation(ws):
-        # 中文符号
-        return any([True if w in punctuation else False for w in jieba.lcut(ws)])
 
 class Worker(QThread):
     # 实例化一个信号对象
@@ -115,56 +56,6 @@ class Cfg:
     formats = os.path.join(workspace, 'formats')
     dicts = os.path.join(workspace, 'dicts')
 
-
-class Parser:
-    """
-    导出txt时，文件末尾多2个空行
-    """
-    CORE_ITEMS = ('RT'  # 文献类型
-                  , 'A1'  # 作者
-                  , 'AD'  # 工作单位
-                  , 'T1'  # 题名
-                  , 'JF'  # 来源
-                  , 'YR'  # 出版年
-                  , 'FD'  # 出版日期
-                  , 'K1'  # 关键词
-                  , 'AB'  # 摘要
-                  )
-
-    @staticmethod
-    def parse_cnki(filenames) -> DataFrame:
-        """
-        解析cnki的refworks格式的数据
-        """
-        ds = []
-        if isinstance(filenames, str):
-            filenames = [filenames]
-
-        for filename in filenames:
-            with open(filename, encoding='utf-8') as f:
-
-                values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
-                          'FD': '',
-                          'K1': '',
-                          'AB': ''}
-                for linone, line in enumerate(f.readlines()):
-                    # 前2个字母是具体的key
-                    name = line[:2].strip()
-                    if name in Parser.CORE_ITEMS:
-                        values[name] = line[2:].strip()
-
-                    # 空行，表示上一条结束，新的一条开始
-                    if len(line.strip()) == 0:
-                        if values and len(values['RT']) > 0:
-                            ds.append(values)
-                        # 每次初始化数据
-
-                        values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '',
-                                  'K1': '',
-                                  'AB': ''}
-
-        df = pd.DataFrame(ds, dtype='object')
-        return df
 
 
 class DataFileWidget(QFrame):
@@ -484,7 +375,7 @@ class PopupRowDistinct(QWidget):
         names = self.column_names.selected_names()
 
         t1 = time.time()
-        words = []
+        words_list:List[Set[str]] = []
         df = self.get_df()
         for i in range(df.shape[0]):
             # 取一行多列
@@ -492,31 +383,49 @@ class PopupRowDistinct(QWidget):
             dd = [line.split(Cfg.seperator) for line in dd]
             # list拉平
             dd = sum(dd, [])
-            # TODO 结巴分词，分词后，相似度比较效果不好
-            dd = [list(jieba.cut(i.strip(), cut_all=False)) for i in dd if i.strip()]
-            dd = sum(dd, [])
-            words.append(' '.join(set(dd)))
+            words_list.append(set(dd))
 
+        words_copy = words_list.copy()
         pairs = []
-        self.color_map = {}
+        self.color_map:Dict[int,str] = {}
         # TODO 需要对words中的内容进行清洗
+
         group_no = 0
-        for i in range(len(words)):
+        for i in range(len(words_list)):
             group_no += 1
             self.color_map[group_no] = Utils.generate_random_color()
-            for j in range(i + 1, len(words)):
-                simil = Utils.calculate_jaccard_similarity(words[i], words[j])
-                # print(i, j, words[i], '|||', words[j], simil)
-                # 相似度v是小于1的数字
-                if simil * 100 >= limited:
-                    pairs.append([i, group_no, simil])
-                    pairs.append([j, group_no, simil])
+            # 第1个不取，形成三角矩阵，不包括对角线
+            used_indexes = [p[0] for p in pairs]
+            # 注意下面的判断逻辑：
+            # 1、index>i表示只处理后面的句子
+            # 2、index not in used_indexes表示不在 前面相似选择出来的范围内
+            # 符合以上一个条件，返回本身；否则，返回空串。这样的目的，是为了保持句子的原始顺序号不变化
+            sentences:List[Set[str]] = []
+            for index, words in enumerate(words_copy):
+                if index>i:
+                    if index not in used_indexes:
+                        sentences.append(words)
+                    else:
+                        sentences.append(set())
+                else:
+                    sentences.append(set())
+            # print('比较完成的index',used_indexes)
+            # print('待比较的句子', sentences)
+
+            # 计算出相似度
+            result = Utils.calculate_jaccard_similarity2(int(limited) / 100, words_list[i], sentences)
+            # print('比较结果', result)
+            if result:
+                # 把当前的句子放进去，第3个表示当前句子，使用None表示不跟自己比较相似度
+                pairs.append([i, group_no, None])
+                for index, simil in result.items():
+                    pairs.append([index, group_no, simil])
 
         # 封装一下
         self.group_dataset = []
         for item in pairs:
             # 分别是行号、组名、相似度
-            row0 = [item[0], item[1], '{:.1f}'.format(item[2] * 100)]
+            row0 = [item[0], item[1], '{:.1f}'.format(item[2] * 100) if item[2] is not None else '-']
             # 取出原始列，插入到集合中
             row0.extend(df.loc[item[0], names].tolist())
             self.group_dataset.append(row0)
@@ -587,25 +496,10 @@ class PopupRowDistinct(QWidget):
         table_headers.extend(self.header_names)
         df = pd.DataFrame(columns=table_headers, data=self.group_dataset)
         self.group_table.init_dataset(df)
-        # # 在表格中显示分组
-        # self.group_table.setColumnCount(len(table_headers))
-        # self.group_table.setRowCount(len(self.group_dataset))
-        # self.group_table.setHorizontalHeaderLabels(table_headers)
-        # self.group_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        #
-        # for i in range(len(self.group_dataset)):
-        #     for j in range(len(self.group_dataset[i])):
-        #         # 行号默认从0开始，手工+1
-        #         cell_value = self.group_dataset[i][j] + 1 if j == 0 else self.group_dataset[i][j]
-        #         # 组名
-        #         cell_value = f'{cell_value}组' if j == 1 else cell_value
-        #         self.group_table.setItem(i, j, QTableWidgetItem(str(cell_value)))
-        #         # 背景色
-        #         if j == 1:
-        #             c = self.color_map[self.group_dataset[i][1]]
-        #             self.group_table.item(i, j).setForeground(QBrush(QColor(c[0], c[1], c[2])))
-        #         self.group_table.item(i, j).setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-
+        # 显示背景色
+        for row_no in range(df.shape[0]):
+            group_no = df.iloc[row_no, 1]
+            self.group_table.set_bgcolor(row_no, 1, color=self.color_map[group_no])
 
     def __delete_group_table(self, row_no, can_delete):
         group_no = self.group_dataset[int(row_no)][1]
@@ -1497,12 +1391,6 @@ class PopupModifyValue(QFrame):
         table = self.get_table()
         table.set_item_writable(False)
 
-        # for i in range(df.shape[0]):
-        #     for j in range(df.shape[1]):
-        #         if df.iloc[i, j] != table.item(i, j).text():
-        #             df.iloc[i, j] = table.item(i, j).text()
-        # self.set_df(df)
-
         msg = '停止修改'
         self.label_msg.setText(msg)
 
@@ -1810,80 +1698,6 @@ class DatasetFrame(QWidget):
             return False
         QMessageBox.critical(self, '错误', '下面表格没有数据，无法保存')
         return True
-
-    # class DatasetTable(QTableWidget):
-    #     signal_statusbar = Signal(str)
-    #
-    #     def __init__(self):
-    #         super().__init__()
-    #         self.df: DataFrame = None
-    #
-    #         self.user_headers = None
-    #         self.setContextMenuPolicy(Qt.CustomContextMenu)
-    #         self.customContextMenuRequested.connect(self.show_body_context_menu)
-    #         self.setSortingEnabled(True)
-    #         self.horizontalHeader().setSectionsMovable(True)
-    #
-    #     def set_df(self, df: DataFrame):
-    #         self.df = df
-    #         self.__fillData()
-    #
-    #     def flush_user_headers(self):
-    #         if self.user_headers:
-    #             headers = []
-    #
-    #             for k in self.df.columns:
-    #                 v = self.user_headers[k]
-    #                 # 如果v是空，取k
-    #                 v = v if v.strip() != '' else k
-    #                 headers.append(v)
-    #
-    #             self.setHorizontalHeaderLabels(headers)
-    #
-    #     def __fillData(self):
-    #         """
-    #         填充数据，并显示统计信息
-    #         """
-    #         self.df.reset_index(drop=True, inplace=True)
-    #         self.setColumnCount(self.df.shape[1])
-    #         self.setRowCount(self.df.shape[0])
-    #         self.setHorizontalHeaderLabels(self.df.columns)
-    #         for i, row in self.df.iterrows():
-    #             for j, _ in enumerate(row):
-    #                 item = QTableWidgetItem(str(self.df.iloc[i, j]))
-    #                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-    #                 self.setItem(i, j, item)
-    #
-    #     def show_body_context_menu(self):
-    #         """
-    #         显示数据的右键菜单
-    #         """
-    #         body_menu = QMenu(self)
-    #
-    #         self.act_column_chooseall = QAction('选中列')
-    #         self.act_column_chooseall.triggered.connect(self.action_column_chooseall)
-    #         body_menu.addAction(self.act_column_chooseall)
-    #
-    #         self.act_row_delete = QAction('删除行')
-    #         self.act_row_delete.triggered.connect(self.action_row_delete)
-    #         body_menu.addAction(self.act_row_delete)
-    #
-    #         self.act_column_delete = QAction('删除列')
-    #         self.act_column_delete.triggered.connect(self.action_column_delete)
-    #         body_menu.addAction(self.act_column_delete)
-    #
-    #         body_menu.move(QtGui.QCursor().pos())
-    #         body_menu.show()
-    #
-    #     def update_table_cell(self):
-    #
-    #         # items 是一个列表，每个元素是QTableWidgetItem
-    #         items = self.selectedItems()
-    #         if len(items) == 0:
-    #             return
-    #         item = items[0]
-    #         self.df.iloc[item.row(), item.column()] = item.text()
-    #         self.signal_statusbar.emit('更新数据 ' + item.text())
 
 
 class DataConfigWidget(QWidget):

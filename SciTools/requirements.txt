@@ -22,6 +22,7 @@ annoy
 #ray
 dask
 modin
+simhash
 
 
 # pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple

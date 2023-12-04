@@ -1,73 +1,23 @@
-import sys
-from PySide6.QtWidgets import QApplication, QTableView, QVBoxLayout, QWidget
-from PySide6.QtCore import Qt, QModelIndex, QAbstractTableModel
-import pandas as pd
+from simhash import Simhash
 
-class PandasTableModel(QAbstractTableModel):
-    def __init__(self, data):
-        super().__init__()
-        self._data = data
+def calculate_similarity(sentence1, sentence2):
+    # 创建Simhash对象
+    hash1 = Simhash(sentence1)
+    hash2 = Simhash(sentence2)
 
-    def rowCount(self, parent=QModelIndex()):
-        return len(self._data)
+    # 计算汉明距离
+    distance = hash1.distance(hash2)
 
-    def columnCount(self, parent=QModelIndex()):
-        return len(self._data.columns) if not self._data.empty else 0
+    # 设置阈值，可以根据需要调整
+    threshold = 3
 
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return None
+    # 判断相似度
+    similarity = 1 - distance / threshold if distance <= threshold else 0
+    return similarity
 
-        row = index.row()
-        col = index.column()
+# 示例
+sentence1 = "This is a sample sentence for testing."
+sentence2 = "This is a sample sentence for evaluation."
 
-        if role == Qt.DisplayRole:
-            return str(self._data.iloc[row, col])
-
-        return None
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return str(self._data.columns[section])
-
-        return None
-
-    def sort(self, column, order):
-        if order == Qt.AscendingOrder:
-            self._data = self._data.sort_values(self._data.columns[column], ascending=True)
-        else:
-            self._data = self._data.sort_values(self._data.columns[column], ascending=False)
-
-        self.layoutChanged.emit()
-
-class TableViewExample(QWidget):
-    def __init__(self, data):
-        super().__init__()
-
-        self.model = PandasTableModel(data)
-
-        self.table_view = QTableView()
-        self.table_view.setModel(self.model)
-
-        # 允许表头点击进行排序
-        self.table_view.setSortingEnabled(True)
-
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.table_view)
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    # 创建示例 DataFrame
-    data = {
-        'Name': ['John', 'Jane', 'Bob', 'Alice'],
-        'Age': [30, 25, 40, 35],
-        'Salary': [50000, 60000, 55000, 70000]
-    }
-    df = pd.DataFrame(data)
-
-    # 创建 TableViewExample 实例
-    window = TableViewExample(df)
-    window.show()
-
-    sys.exit(app.exec())
+similarity = calculate_similarity(sentence1, sentence2)
+print(f"句子相似度：{similarity}")
