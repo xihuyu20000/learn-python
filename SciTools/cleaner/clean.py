@@ -252,7 +252,9 @@ class PopupMetadata(QFrame):
 
     def init_table_freq(self, tab_freq):
         df = self.get_dataset()
-        for i, name in enumerate(df.columns):
+
+        columns = df.columns.tolist()
+        for i, name in enumerate(columns):
             tab_freq.addTab(self.__create_tab_widget(df.loc[:, name].tolist()), name)
 
     def action_ok(self):
@@ -290,7 +292,8 @@ class PopupRowDistinct(QWidget):
 
     参考  https://zhuanlan.zhihu.com/p/667980876
     """
-
+    GROUP_LABEL_TEXT = '组号'
+    ORIGINAL_LABEL_TEXT = '原行号'
     def __init__(self, parent=None, title=''):
         super().__init__()
         self.parent = parent
@@ -307,7 +310,6 @@ class PopupRowDistinct(QWidget):
 
         # 左侧是表头列表，单选
         left_frame = QFrame()
-        left_frame.setFixedWidth(50)
         main_layout.addWidget(left_frame)
         left_layout = VBoxKit(left_frame)
         left_layout.addWidget(QLabel('可以多选'))
@@ -349,7 +351,8 @@ class PopupRowDistinct(QWidget):
         center_layout.addWidget(self.label_msg)
 
         ### 第4行
-        btn_ok = OKButtonKit('OK', callback=lambda: self.action_ok(slider_horizon.value()))
+        self.limited = slider_horizon.value()
+        btn_ok = OKButtonKit('OK', callback=lambda :self.action_ok(slider_horizon.value()))
         center_layout.addWidget(btn_ok)
 
         #####################################################
@@ -359,127 +362,153 @@ class PopupRowDistinct(QWidget):
         table_toolbar_layout.setContentsMargins(0, 10, 0, 0)
         container_layout.addWidget(table_toolbar)
 
-        btn1 = PushButtonKit('删除该分组', callback=self.action_not_combine)
-        btn2 = PushButtonKit('合并该分组', callback=self.action_combine_current_group)
-        btn3 = PushButtonKit('合并所有分组', callback=self.action_combine_all)
+        btn1 = PushButtonKit('合并该分组', callback=self.action_combine_current_group)
         table_toolbar_layout.addWidget(btn1)
+
+        btn2 = PushButtonKit('保存修改', callback=self.action_save)
         table_toolbar_layout.addWidget(btn2)
-        table_toolbar_layout.addWidget(btn3)
+
         #  最下面是表格
-        self.group_dataset = []
-        self.group_table = TableKit(single_select=True, vertical_header_hide=True)
+        self.group_table = TableKit(vertical_header_hide=False)
         container_layout.addWidget(self.group_table)
 
-    def action_ok(self, limited: int):
+    def action_ok(self, limited):
         logger.error('行去重，这里还有大问题，多次点击ok有问题')
-        names = self.column_names.selected_names()
-
+        column_names = self.column_names.selected_names()
+        # 保存阈值
+        self.limited = limited
+        # 在分组表中，删除的分组号
+        self.deleted_group_nos = []
         t1 = time.time()
-        words_list:List[Set[str]] = []
+        #############################################################################3
+        # 对df的每一行的选中的列，拆分成set，放入到words_list中。这里不需要进行jieba分词，但是需要数据清洗
+
         df = self.get_df()
+        # words_list的长度与df的行数相同
+        words_list: List[Set[str]] = []
+        # 遍历ds所有行
         for i in range(df.shape[0]):
             # 取一行多列
-            dd = df.loc[i, names].tolist()
-            dd = [line.split(Cfg.seperator) for line in dd]
+            dd = df.loc[i, column_names].tolist()
+            # TODO 需要对cut使用停用词表
+            stop_words = [';']
+            dd = [[item.strip() for item in re.split(r'\s+|;', line) if item.strip() not in stop_words] for line in dd]
             # list拉平
             dd = sum(dd, [])
             words_list.append(set(dd))
+        ###############################################################################
+        # 计算相似度
+        # pairs是list，每一项是list，有4项，分别是行号、组号、相似度、记录码
+        pairs_dict = []
 
-        words_copy = words_list.copy()
-        pairs = []
-        self.color_map:Dict[int,str] = {}
-        # TODO 需要对words中的内容进行清洗
+        self.__calc_similarity(df, words_list, pairs_dict)
 
+        ######################################################################################
+        # 封装成DataFrame
+        group_dataset = []
+        for item in pairs_dict:
+            # 分别是行号、组名、相似度
+            row0 = item.copy()
+            # 取出原始列，插入到集合中
+            row0.extend(df.loc[item[0], column_names].tolist())
+            # print('row0', row0)
+            group_dataset.append(row0)
+
+        header_names = [PopupRowDistinct.ORIGINAL_LABEL_TEXT, PopupRowDistinct.GROUP_LABEL_TEXT, '相似度(%)']+column_names
+
+        group_df = pd.DataFrame(columns=header_names, data=group_dataset)
+
+        #########################################################################################
+        # 对原始数据集，增加分组列，方便后续更新
+        self.df_bak = self.get_df()
+        # key是行号，vale是组号
+        index_group_dict = {item[0]:item[1] for item in group_dataset}
+        self.df_bak['group'] = [index_group_dict[i] if i in index_group_dict else '' for i in range(self.df_bak.shape[0])]
+
+        #########################################################################################
+        # 展示表格
+        self.group_table.init_dataset(group_df)
+
+
+        t2 = time.time()
+        msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(column_names), round(t2 - t1, 2))
+        self.label_msg.setText(msg)
+    def __calc_similarity(self, df, words_list, pairs_dict) :
         group_no = 0
-        for i in range(len(words_list)):
-            group_no += 1
-            self.color_map[group_no] = Utils.generate_random_color()
+        for source_i, source_words in enumerate(words_list):
             # 第1个不取，形成三角矩阵，不包括对角线
-            used_indexes = [p[0] for p in pairs]
+            used_indexes = [p[0] for p in pairs_dict]
             # 注意下面的判断逻辑：
             # 1、index>i表示只处理后面的句子
             # 2、index not in used_indexes表示不在 前面相似选择出来的范围内
             # 符合以上一个条件，返回本身；否则，返回空串。这样的目的，是为了保持句子的原始顺序号不变化
-            sentences:List[Set[str]] = []
-            for index, words in enumerate(words_copy):
-                if index>i:
+            targets: List[Set[str]] = []
+            # 以下的代码不能合并到一起，必须保持这样
+            for index, words in enumerate(words_list):
+                if index > source_i:
                     if index not in used_indexes:
-                        sentences.append(words)
+                        targets.append(words)
                     else:
-                        sentences.append(set())
+                        targets.append(set())
                 else:
-                    sentences.append(set())
+                    targets.append(set())
             # print('比较完成的index',used_indexes)
             # print('待比较的句子', sentences)
 
             # 计算出相似度
-            result = Utils.calculate_jaccard_similarity2(int(limited) / 100, words_list[i], sentences)
+            threshold = int(self.limited) / 100
+            assert threshold<=1 and threshold>0
+            result: Dict[int, float] = Utils.calculate_jaccard_similarity2(threshold, source_words, targets)
+            # print(threshold, result, source_words, targets)
             # print('比较结果', result)
             if result:
+                # 组号+1
+                group_no += 1
                 # 把当前的句子放进去，第3个表示当前句子，使用None表示不跟自己比较相似度
-                pairs.append([i, group_no, None])
-                for index, simil in result.items():
-                    pairs.append([index, group_no, simil])
+                pairs_dict.append([source_i, group_no, '-'])
+                for target_index, simil in result.items():
+                    pairs_dict.append([target_index, group_no, '{:.1f}'.format(simil * 100)])
+        logger.info(pairs_dict)
 
-        # 封装一下
-        self.group_dataset = []
-        for item in pairs:
-            # 分别是行号、组名、相似度
-            row0 = [item[0], item[1], '{:.1f}'.format(item[2] * 100) if item[2] is not None else '-']
-            # 取出原始列，插入到集合中
-            row0.extend(df.loc[item[0], names].tolist())
-            self.group_dataset.append(row0)
+    def action_save(self):
+        logger.error('保存修改')
+        """
+        根据self.deleted_group_nos的值，更新原始表
+        """
+        no_changed = self.df_bak[~self.df_bak['group'].isin(self.deleted_group_nos)]
+        will_changed = self.df_bak[self.df_bak['group'].isin(self.deleted_group_nos)]
+        will_changed.drop_duplicates(subset=['group'], keep='first', inplace=True)
+        changed = pd.concat([no_changed, will_changed], axis=0, ignore_index=True)
+        changed.drop(columns=['group'], inplace=True)
 
-        self.header_names = names
-        self.__fill_table_data()
+        # print(no_changed)
+        # print(will_changed)
+        # print(changed)
 
-        t2 = time.time()
-        msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        self.label_msg.setText(msg)
-
-    def action_not_combine(self):
-        logger.info('删除该分组，不合并')
-        rows = self.group_table.get_selected_rows()
-        # rows = [item.row() for item in self.group_table.selectedItems()]
-        if not rows:
-            QMessageBox.critical(self, '错误', '请选择一行')
-            return
-
-        row_no = rows[0]
-        self.__delete_group_table(row_no, False)
+        self.set_df(changed)
 
     def action_combine_current_group(self):
         logger.error('合并该分组')
-        rows = [item.row() for item in self.group_table.selectedItems()]
-        if not rows:
+        row_nos = self.group_table.get_selected_rows()
+        if not row_nos:
             QMessageBox.critical(self, '错误', '请选择一行')
             return
-        row_no = rows[0]
-        self.__delete_group_table(row_no, True)
 
-    def action_combine_all(self):
-        logger.error('合并所有分组')
+        df = self.group_table.get_dataset()
 
-        if self.group_table.rowCount() == 0:
-            QMessageBox.critical(self, '错误', '请选进行分组，再执行合并')
-            return
+        # 更新当前分组表
+        group_nos = df.loc[row_nos, PopupRowDistinct.GROUP_LABEL_TEXT].tolist()
+        # 添加到删除表中
+        self.deleted_group_nos.extend(group_nos)
+        current_rownos = df[df[PopupRowDistinct.GROUP_LABEL_TEXT].isin(group_nos)].index.tolist()
+        self.group_table.remove_rows(current_rownos)
 
-        temp_group_name = ''
-        original_nos = []
-        for row in self.group_dataset:
-            if row[1] != temp_group_name:
-                original_nos.append(row[0])
-                temp_group_name = row[1]
-
-        self.group_table.setRowCount(0)
-        df = self.get_df()
-        df = df.iloc[original_nos, :]
-        self.set_df(df)
 
     def set_column_names(self, names):
         if names is not None:
             self.column_names.set_dataset(names)
-
+    def get_table(self):
+        return self.parent.tableKit
     def get_df(self):
         return self.parent.tableKit.get_dataset()
 
@@ -489,30 +518,32 @@ class PopupRowDistinct(QWidget):
     def value_changed(self, lbl, val):
         lbl.setText(str(val))
 
-    def __fill_table_data(self):
-        logger.info('开始在table显示')
-        # 表格的列名
-        table_headers = ['原行号', '组名', '相似度(%)']
-        table_headers.extend(self.header_names)
-        df = pd.DataFrame(columns=table_headers, data=self.group_dataset)
-        self.group_table.init_dataset(df)
-        # 显示背景色
-        for row_no in range(df.shape[0]):
-            group_no = df.iloc[row_no, 1]
-            self.group_table.set_bgcolor(row_no, 1, color=self.color_map[group_no])
-
-    def __delete_group_table(self, row_no, can_delete):
-        group_no = self.group_dataset[int(row_no)][1]
-        original_nos = [row[0] for row in self.group_dataset if row[1] == group_no]
-        self.group_dataset = [row for row in self.group_dataset if row[0] not in original_nos]
-        self.__fill_table_data()
-        if can_delete:
-            df = self.get_df()
-            print('保留的行号', original_nos[0])
-            df.drop(original_nos[1:], inplace=True)
-            self.set_df(df)
-
-
+    def __delete_group_table(self, current_ids, original_ids):
+        """
+        current_ids:表示当前表格的索引列表
+        original_ids:表示大表格的索引列表
+        """
+        if current_ids:
+            self.group_table.remove_rows(current_ids)
+        if original_ids:
+            self.get_table().remove_rows_reserve_index(original_ids)
+    def __get_original_same_group(self, df, row_nos) -> List[int]:
+        group_nos = df.loc[row_nos, PopupRowDistinct.GROUP_LABEL_TEXT]
+        org_nos = df.where(df[PopupRowDistinct.GROUP_LABEL_TEXT] in group_nos).loc[:, PopupRowDistinct.ORIGINAL_LABEL_TEXT]
+        # 去掉nan
+        org_nos = org_nos.dropna(axis=0).tolist()
+        # 小数转整数
+        org_nos = [int(i) for i in org_nos]
+        return org_nos
+    def __get_current_same_group(self, df, row_nos) -> List[int]:
+        group_nos = df.loc[row_nos, PopupRowDistinct.GROUP_LABEL_TEXT]
+        print('current组号', group_nos)
+        # 先找到同一个组的行，然后去掉空行
+        org_nos = df.where(df[PopupRowDistinct.GROUP_LABEL_TEXT] in group_nos).dropna(axis=0)
+        # 获得索引
+        deleted_nos = org_nos.index.tolist()
+        print('current将要删除', deleted_nos)
+        return deleted_nos
 
 class PopupSplitColumn(QFrame):
     """

@@ -1,23 +1,12 @@
-from simhash import Simhash
+import pandas as pd
 
-def calculate_similarity(sentence1, sentence2):
-    # 创建Simhash对象
-    hash1 = Simhash(sentence1)
-    hash2 = Simhash(sentence2)
+df = pd.read_excel('files/1.xlsx')
 
-    # 计算汉明距离
-    distance = hash1.distance(hash2)
+row_nos = [2,3]
 
-    # 设置阈值，可以根据需要调整
-    threshold = 3
+# 求出组号
+group_nos = df.loc[row_nos,'GROUP'].tolist()
+uuids = df[df['GROUP'].isin(group_nos)].loc[:,'--UUID--']
+print(uuids)
 
-    # 判断相似度
-    similarity = 1 - distance / threshold if distance <= threshold else 0
-    return similarity
-
-# 示例
-sentence1 = "This is a sample sentence for testing."
-sentence2 = "This is a sample sentence for evaluation."
-
-similarity = calculate_similarity(sentence1, sentence2)
-print(f"句子相似度：{similarity}")
+print(df.drop(uuids.index))

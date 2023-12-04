@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from PySide6 import QtCore, QtWidgets
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QModelIndex
 from PySide6.QtGui import QAction, QBrush, QColor
 from PySide6.QtWidgets import QFrame, QPushButton, QMenu, \
     QListWidget, \
@@ -85,23 +85,32 @@ class TableKit(QFrame):
         """
         获取数据的copy
         """
-        return self._model.pub_get_dataset()
+        df = self._model.pub_get_dataset()
+        return df
 
     def remove_rows(self, rows: List[int]):
         """
         删除多行
         """
-        ds = self.get_dataset()
-        ds.drop(index=ds.index[rows], inplace=True)
-        self.set_dataset(ds)
+        if rows is not None and len(rows) > 0:
+            ds = self.get_dataset()
+            ds.drop(index=ds.index[rows], inplace=True)
+            self.set_dataset(ds)
+
+    def remove_rows_reserve_index(self, indexes:List[int]):
+        """
+        删除行，但是不改变索引
+        """
+        self._model.pub_remove_rows_reserve_index(indexes)
 
     def remove_columns(self, columns: List[int]):
         """
         删除多列
         """
-        ds = self.get_dataset()
-        ds.drop(columns=ds.columns[columns], inplace=True)
-        self.set_dataset(ds)
+        if columns is not None and len(columns) > 0:
+            ds = self.get_dataset()
+            ds.drop(columns=ds.columns[columns], inplace=True)
+            self.set_dataset(ds)
 
     def remove_selected_columns(self):
         """
@@ -117,14 +126,16 @@ class TableKit(QFrame):
         row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
         self.remove_rows(row_indexes)
 
-    def get_selected_rows(self):
-        return [item.row() for item in self._table.selectedItems()]
 
-    def set_dataset(self, df):
+    def get_selected_rows(self):
+        return [index[0] for index in self._table.pub_selected_indexes()]
+
+    def set_dataset(self, df, inplace_index=True, drop_index=True):
         # 1、更新模型
-        self._model.pub_update_dataset(df, inplace_index=True, reset_index=True)
+        self._model.pub_update_dataset(df, inplace_index=inplace_index, drop_index=drop_index)
         # 2、更新表格视图
         self._table.reset()
+
 
     def set_bgcolor(self, i, j, color):
         self._model.pub_set_bgcolor(i, j, color)
@@ -135,7 +146,7 @@ class TableKit(QFrame):
         self._model.pub_set_item_writable(writable)
     def init_dataset(self, df):
         # 1、更新模型
-        self._model.pub_update_dataset(df, inplace_index=False, reset_index=False)
+        self._model.pub_update_dataset(df, inplace_index=False, drop_index=False)
         # 2、更新表格视图
         self._table.reset()
 
@@ -169,6 +180,7 @@ class TableKit(QFrame):
             """
             if role in (Qt.DisplayRole , Qt.EditRole):
                 value = self._data.iloc[index.row(), index.column()]
+
                 return str(value)
             elif role == Qt.BackgroundRole:
                 i = '{0}_{1}'.format(index.row(), index.column())
@@ -190,6 +202,7 @@ class TableKit(QFrame):
             """
             设置行标题和列标题
             """
+
             if role == Qt.DisplayRole:
                 if orientation == Qt.Horizontal:
                     key = str(self._data.columns[section])
@@ -203,16 +216,14 @@ class TableKit(QFrame):
             if self._cell_writable:
                 return Qt.ItemIsEnabled | Qt.ItemIsEditable
             else:
-                return Qt.ItemIsEnabled
+                return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
         def setData(self, index, value, role=Qt.EditRole):
-            print(index.isValid(), index.row(), index.column())
             if index.isValid() and role == Qt.EditRole:
                 # 在这里保存修改后的数据
                 self._data.iloc[index.row(), index.column()] = value
                 self.dataChanged.emit(index, index)
                 return True
-
             return False
 
         def sort(self, column, order):
@@ -223,10 +234,21 @@ class TableKit(QFrame):
                     self._data = self._data.sort_values(self._data.columns[column], ascending=False)
 
                 self.layoutChanged.emit()
-        def pub_update_dataset(self, df, inplace_index, reset_index):
+
+        def removeRow(self, row, parent=QModelIndex()):
+            self.beginRemoveRows(parent, row, row)
+            self._data = self._data.drop(self._data.index[row])
+            self.endRemoveRows()
+
+        def pub_remove_rows_reserve_index(self, indexes):
+            for i in indexes:
+                self.removeRow(i)
+
+
+        def pub_update_dataset(self, df, inplace_index, drop_index):
             self.beginResetModel()
             self._data = df
-            self._data.reset_index(inplace=inplace_index, drop= reset_index)
+            self._data.reset_index(inplace=inplace_index, drop= drop_index)
             self.endResetModel()
 
         def pub_get_dataset(self):
@@ -260,6 +282,7 @@ class TableKit(QFrame):
 
         def sortByColumn(self, column, order):
             print('视图排序')
+
 class ListKit(QFrame):
     """
     封装所有的列表操作
