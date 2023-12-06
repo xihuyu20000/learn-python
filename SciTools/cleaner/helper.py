@@ -1,16 +1,247 @@
+import os
 import secrets
 import uuid
-from typing import List, Set, Dict
+from typing import List, Dict
 
 import jieba
-import pandas as pd
-from datasketch import MinHashLSH, MinHash
-from pandas import DataFrame
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import wmi
+from strenum import StrEnum
 from zhon.hanzi import punctuation
+
+
+class Cfg:
+    table_header_bgcolor = 'lightblue'
+    seperator = ';'
+    # workspace = 'D:\工作空间'
+    workspace = os.path.abspath(os.curdir)
+    datafiles = os.path.join(workspace, 'datafiles')
+    models = os.path.join(workspace, 'models')
+    dicts = os.path.join(workspace, 'dicts')
+class FileFormat(StrEnum):
+    CNKI = 'CNKI'
+    WOS = 'WOS'
+
+# -*- codeding = uft-8 -*-
+
+
+class Md5:
+    @staticmethod
+    def int2bin(n, count=24):
+        return "".join([str((n >> y) & 1) for y in range(count-1, -1, -1)])
+
+    class MD5Algo(object):
+        # 初始化密文
+        def __init__(self, message):
+            self.message = message
+            self.ciphertext = ""
+
+            self.A = 0x67452301
+            self.B = 0xEFCDAB89
+            self.C = 0x98BADCFE
+            self.D = 0x10325476
+            self.init_A = 0x67452301
+            self.init_B = 0xEFCDAB89
+            self.init_C = 0x98BADCFE
+            self.init_D = 0x10325476
+            '''
+            self.A = 0x01234567
+            self.B = 0x89ABCDEF
+            self.C = 0xFEDCBA98
+            self.D = 0x76543210
+             '''
+            #设置常数表T
+            self.T = [0xD76AA478,0xE8C7B756,0x242070DB,0xC1BDCEEE,0xF57C0FAF,0x4787C62A,0xA8304613,0xFD469501,
+                        0x698098D8,0x8B44F7AF,0xFFFF5BB1,0x895CD7BE,0x6B901122,0xFD987193,0xA679438E,0x49B40821,
+                        0xF61E2562,0xC040B340,0x265E5A51,0xE9B6C7AA,0xD62F105D,0x02441453,0xD8A1E681,0xE7D3FBC8,
+                        0x21E1CDE6,0xC33707D6,0xF4D50D87,0x455A14ED,0xA9E3E905,0xFCEFA3F8,0x676F02D9,0x8D2A4C8A,
+                        0xFFFA3942,0x8771F681,0x6D9D6122,0xFDE5380C,0xA4BEEA44,0x4BDECFA9,0xF6BB4B60,0xBEBFBC70,
+                        0x289B7EC6,0xEAA127FA,0xD4EF3085,0x04881D05,0xD9D4D039,0xE6DB99E5,0x1FA27CF8,0xC4AC5665,
+                        0xF4292244,0x432AFF97,0xAB9423A7,0xFC93A039,0x655B59C3,0x8F0CCC92,0xFFEFF47D,0x85845DD1,
+                        0x6FA87E4F,0xFE2CE6E0,0xA3014314,0x4E0811A1,0xF7537E82,0xBD3AF235,0x2AD7D2BB,0xEB86D391]
+            #循环左移位数
+            self.s = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
+                        5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+                        4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
+                        6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21]
+            self.m = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
+                        1,6,11,0,5,10,15,4,9,14,3,8,13,2,7,12,
+                        5,8,11,14,1,4,7,10,13,0,3,6,9,12,15,2,
+                        0,7,14,5,12,3,10,1,8,15,6,13,4,11,2,9]
+
+
+
+        # 附加填充位
+        def fill_text(self):
+            for i in range(len(self.message)):
+                c = Md5.int2bin(ord(self.message[i]), 8)
+                self.ciphertext += c
+
+            if (len(self.ciphertext)%512 != 448):
+                if ((len(self.ciphertext)+1)%512 != 448):
+                    self.ciphertext += '1'
+                while (len(self.ciphertext)%512 != 448):
+                    self.ciphertext += '0'
+
+            length = len(self.message)*8
+            if (length <= 255):
+                length = Md5.int2bin(length, 8)
+            else:
+                length = Md5.int2bin(length, 16)
+                temp = length[8:12]+length[12:16]+length[0:4]+length[4:8]
+                length = temp
+
+            self.ciphertext += length
+            while (len(self.ciphertext)%512 != 0):
+                self.ciphertext += '0'
+
+        # 分组处理（迭代压缩）
+        def circuit_shift(self, x, amount):
+            x &= 0xFFFFFFFF
+            return ((x << amount) | (x >> (32 - amount))) & 0xFFFFFFFF
+
+        def change_pos(self):
+            a = self.A
+            b = self.B
+            c = self.C
+            d = self.D
+            self.A = d
+            self.B = a
+            self.C = b
+            self.D = c
+
+        def FF(self, mj, s, ti):
+            mj = int(mj, 2)
+            temp = self.F(self.B, self.C, self.D) + self.A + mj + ti
+            temp = self.circuit_shift(temp, s)
+            self.A = (self.B + temp)%pow(2, 32)
+            self.change_pos()
+
+        def GG(self, mj, s, ti):
+            mj = int(mj, 2)
+            temp = self.G(self.B, self.C, self.D) + self.A + mj + ti
+            temp = self.circuit_shift(temp, s)
+            self.A = (self.B + temp)%pow(2, 32)
+            self.change_pos()
+
+        def HH(self, mj, s, ti):
+            mj = int(mj, 2)
+            temp = self.H(self.B, self.C, self.D) + self.A + mj + ti
+            temp = self.circuit_shift(temp, s)
+            self.A = (self.B + temp)%pow(2, 32)
+            self.change_pos()
+
+        def II(self, mj, s, ti):
+            mj = int(mj, 2)
+            temp = self.I(self.B, self.C, self.D) + self.A + mj + ti
+            temp = self.circuit_shift(temp, s)
+            self.A = (self.B + temp)%pow(2, 32)
+            self.change_pos()
+
+
+        def F(self, X, Y, Z):
+            return (X & Y) | ((~X) & Z)
+        def G(self, X, Y, Z):
+            return (X & Z) | (Y & (~Z))
+        def H(self, X, Y, Z):
+            return X ^ Y ^ Z
+        def I(self, X, Y, Z):
+            return Y ^ (X | (~Z))
+
+        def group_processing(self):
+            M = []
+            for i in range(0, len(self.ciphertext), 512):
+                # 获取当前分组
+                current_group = self.ciphertext[i:i+512]
+
+                # 处理当前分组...
+                # ...
+
+                # 更新 init_A、init_B、init_C、init_D
+                self.init_A = self.A
+                self.init_B = self.B
+                self.init_C = self.C
+                self.init_D = self.D
+
+                for j in range(0, 512, 32):
+                    num = ""
+                    # 获取每一段的标准十六进制形式
+                    for k in range(0, len(current_group[j:j+32]), 4):
+                        temp = current_group[j:j+32][k:k+4]
+                        temp = hex(int(temp, 2))
+                        num += temp[2]
+                    # 对十六进制进行小端排序
+                    num_tmp = ""
+                    for k in range(8, 0, -2):
+                        temp = num[k-2:k]
+                        num_tmp += temp
+
+                    num = ""
+                    for k in range(len(num_tmp)):
+                        num += Md5.int2bin(int(num_tmp[k], 16), 4)
+                    M.append(num)
+            #print(M)
+
+
+
+            for j in range(0, 16, 4):
+                self.FF(M[self.m[j]], self.s[j], self.T[j])
+                self.FF(M[self.m[j+1]], self.s[j+1], self.T[j+1])
+                self.FF(M[self.m[j+2]], self.s[j+2], self.T[j+2])
+                self.FF(M[self.m[j+3]], self.s[j+3], self.T[j+3])
+
+            for j in range(0, 16, 4):
+                self.GG(M[self.m[16+j]], self.s[16+j], self.T[16+j])
+                self.GG(M[self.m[16+j+1]], self.s[16+j+1], self.T[16+j+1])
+                self.GG(M[self.m[16+j+2]], self.s[16+j+2], self.T[16+j+2])
+                self.GG(M[self.m[16+j+3]], self.s[16+j+3], self.T[16+j+3])
+
+
+            for j in range(0, 16, 4):
+                self.HH(M[self.m[32+j]], self.s[32+j], self.T[32+j])
+                self.HH(M[self.m[32+j+1]], self.s[32+j+1], self.T[32+j+1])
+                self.HH(M[self.m[32+j+2]], self.s[32+j+2], self.T[32+j+2])
+                self.HH(M[self.m[32+j+3]], self.s[32+j+3], self.T[32+j+3])
+
+
+            for j in range(0, 16, 4):
+                self.II(M[self.m[48+j]], self.s[48+j], self.T[48+j])
+                self.II(M[self.m[48+j+1]], self.s[48+j+1], self.T[48+j+1])
+                self.II(M[self.m[48+j+2]], self.s[48+j+2], self.T[48+j+2])
+                self.II(M[self.m[48+j+3]], self.s[48+j+3], self.T[48+j+3])
+
+            self.A = (self.A+self.init_A)%pow(2, 32)
+            self.B = (self.B+self.init_B)%pow(2, 32)
+            self.C = (self.C+self.init_C)%pow(2, 32)
+            self.D = (self.D+self.init_D)%pow(2, 32)
+
+            """
+            print("A:{}".format(hex(self.A)))
+            print("B:{}".format(hex(self.B)))
+            print("C:{}".format(hex(self.C)))
+            print("D:{}".format(hex(self.D)))
+            """
+
+
+            answer = ""
+            for register in [self.A, self.B, self.C, self.D]:
+                if len(hex(register))!=10:
+                    str1 = list(hex(register))
+                    str1.insert(2,'0')
+                    str2 = ''.join(str1)
+                    register = str2[2:]
+                else:
+                    register = hex(register)[2:]
+                for i in range(8, 0, -2):
+                    answer += str(register[i-2:i])
+
+            return answer
+    @staticmethod
+    def get(msg):
+
+        MD5 = Md5.MD5Algo(msg)
+        MD5.fill_text()
+        result = MD5.group_processing()
+        return result
 
 class Utils:
     @staticmethod
@@ -27,18 +258,6 @@ class Utils:
             old_names.insert(i + 1, new1)
 
         return old_names
-
-    @staticmethod
-    def calculate_cosine_similarity(text1: str, text2: str):
-        """
-        夹角余弦
-        """
-        vectorizer = CountVectorizer()
-        corpus = [text1, text2]
-        vectors = vectorizer.fit_transform(corpus)
-        similarity = cosine_similarity(vectors)
-        return similarity[0][1]
-
 
     @staticmethod
     def calculate_jaccard_similarity(threshold, l1, sentences) ->Dict[int, float]:
@@ -88,7 +307,6 @@ class Utils:
         return any([True if w in punctuation else False for w in jieba.lcut(ws)])
 
 
-
     array = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
              "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
              "w", "x", "y", "z",
@@ -106,132 +324,53 @@ class Utils:
             val = int(id[start:end], 16)
             buffer.append(Utils.array[val % 62])
         return "".join(buffer)
-class Minhash:
-    """
-    大数据量，太慢了，需要优化
-    """
-    def create_minhash(self, data):
-        minhash = MinHash(num_perm=128)  # num_perm 是哈希函数的数量，可以根据需要调整
-        for d in data:
-            minhash.update(d.encode('utf8'))
-        return minhash
 
-    def run(self, threshold, original, sentences):
-        # 创建 MinHash 对象并插入到 LSH 中
-        self.lsh = MinHashLSH(threshold=threshold, num_perm=128)  # threshold 是相似度阈值，可以根据需要调整
-
-        for idx, sentence in enumerate(sentences):
-            minhash = self.create_minhash(list(sentence))
-            self.lsh.insert(idx, minhash)
-        # 查找相似的集合
-        query_minhash = self.create_minhash(list(original))
-        results = self.lsh.query(query_minhash)
-        # 输出相似度分数
-        pairs = {}
-        for result in results:
-            minhash = self.create_minhash(list(sentences[result]))
-            jaccard_similarity = query_minhash.jaccard(minhash)
-            # print(f"与 sentence 相似的句子 {result} 的相似度分数为: {jaccard_similarity}")
-            pairs[result] = jaccard_similarity
-        # print(pairs)
-        return  pairs
-
-
-class Parser:
-    """
-    导出txt时，文件末尾多2个空行
-    """
-    CORE_ITEMS = ('RT'  # 文献类型
-                  , 'A1'  # 作者
-                  , 'AD'  # 工作单位
-                  , 'T1'  # 题名
-                  , 'JF'  # 来源
-                  , 'YR'  # 出版年
-                  , 'FD'  # 出版日期
-                  , 'K1'  # 关键词
-                  , 'AB'  # 摘要
-                  )
-
-    @staticmethod
-    def parse_cnki(filenames) -> DataFrame:
+class MachineCode:
+    def __init__(self):
         """
-        解析cnki的refworks格式的数据
+        机器码，还有授权文件，还有验证
         """
-        ds = []
-        if isinstance(filenames, str):
-            filenames = [filenames]
+        self.m_wmi = wmi.WMI()
+        self.licence_path = os.path.join(os.path.expanduser('~'), '.licence.abc')
+    def __cpu(self):
+        cpu_info = self.m_wmi.Win32_Processor()
+        if len(cpu_info) > 0:
+            return cpu_info[0].ProcessorId
+        return ''
 
-        for filename in filenames:
-            with open(filename, encoding='utf-8') as f:
+    def __mac(self):
+        for network in self.m_wmi.Win32_NetworkAdapterConfiguration():
+            mac_address = network.MacAddress
+            if mac_address != None:
+                return mac_address
+        return ''
 
-                values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '',
-                          'FD': '',
-                          'K1': '',
-                          'AB': ''}
-                for linone, line in enumerate(f.readlines()):
-                    # 前2个字母是具体的key
-                    name = line[:2].strip()
-                    if name in Parser.CORE_ITEMS:
-                        values[name] = line[2:].strip()
-
-                    # 空行，表示上一条结束，新的一条开始
-                    if len(line.strip()) == 0:
-                        if values and len(values['RT']) > 0:
-                            ds.append(values)
-                        # 每次初始化数据
-
-                        values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '',
-                                  'K1': '',
-                                  'AB': ''}
-
-        df = pd.DataFrame(ds, dtype='object')
-        return df
-    @staticmethod
-    def parse_wos(filenames):
+    def __mainboard(self):
+        board_info = self.m_wmi.Win32_BaseBoard()
+        if len(board_info) > 0:
+            return board_info[0].SerialNumber.strip().strip('.')
+        return ''
+    def get_code(self):
         """
-        解析wos的数据
-        ER记录结束
+        获得机器码
         """
-        ds = []
-        if isinstance(filenames, str):
-            filenames = [filenames]
-        # 字段说明参考https://www.jianshu.com/p/964f3e44e431
+        combine_str = self.__mac() + self.__cpu() + self.__mainboard()
+        combine_byte = combine_str.encode("utf-8")
+        return Md5.get(combine_byte).upper()
 
-        for filename in filenames:
-            with open(filename, encoding='utf-8') as f:
-                flags = ['PT','AU','AF','BA','BF','CA','GP','BE','TI','SO','SE','BS','LA','DT','CT','CY','CL'
-                    ,'SP','AB','C1','C3','RP','EM','RI','OI','CR','NR','TC','Z9','U1','U2','PU','PI','PA'
-                    ,'BN','PY','BP','EP','DI','PG','WC','WE','SC','GA','UT','OA','DA','DE','SN','J9','JI','VL','AR','ID','EI'
-                    ,'PD','IS','FU','FX','PM','SU','SI','EA','HO','D2','PN'
-                    ,'ER','EF']
-                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+    def read_licence(self):
+        """
+        获取授权文件内容
+        """
 
-                flag = ''
-                record = {}
-                for line in lines[2:]:
-                    start = line[:2]
-                    if start in flags:
-                        flag = start
-                        # 是否记录结束
-                        if flag == 'ER':
-                            if record:
-                                ds.append(record)
-                            record = {}
-                            continue
-                        # 文件结束
-                        elif flag =='EF':
-                            if record:
-                                ds.append(record)
-                            break
-                        # 新的字段开始
-                        record[flag] = [line[2:]]
-                    elif start.strip()=='':
-                        # 还是属于上一个字段的内容
-                        record[flag].append(line[3:])
-                    else:
-                        raise Exception('出现新的字段类型 '+flag)
-        print(len(ds))
+        if os.path.exists(self.licence_path):
+            with open(self.licence_path, 'r', encoding='utf-8') as f:
+                return ''.join(f.readlines())
+        return ''
 
-
-if __name__ == '__main__':
-    Parser.parse_wos('../files/WOS-NLP-1000.txt')
+    def write_licence(self, text):
+        """
+        写入授权文件
+        """
+        with open(self.licence_path, 'w', encoding='utf-8') as f:
+            f.write(text)

@@ -5,9 +5,7 @@ coverage
 mypy
 requests
 lxml
-toml
 pandas
-scikit-learn
 openpyxl
 pyecharts
 flask
@@ -19,11 +17,11 @@ schedule
 jieba
 zhon
 annoy
-#ray
 dask
 modin
 simhash
 uuid
-
+StrEnum
+nuitka
 
 # pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple

@@ -1,0 +1,10 @@
+pyside6
+numpy
+pandas
+openpyxl
+strenum
+jieba
+zhon
+loguru
+pyinstaller
+wmi

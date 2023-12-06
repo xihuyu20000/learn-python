@@ -1,19 +1,98 @@
 import sys
 import time
-from collections import defaultdict
-from typing import List, Dict
+from typing import List
 
 import numpy as np
 import pandas as pd
 from PySide6 import QtCore, QtWidgets
 from PySide6 import QtGui
-from PySide6.QtCore import Qt, Signal, QModelIndex
-from PySide6.QtGui import QAction, QBrush, QColor
-from PySide6.QtWidgets import QFrame, QPushButton, QMenu, \
+from PySide6.QtCore import Qt, Signal, QModelIndex, QTimer
+from PySide6.QtGui import QBrush, QColor
+from PySide6.QtWidgets import QFrame, QPushButton, \
     QListWidget, \
-    QAbstractItemView, QTableView, QHBoxLayout, QVBoxLayout, QLabel, QWidget
-from loguru import logger
+    QAbstractItemView, QTableView, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLCDNumber
 
+class InfoKit(QWidget):
+    def __init__(self,):
+        super().__init__()
+        self.resize(300, 200)
+
+        # 隐藏标题栏
+        self.setWindowFlags(Qt.WindowSystemMenuHint | Qt.WindowCloseButtonHint)
+        #
+        self.setWindowTitle('消息')
+        # 设置边框样式
+        self.setStyleSheet("QWidget { background-color: #cbeae7; }")
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_time)
+        self.elapsed_time = 0
+
+        vbox=VBoxKit(self)
+        vbox.setContentsMargins(20, 20, 20, 20)
+
+        self.lcd_number = QLCDNumber(self)
+        self.lcd_number.display(0)
+
+        # 设置QLCDNumber的样式表
+        style_sheet = """
+            QLCDNumber {
+                background-color: white;
+                color: blue;
+                border: 2px solid gray;
+                border-radius: 10px;
+                padding:20px;
+            }
+        """
+        self.lcd_number.setStyleSheet(style_sheet)
+        vbox.addWidget(self.lcd_number)
+
+        self.label_msg = QLabel()
+        self.label_msg.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_msg.setStyleSheet("text-align: center; color: red;font-weight: bold; font-size: 18px;")
+        vbox.addWidget(self.label_msg)
+
+        font = QtGui.QFont()
+        font.setFamily('微软雅黑')
+        font.setBold(True)
+        font.setPointSize(20)
+        font.setWeight(QtGui.QFont.Weight.Bold)
+
+        self.ok_button = OKButtonKit('关闭', callback=self.action_ok)
+        self.ok_button.setFont(font)
+        vbox.addWidget(self.ok_button)
+
+    def msg(self, msg='运行中,请稍等', start=False, stop=False):
+        self.label_msg.setText(msg)
+
+        if start:
+            self.reset_timer()
+            if not self.timer.isActive():
+                self.timer.start(1)  # 启动定时器，每秒触发一次
+
+        if stop:
+            self.stop_timer()
+
+    def update_time(self):
+        self.elapsed_time += 1
+        milliseconds = self.elapsed_time % 1000
+        seconds = (self.elapsed_time // 1000) % 60
+        minutes = (self.elapsed_time // 60000) % 60
+        hours = self.elapsed_time // 3600000
+        time_str = "{:02}:{:02}:{:02}:{:03}".format(hours, minutes, seconds, milliseconds)
+        self.lcd_number.display(time_str)
+
+    def stop_timer(self):
+        self.timer.stop()
+        self.elapsed_time = 0
+    def reset_timer(self):
+        if self.timer.isActive():
+            self.timer.stop()
+        self.elapsed_time = 0
+        self.lcd_number.display("00:00:000")
+
+    def action_ok(self):
+        self.close()
 class VBoxKit(QVBoxLayout):
     def __init__(self, parent):
         super().__init__(parent)
@@ -292,6 +371,8 @@ class ListKit(QFrame):
     def __init__(self, single_selection: bool = False):
         super().__init__()
         self._layout = QtWidgets.QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
         self.inner_list = ListKit.InnerListWidget()
         self._layout.addWidget(self.inner_list)
 
@@ -376,7 +457,10 @@ if __name__ == '__main__':
     # win = MainWindow()
     # win.show()
 
-    frame = FrameKit()
-    frame.add_widgets(QLabel("aaaaaaaaa"), QPushButton("bbbbbbbbb")).show()
+    # frame = FrameKit()
+    # frame.add_widgets(QLabel("aaaaaaaaa"), QPushButton("bbbbbbbbb")).show()
 
+    kit = InfoKit()
+    kit.msg('阿达地方')
+    kit.show()
     app.exec()
