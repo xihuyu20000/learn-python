@@ -1,8 +1,8 @@
 import os
 import sys
 
-from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QLabel, QMessageBox
+from PySide2.QtGui import  QIcon
+from PySide2.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QLabel, QMessageBox, QAction
 
 from clean import CleanWidget
 from toolkit import VBoxKit
@@ -58,4 +58,4 @@ if __name__ == '__main__':
     mainWindow = MainWindow()
     mainWindow.show()
 
-    app.exec()
+    app.exec_()

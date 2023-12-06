@@ -4,11 +4,11 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from PySide6 import QtCore, QtWidgets
-from PySide6 import QtGui
-from PySide6.QtCore import Qt, Signal, QModelIndex, QTimer
-from PySide6.QtGui import QBrush, QColor
-from PySide6.QtWidgets import QFrame, QPushButton, \
+from PySide2 import QtCore, QtWidgets
+from PySide2 import QtGui
+from PySide2.QtCore import Qt, Signal, QModelIndex, QTimer
+from PySide2.QtGui import QBrush, QColor
+from PySide2.QtWidgets import QFrame, QPushButton, \
     QListWidget, \
     QAbstractItemView, QTableView, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLCDNumber
 
@@ -307,11 +307,8 @@ class TableKit(QFrame):
 
         def sort(self, column, order):
             if not self._data.empty:
-                if order == Qt.AscendingOrder:
-                    self._data = self._data.sort_values(self._data.columns[column], ascending=True)
-                else:
-                    self._data = self._data.sort_values(self._data.columns[column], ascending=False)
-
+                sort_order = True if order == Qt.AscendingOrder else False
+                self._data = self._data.sort_values(self._data.columns[column], ascending=sort_order)
                 self.layoutChanged.emit()
 
         def removeRow(self, row, parent=QModelIndex()):

@@ -2,7 +2,7 @@ import os
 import time
 
 import pandas as pd
-from PySide6.QtCore import QThread, Signal
+from PySide2.QtCore import QThread, Signal
 from pandas import DataFrame
 
 from helper import  Cfg, FileFormat
@@ -214,7 +214,10 @@ class DownloadThread(QThread):
 
     def run(self) -> None:
         self.signal_start.emit()
-        self.df.to_excel(self.fpath, index=False)
+        if self.fpath.endswith('.csv'):
+            self.df.to_csv(self.fpath, index=False)
+        else:
+            self.df.to_excel(self.fpath, index=False)
         msg = '成功下载数据'
         self.signal_stop.emit(msg)
 

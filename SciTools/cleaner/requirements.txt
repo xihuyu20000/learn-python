@@ -1,4 +1,4 @@
-pyside6
+pyside2
 numpy
 pandas
 openpyxl

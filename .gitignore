@@ -161,3 +161,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+SciTools/files/合并2.txt
+SciTools/cleaner/datafiles/500MB大文件.txt
+SciTools/cleaner/数据清洗/数据清洗.exe
+*.pkl
+SciTools/cleaner/数据清洗.rar
+SciTools/cleaner.rar

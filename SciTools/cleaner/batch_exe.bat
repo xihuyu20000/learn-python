@@ -7,6 +7,4 @@
 
 @rem rd/s/q out
 
-D:\workspace\github\learn-python\SciTools\cleaner\venv\Scripts\pyinstaller.exe ^
---icon=./my.ico ^
--F -w main.py
+D:\workspace\github\learn-python\SciTools\cleaner\venv\Scripts\pyinstaller.exe main.spec
