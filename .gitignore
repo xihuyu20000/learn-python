@@ -167,3 +167,6 @@ SciTools/cleaner/数据清洗/数据清洗.exe
 *.pkl
 SciTools/cleaner/数据清洗.rar
 SciTools/cleaner.rar
+SciTools/cleaner/数据清洗/datafiles/500MB大文件.txt
+*.rar
+SciTools2/datafiles/500MB大文件.csv

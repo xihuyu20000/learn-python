@@ -1744,8 +1744,8 @@ class DatasetFrame(QWidget):
         top_toolbar.add_widgets(self._gen_toolbutton('./icons/biaochaxun.png', '相似度', self.action_similarity))
         top_toolbar.add_widgets(self._gen_toolbutton('./icons/yichu.png', '删除行', self.action_row_delete))
         top_toolbar.add_widgets(self._gen_toolbutton('./icons/yichu2.png', '删除列', self.action_column_delete))
-        # top_toolbar.add_widgets(self._gen_toolbutton('./icons/riqi.png', '分词', self.action_oneclick))
-        # top_toolbar.add_widgets(self._gen_toolbutton('./icons/riqi.png', '一键清洗', self.action_oneclick))
+        # top_toolbar.add_widgets(self._gen_toolbutton('./icons/riqi.png', '切分词', self.action_oneclick))
+        # top_toolbar.add_widgets(self._gen_toolbutton('./icons/riqi.png', '一键清洗', self.action_oneclick))  补全值
         # top_toolbar.add_widgets(self._gen_toolbutton('./icons/zhanghu.png', '操作历史', self.action_history))
         top_toolbar.add_widgets(QLabel('     '))
         top_toolbar.add_widgets(self._gen_toolbutton('./icons/biaodaochu.png', '保存', self.saving_model_action))
@@ -1964,6 +1964,14 @@ class DataConfigWidget(QWidget):
         # 左侧的配置项
         left_layout = QVBoxLayout()
         left_frame.setLayout(left_layout)
+
+        csvfile_linedit = self.__add_row_input(left_layout, 'csv文件分隔符')
+        csvfile_linedit.setText(';')
+        csvfile_linedit.setReadOnly(True)
+
+        excelfile_linedit = self.__add_row_input(left_layout, 'excel文件读取前N个')
+        excelfile_linedit.setText('1')
+        excelfile_linedit.setReadOnly(True)
 
         datafile_linedit = self.__add_row_input(left_layout, '数据文件')
         datafile_linedit.setText(os.path.join(Cfg.datafiles))

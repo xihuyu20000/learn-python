@@ -60,7 +60,7 @@ class Parser:
         df.fillna('', inplace=True)
         return df
     @staticmethod
-    def parse_wos(filenames):
+    def parse_wos(filenames) ->DataFrame:
         """
         解析wos的数据
         ER记录结束
@@ -114,7 +114,33 @@ class Parser:
         # 使用 fillna 将 NaN 替换为空字符串
         df.fillna('', inplace=True)
         return df
+    @staticmethod
+    def parse_csv(filenames, seperator ) ->DataFrame:
+        df_list = []
+        for fname in [os.path.join(Cfg.datafiles, fname) for fname in filenames]:
+            df = pd.read_csv(fname, sep=seperator, encoding='UTF-8', dtype=str)
+            df_list.append(df)
+        df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
+        return df
+    @staticmethod
+    def parse_excel(filenames, count) -> DataFrame:
+        # excel解析的索引从0开始
+        count = count-1
+        df_list = []
+        for fname in [os.path.join(Cfg.datafiles, fname) for fname in filenames]:
+            df = pd.read_excel(fname, sheet_name=count, engine='openpyxl', dtype=str)
+            df_list.append(df)
+        df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
+        return df
+    @staticmethod
+    def parse_pickle(filenames) -> DataFrame:
+        df_list = []
+        for fname in filenames:
+            df = pd.read_pickle(os.path.join(Cfg.datafiles, fname), compression='gzip')
+            df_list.append(df)
+        df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
 
+        return df
 
 class Worker(QThread):
     # 实例化一个信号对象
@@ -140,25 +166,37 @@ class Worker(QThread):
 
 
 class ParseFileThread(QThread):
-    signal_start = Signal()
     signal_stop = Signal(str, object)
-    def __init__(self, filenames, format):
+    def __init__(self, filenames, format, sep, count):
         super(ParseFileThread, self).__init__()
         self.filenames = filenames
         self.format = format
+        self.sep = sep
+        self.count = count
+
+        # print('参数', self.filenames, self.format, self.sep, self.count)
 
     def run(self) -> None:
-        self.signal_start.emit()
-
         try:
+            t1 = time.time()
             df =pd.DataFrame()
             if self.format == FileFormat.CNKI:
                 df = Parser.parse_cnki(self.filenames)
-            if self.format == FileFormat.WOS:
+            elif self.format == FileFormat.WOS:
                 df = Parser.parse_wos(self.filenames)
-            msg = '解析{0}条记录，{1}个列'.format(df.shape[0], df.shape[1])
+            elif self.format == FileFormat.CSV:
+                df = Parser.parse_csv(self.filenames, self.sep)
+            elif self.format == FileFormat.EXCEL:
+                df = Parser.parse_excel(self.filenames, self.count)
+            elif self.format == FileFormat.PICKLE:
+                df = Parser.parse_pickle(self.filenames)
+            else:
+                raise Exception("没有处理的数据类型"+self.format)
+            t2 = time.time()
+            msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], df.shape[1], round(t2 - t1, 2))
             self.signal_stop.emit(msg, df)
         except Exception as e:
+            print(e)
             msg = '解析出错:{0}'.format(str(e))
             self.signal_stop.emit(msg, None)
 

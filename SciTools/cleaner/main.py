@@ -51,9 +51,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(val, 10000)
 if __name__ == '__main__':
 
-    print()
-
-
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
     mainWindow.show()

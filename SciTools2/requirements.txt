@@ -1,0 +1,12 @@
+pyside2
+numpy
+pandas
+duckdb
+openpyxl
+strenum
+jieba
+zhon
+loguru
+pyinstaller
+wmi
+blinker

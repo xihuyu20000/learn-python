@@ -188,6 +188,7 @@ class TableKit(QFrame):
         """
         if columns is not None and len(columns) > 0:
             ds = self.get_dataset()
+            print('列编号', columns)
             ds.drop(columns=ds.columns[columns], inplace=True)
             self.set_dataset(ds)
 

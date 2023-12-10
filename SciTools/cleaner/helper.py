@@ -1,5 +1,7 @@
 import os
 import secrets
+import sys
+import traceback
 import uuid
 from typing import List, Dict
 
@@ -15,11 +17,14 @@ class Cfg:
     # workspace = 'D:\工作空间'
     workspace = os.path.abspath(os.curdir)
     datafiles = os.path.join(workspace, 'datafiles')
-    models = os.path.join(workspace, 'models')
     dicts = os.path.join(workspace, 'dicts')
+    models = os.path.join(workspace, 'models')
 class FileFormat(StrEnum):
     CNKI = 'CNKI'
     WOS = 'WOS'
+    CSV = 'CSV'
+    EXCEL = 'EXCEL'
+    PICKLE = 'PICKLE'
 
 # -*- codeding = uft-8 -*-
 
@@ -324,6 +329,8 @@ class Utils:
             val = int(id[start:end], 16)
             buffer.append(Utils.array[val % 62])
         return "".join(buffer)
+
+
 
 class MachineCode:
     def __init__(self):

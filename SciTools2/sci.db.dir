@@ -1,0 +1,6 @@
+'table_header_bgcolor', (0, 9)
+'seperator', (512, 1)
+'excel_count', (1024, 1)
+'csv_seperator', (1536, 1)
+'stopwords_file', (2048, 61)
+'synonyms_file', (2560, 61)
