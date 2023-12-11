@@ -32,6 +32,7 @@ class PopupCountStat(QDialog, ui_count_stat.Ui_Form):
         if len(names) == 0:
             ssignal.error.send('请选择列')
             return
+
         if len(names) >1:
             ssignal.error.send('选择多列，请导出')
             return

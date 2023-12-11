@@ -15,7 +15,7 @@ from PySide2.QtCore import QThread
 from pandas import DataFrame
 
 from mbiz import Parser, CleanBiz
-from mhelper import FileFormat, ssignal
+from mhelper import FileFormat, ssignal, Utils
 from log import logger
 
 
@@ -235,6 +235,7 @@ class CleanCopyColumnThread(QThread):
             msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
             ssignal.info.send(msg)
             ssignal.set_clean_dataset.send(df)
+
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
@@ -266,6 +267,38 @@ class CleanSplitColumnThread(QThread):
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
             ssignal.error.send(msg)
+
+
+class CleanReplaceValueThread(QThread):
+    def __init__(self, df:pd.DataFrame, names:List[str], current_tab_index:int, old_sep:str, new_sep:str, other_char:str, is_reserved:str, is_new:str):
+        super(CleanReplaceValueThread, self).__init__()
+        self.df = df
+        self.names = names
+        self.current_tab_index = current_tab_index
+        self.old_sep = old_sep
+        self.new_sep = new_sep
+        self.other_char = other_char
+        self.is_reserved = is_reserved
+        self.is_new = is_new
+
+
+    def run(self) -> None:
+        ssignal.info.send('开始替换值，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.repalce_values(self.df, self.names, self.current_tab_index, self.old_sep, self.new_sep, self.other_char, self.is_reserved, self.is_new)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
+
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
 
 class CleanCombineSynonymThread(QThread):
     def __init__(self, df:pd.DataFrame, synonym_dict_path:str, names:List[str], is_new:bool):

@@ -255,6 +255,32 @@ class CleanBiz:
 
         return df
 
+
+    @staticmethod
+    def repalce_values(df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new):
+        new_names = []
+        for col in names:
+            new_col = col + '-new' if is_new else col
+            if is_new:
+                new_names.append(new_col)
+
+            if current_tab_index == 0:
+                df[new_col] = df[col].astype(str).str.replace(old_sep, new_sep).fillna(df[col])
+            if current_tab_index == 1:
+                if is_reserved:
+                    # 只保留该字符
+                    df[new_col] = df[col].apply(lambda x: Utils.reserve_chars(other_char, x))
+                else:
+                    # 删除该字符
+                    df[new_col] = df[col].astype(str).str.replace(other_char, '').fillna(df[col])
+
+        # 下面的new_names一定要倒序
+        old_names = df.columns.tolist()
+        old_names = Utils.resort_columns(old_names, sorted(new_names, reverse=True))
+        df = df[old_names]
+
+        return df
+
     @staticmethod
     def combine_synonym(df:pd.DataFrame, synonym_dict_path:str, names:List[str], is_new:bool) -> pd.DataFrame:
         """

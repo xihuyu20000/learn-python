@@ -25,7 +25,9 @@ class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
     def action_ok(self, dict_path, is_new: bool):
         logger.info('停用词表')
         names = self.column_names.selectedItems()
+
         if len(names) == 0:
+            ssignal.error.send('请选择列')
             return
 
         names = [item.text() for item in names ]

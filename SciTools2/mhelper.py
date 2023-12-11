@@ -366,6 +366,18 @@ class Utils:
         pattern = f".{{1,{length}}}"
         result = re.findall(pattern, string)
         return result
+
+    @staticmethod
+    def reserve_chars(other_char, line: str):
+        rr = []
+        for word in line.split(Cfg.seperator):
+            if other_char in word:
+                rr.append(other_char)
+            else:
+                rr.append(word)
+        return Cfg.seperator.join(rr)
+
+
     @staticmethod
     def has_Chinese_or_punctuation(ws):
         return Utils.has_Chinese(ws) or Utils.has_punctuation(ws)

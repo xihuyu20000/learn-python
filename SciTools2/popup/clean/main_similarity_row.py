@@ -34,7 +34,9 @@ class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
         logger.info('相似度')
         column_names = self.column_names.selectedItems()
         if len(column_names) == 0:
+            ssignal.error.send('请选择列')
             return
+
         column_names = [item.text() for item in column_names]
         # 保存阈值
         self.limited = limited

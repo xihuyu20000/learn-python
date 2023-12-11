@@ -27,6 +27,7 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         logger.info('同义词合并')
         names = self.column_names.selectedItems()
         if len(names) == 0:
+            ssignal.error.send('请选择列')
             return
 
         names = [item.text() for item in names ]

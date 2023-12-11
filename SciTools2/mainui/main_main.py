@@ -281,7 +281,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         df = self.cleanTableStack.undo()
         if df is not None:
-            ssignal.set_clean_dataset(df)
+            ssignal.set_clean_dataset.send(df)
             ssignal.info.send('撤销')
         else:
             ssignal.error.send('无法撤销')
@@ -291,7 +291,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         df = self.cleanTableStack.redo()
         if df is not None:
-            ssignal.set_clean_dataset(df)
+            ssignal.set_clean_dataset.send(df)
             ssignal.info.send('恢复')
         else:
             ssignal.error.send('无法恢复')
