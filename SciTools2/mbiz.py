@@ -4,13 +4,14 @@
 """
 import collections
 import os
-from typing import List
+from typing import List, Set
 
+import numpy as np
 import pandas as pd
 from PySide2.QtCore import QThread
 
 import log
-from mhelper import Cfg, Utils
+from mhelper import Cfg, Utils, PandasUtil
 from log import logger
 
 
@@ -318,3 +319,55 @@ class CleanBiz:
         df = df[old_names]
 
         return df
+
+    @staticmethod
+    def stop_words(df:pd.DataFrame, names:List[str], words_set:Set[str], is_new:bool):
+
+        new_names = []
+        # 遍历每一列，对每一列的每一个值，进行替换处理
+        for col in names:
+            col_new = col + '-new' if is_new else col
+            if is_new:
+                new_names.append(col_new)
+            df[col_new] = df[col].apply(lambda x: Utils.replace2(x, words_set))
+
+        old_names = df.columns.tolist()
+        old_names = Utils.resort_columns(old_names, new_names)
+        df = df[old_names]
+
+        return df
+
+    @staticmethod
+    def wordcount_stat(df:pd.DataFrame, name:str, threshold:int):
+        # 使用str.split进行拆分，并使用explode展开列表
+        df_split = df[name].str.split(Cfg.seperator, expand=True).stack()
+
+        # 使用value_counts进行统计
+        counts = df_split.value_counts()
+        counts = counts[counts >= threshold]
+
+        # 使用reset_index()将Series转为DataFrame
+        counts = counts.reset_index()
+        # 替换空值
+        counts.fillna('', inplace=True)
+        # 为DataFrame的列命名
+        counts.columns = [name, '次数']
+
+        return counts
+
+    @staticmethod
+    def cocon_stat(df:pd.DataFrame, names:List[str]):
+        df2 = pd.DataFrame()
+        threshold = -1
+        for i in range(10):
+            if len(names) == 1:
+                df2 = PandasUtil.cocon_matrix(df, names[0], threhold=threshold)
+            if len(names) == 2:
+                df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
+            threshold = df2.min().min()
+            if df2.shape[0] < 1000:
+                break
+
+        df2 = df2.astype(np.uint8, errors='raise')
+
+        return df2

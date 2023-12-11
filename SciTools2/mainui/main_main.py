@@ -20,7 +20,7 @@ from popup.clean.main_cocon_stat import PopupFreqStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
 from popup.clean.main_copy_column import PopupCopyColumn
-from popup.clean.main_count_stat import PopupCountStat
+from popup.clean.main_wordcount_stat import PopupWordCountStat
 from popup.clean.main_dataset_metadata import PopupCleanMetadata
 from popup.clean.main_group_stat import WinGroupStat, PopupCleanGroupStat
 from popup.clean.main_modify_values import PopupModifyValues
@@ -240,7 +240,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
         self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
         self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
-        self.menu_count_stat.triggered.connect(self.clean_do_menu_count_stat)
+        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
         self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
         self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
         self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
@@ -384,15 +384,16 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.popupStopWords = PopupStopWords(self)
         self.popupStopWords.show()
 
-    def clean_do_menu_count_stat(self):
+    def clean_do_menu_wordcount_stat(self):
         logger.info('清洗，词频统计')
 
         if self.master_clean_no_data():
             ssignal.error.send('没有数据')
             return
 
-        self.popupCountStat = PopupCountStat(self)
-        self.popupCountStat.show()
+        self.popupWordCountStat = PopupWordCountStat(self)
+        self.popupWordCountStat.show()
+
 
     def clean_do_menu_cocon_stat(self):
         logger.info('清洗，共现分析')

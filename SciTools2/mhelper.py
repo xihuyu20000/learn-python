@@ -4,7 +4,7 @@ import os
 import re
 import secrets
 import uuid
-from typing import List, Dict
+from typing import List, Dict, Union, Set
 import dbm
 import jieba
 from log import logger
@@ -348,6 +348,16 @@ class Utils:
         words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
         return Cfg.seperator.join(words)
 
+    @staticmethod
+    def replace2(line, words_set:Union[List[str], Set[str]]):
+        """
+        如果 line是aa;bb;cc;dd, words_set是['aa','bb']，那么结果是cc;dd
+        :param line:
+        :param words_set:
+        :return:
+        """
+        words = [w for w in line.split(Cfg.seperator) if w not in words_set]
+        return ';'.join(words)
     @staticmethod
     def get_from_limit(i: int, arr: List[str], limit: int):
         if limit <= len(arr):

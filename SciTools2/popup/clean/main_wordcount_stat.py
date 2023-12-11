@@ -7,15 +7,14 @@ from PySide2.QtWidgets import QDialog, QFileDialog
 from log import logger
 from mhelper import Utils, ssignal, Cfg
 from popup.clean.uipy import ui_count_stat
-from mrunner import CleanExportCountStatThread
+from mrunner import CleanExportCountStatThread, CleanWordCountThread
 
 
-class PopupCountStat(QDialog, ui_count_stat.Ui_Form):
+class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
     def __init__(self, parent):
-        super(PopupCountStat, self).__init__(parent)
+        super(PopupWordCountStat, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
-
 
         self.init_data()
 
@@ -34,38 +33,15 @@ class PopupCountStat(QDialog, ui_count_stat.Ui_Form):
             return
 
         if len(names) >1:
-            ssignal.error.send('选择多列，请导出')
+            ssignal.error.send('选择多列，请直接导出')
             return
 
-        t1 = time.time()
         df = self.get_df()
 
         name = names[0]
-        try:
-            # 使用str.split进行拆分，并使用explode展开列表
-            df_split = df[name].str.split(Cfg.seperator, expand=True).stack()
 
-            # 使用value_counts进行统计
-            counts = df_split.value_counts()
-            counts = counts[counts>=threshold]
-
-            # 使用reset_index()将Series转为DataFrame
-            counts = counts.reset_index()
-            # 替换空值
-            counts.fillna('', inplace=True)
-            # 为DataFrame的列命名
-            counts.columns = [name, '次数']
-
-            self.set_df(counts)
-        except Exception as e:
-            print(e)
-            counts = pd.DataFrame(columns = [name, '次数'])
-            self.set_df(counts)
-
-        t2 = time.time()
-
-        msg = '统计{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        self.cleanWordCountThread = CleanWordCountThread(df, name, threshold)
+        self.cleanWordCountThread.start()
         self.close()
 
     def export_clicked(self):

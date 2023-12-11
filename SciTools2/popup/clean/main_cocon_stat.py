@@ -8,7 +8,7 @@ from PySide2.QtWidgets import QDialog, QFileDialog
 
 from mhelper import ssignal, PandasUtil, Cfg
 from popup.clean.uipy import ui_cocon_stat
-from mrunner import CleanExportCoconStatThread
+from mrunner import CleanExportCoconStatThread, CleanCoconStatThread
 
 
 class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
@@ -32,39 +32,10 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
             ssignal.error.send('只能选择1或者2列')
             return
 
-        t1 = time.time()
         df = self.get_df()
 
-        df2 = pd.DataFrame()
-        try:
-            threshold = -1
-            for i in range(10):
-                if len(names) == 1:
-                    df2 = PandasUtil.cocon_matrix(df, names[0], threhold=threshold)
-                if len(names) == 2:
-                    df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
-                threshold = df2.min().min()
-                if df2.shape[0] < 1000:
-                    break
-        except Exception as e:
-            print(e)
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            traceback.print_tb(exc_traceback)
-
-        df2 = df2.astype(np.uint8, errors='raise')
-        self.set_df(df2)
-
-        # table = self.get_table()
-        # for i, col in enumerate(df2.index):
-        #     for j, row in enumerate(df2.columns):
-        #         print(row, col)
-        #         if df2.loc[row, col] > 0:
-        #             table.set_bgcolor(i, j, '#a3a9a8')
-
-        t2 = time.time()
-
-        msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        self.cleanCoconStatThread = CleanCoconStatThread(df, names)
+        self.cleanCoconStatThread.start()
         self.close()
 
     def export_clicked(self):

@@ -5,7 +5,7 @@
 
 """
 import time
-from typing import List
+from typing import List, Set
 
 import pandas as pd
 from PySide2 import QtCore
@@ -315,6 +315,83 @@ class CleanCombineSynonymThread(QThread):
             t1 = time.time()
 
             df = CleanBiz.combine_synonym(self.df, self.fpath, self.names, self.is_new)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
+
+class CleanStopWordsThread(QThread):
+    def __init__(self, df:pd.DataFrame, names:List[str], words_set:Set[str], is_new:bool):
+        super(CleanStopWordsThread, self).__init__()
+        self.df = df
+        self.names = names
+        self.words_set = words_set
+        self.is_new = is_new
+
+
+    def run(self) -> None:
+        ssignal.info.send('开始停用词，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.stop_words(self.df, self.names, self.words_set, self.is_new)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
+
+
+class CleanWordCountThread(QThread):
+    def __init__(self, df:pd.DataFrame, name:str, threshold:int):
+        super(CleanWordCountThread, self).__init__()
+        self.df = df
+        self.name = name
+        self.threshold = threshold
+
+
+    def run(self) -> None:
+        ssignal.info.send('开始词频统计，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.wordcount_stat(self.df, self.name, self.threshold)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
+
+
+class CleanCoconStatThread(QThread):
+    def __init__(self, df:pd.DataFrame, names:List[str]):
+        super(CleanCoconStatThread, self).__init__()
+        self.df = df
+        self.names = names
+
+
+    def run(self) -> None:
+        ssignal.info.send('开始共现分析，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.cocon_stat(self.df, self.names)
 
             t2 = time.time()
             msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))

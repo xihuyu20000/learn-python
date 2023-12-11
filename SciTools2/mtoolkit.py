@@ -549,7 +549,6 @@ class TableKit(QFrame):
             """
             设置行标题和列标题
             """
-
             if role == Qt.DisplayRole:
                 if orientation == Qt.Horizontal:
                     key = str(self._data.columns[section])

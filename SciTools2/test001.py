@@ -1,13 +1,9 @@
-def replace(line, words_dict):
-    """
-    假设line是'aa;bb;cc;dd'，words_dict是{'aa':1,'cc':2}，返回值是1;bb;2;dd
-    :param line:
-    :param words_dict:
-    :return:
-    """
-    keys = words_dict.keys()
-    words = [str(words_dict[w]) if w in keys else w for w in line.split(';')]
+from mhelper import Cfg
+
+
+def replace2(line, words_set):
+    words = [w for w in line.split(';') if w not in words_set]
+    print(words)
     return ';'.join(words)
 
-
-print(replace('aa;bb;cc;dd', {'aa':1,'cc':2}))
+print(replace2('aa;bb;cc;dd', ['aa','bb']))
