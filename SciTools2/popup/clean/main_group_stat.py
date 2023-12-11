@@ -1,5 +1,5 @@
 import sys
-
+from log import logger
 from PySide2 import QtCore
 from PySide2.QtCore import Qt, QMimeData
 from PySide2.QtGui import QDrag, QIcon, QPixmap
@@ -10,14 +10,13 @@ from helper import Cfg
 from popup.clean.uipy import ui_group_stat
 
 
-class StatWidget(QWidget):
+class PopupCleanGroupStat(QWidget, ui_group_stat.Ui_Form):
 
     def __init__(self, txt):
-        super(StatWidget, self).__init__()
+        super(PopupCleanGroupStat, self).__init__()
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
-
 
         self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.btn = ClosableButton(txt)

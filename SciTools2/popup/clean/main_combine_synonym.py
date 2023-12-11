@@ -2,15 +2,16 @@ import os.path
 import time
 
 from PySide2.QtWidgets import QDialog, QFileDialog
-from loguru import logger
+from log import logger
 
-from helper import Cfg, Utils, MySignal
+from helper import Cfg, Utils, ssignal
 from popup.clean.uipy import ui_combine_synonym
+from runner import CleanCombineSynonymThread
 
 
-class WinCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
+class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
     def __init__(self, parent):
-        super(WinCombineSynonym, self).__init__(parent)
+        super(PopupCombineSynonym, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -31,41 +32,11 @@ class WinCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         names = [item.text() for item in names ]
 
         if dict_path is None or dict_path.strip() == "":
-            MySignal.error.send('请选择词典')
+            ssignal.error.send('请选择词典')
             return
 
-        t1 = time.time()
-        # key是被替换的词，value是新词【第1个】
-        words_dict = {}
-        with open(dict_path, encoding='utf-8') as f:
-            lines = f.readlines()
-            lines = [line.strip() for line in lines if not line.strip().startswith('#')]
-            for line in lines:
-                words = line.split(';')
-                # 一行一个词，那么长度是1
-                if len(words) > 1:
-                    tgt = words[0]
-                    for org in words[1:]:
-                        words_dict[org] = tgt
-
-        df = self.get_df()
-
-        new_names = []
-        # 遍历每一列，对每一列的每一个值，进行替换处理
-        for col in names:
-            col_new = col + '-new' if is_new else col
-            if is_new:
-                new_names.append(col_new)
-            df[col_new] = df[col].apply(lambda x: self.__replace(x, words_dict))
-
-        old_names = df.columns.tolist()
-        old_names = Utils.resort_columns(old_names, new_names)
-        df = df[old_names]
-        self.set_df(df)
-        t2 = time.time()
-
-        msg = '合并{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        self.cleanCombineSynonymThread = CleanCombineSynonymThread(self.get_df(), os.path.join(Cfg.dicts, Cfg.synonyms_file), names, is_new)
+        self.cleanCombineSynonymThread.start()
         self.close()
 
     def btn1_clicked(self):
@@ -77,10 +48,6 @@ class WinCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         )
         self.le1.setText(filePath)
 
-    def __replace(self, line, words_dict):
-        keys = words_dict.keys()
-        words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
-        return ';'.join(words)
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

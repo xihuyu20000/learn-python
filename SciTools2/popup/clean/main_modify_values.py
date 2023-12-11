@@ -1,13 +1,12 @@
 from PySide2.QtWidgets import QDialog
-from loguru import logger
-
-from helper import MySignal
+from log import logger
+from helper import ssignal
 from popup.clean.uipy import ui_modify_value
 
 
-class WinModifyValues(QDialog, ui_modify_value.Ui_Form):
+class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
     def __init__(self, parent):
-        super(WinModifyValues, self).__init__(parent)
+        super(PopupModifyValues, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -20,7 +19,7 @@ class WinModifyValues(QDialog, ui_modify_value.Ui_Form):
         self.get_table().set_item_writable(True)
 
         msg = '开始修改'
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
 
     def action_save(self):
         logger.info('保存修改')
@@ -28,7 +27,7 @@ class WinModifyValues(QDialog, ui_modify_value.Ui_Form):
         self.get_table().set_item_writable(False)
 
         msg = '停止修改'
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
 
     def get_df(self):
         return self.parent.master_get_clean_df()

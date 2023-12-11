@@ -4,15 +4,15 @@ import time
 import numpy as np
 import pandas as pd
 from PySide2.QtWidgets import QDialog, QFileDialog
-
-from helper import Utils, MySignal, Cfg
+from log import logger
+from helper import Utils, ssignal, Cfg
 from popup.clean.uipy import ui_count_stat
-from runner import CountStatThread
+from runner import CleanExportCountStatThread
 
 
-class WinCountStat(QDialog, ui_count_stat.Ui_Form):
+class PopupCountStat(QDialog, ui_count_stat.Ui_Form):
     def __init__(self, parent):
-        super(WinCountStat, self).__init__(parent)
+        super(PopupCountStat, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -30,10 +30,10 @@ class WinCountStat(QDialog, ui_count_stat.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            MySignal.error.send('请选择列')
+            ssignal.error.send('请选择列')
             return
         if len(names) >1:
-            MySignal.error.send('选择多列，请导出')
+            ssignal.error.send('选择多列，请导出')
             return
 
         t1 = time.time()
@@ -64,14 +64,14 @@ class WinCountStat(QDialog, ui_count_stat.Ui_Form):
         t2 = time.time()
 
         msg = '统计{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def export_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            MySignal.error.send('请选择列')
+            ssignal.error.send('请选择列')
             return
 
         df = self.get_df()
@@ -104,7 +104,7 @@ class WinCountStat(QDialog, ui_count_stat.Ui_Form):
         )
 
         if filePath:
-            self.countStatThread = CountStatThread(fpath=filePath, names=names, df_list=results)
+            self.countStatThread = CleanExportCountStatThread(fpath=filePath, names=names, df_list=results)
             self.countStatThread.start()
 
         self.close()

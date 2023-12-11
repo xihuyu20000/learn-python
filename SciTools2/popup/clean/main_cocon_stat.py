@@ -1,19 +1,19 @@
 import sys
 import time
 import traceback
-
+from log import logger
 import numpy as np
 import pandas as pd
 from PySide2.QtWidgets import QDialog, QFileDialog
 
-from helper import MySignal, PandasUtil, Cfg
+from helper import ssignal, PandasUtil, Cfg
 from popup.clean.uipy import ui_cocon_stat
-from runner import CoconStatThread
+from runner import CleanExportCoconStatThread
 
 
-class WinFreqStat(QDialog, ui_cocon_stat.Ui_Form):
+class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
     def __init__(self, parent):
-        super(WinFreqStat, self).__init__(parent)
+        super(PopupFreqStat, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -29,7 +29,7 @@ class WinFreqStat(QDialog, ui_cocon_stat.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0 or len(names) > 2:
-            MySignal.error.send('只能选择1或者2列')
+            ssignal.error.send('只能选择1或者2列')
             return
 
         t1 = time.time()
@@ -64,14 +64,14 @@ class WinFreqStat(QDialog, ui_cocon_stat.Ui_Form):
         t2 = time.time()
 
         msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def export_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0 or len(names) > 2:
-            MySignal.error.send('只能选择1或者2列')
+            ssignal.error.send('只能选择1或者2列')
             return
 
         t1 = time.time()
@@ -114,12 +114,12 @@ class WinFreqStat(QDialog, ui_cocon_stat.Ui_Form):
         )
 
         if filePath:
-            self.coconStatThread = CoconStatThread(fpath=filePath, df=df2)
+            self.coconStatThread = CleanExportCoconStatThread(fpath=filePath, df=df2)
             self.coconStatThread.start()
 
 
         msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def get_clean_columns(self):

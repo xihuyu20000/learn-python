@@ -1,15 +1,15 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-from loguru import logger
+from log import logger
 
-from helper import MySignal, Cfg
+from helper import ssignal, Cfg
 from popup.clean.uipy import ui_compare_columns
 
 
-class WinCompareColumns(QDialog, ui_compare_columns.Ui_Form):
+class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
     def __init__(self, parent):
-        super(WinCompareColumns, self).__init__(parent)
+        super(PopupCompareColumns, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -33,13 +33,13 @@ class WinCompareColumns(QDialog, ui_compare_columns.Ui_Form):
 
         t2 = time.time()
         msg = '清除{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
-        MySignal.error.send(msg)
+        ssignal.error.send(msg)
 
     def action_ok(self):
         logger.info('列对比')
         indexes = [item.row() for item in self.column_names.selectedIndexes()]
         if len(indexes) != 2:
-            MySignal.error.send('只能选择2列')
+            ssignal.error.send('只能选择2列')
             return
 
         t1 = time.time()
@@ -50,7 +50,7 @@ class WinCompareColumns(QDialog, ui_compare_columns.Ui_Form):
                 table.set_bgcolor(i, indexes[1], '#a3a9a8')
         t2 = time.time()
         msg = '对比{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def __replace(self, line, words_set):

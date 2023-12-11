@@ -2,16 +2,16 @@ import time
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QTableWidgetItem
-from loguru import logger
+from log import logger
 
-from helper import MySignal
+from helper import ssignal
 from popup.clean.uipy import ui_rename_column
 
 
-class WinCleanRename(QDialog, ui_rename_column.Ui_Form):
+class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
 
     def __init__(self, parent=None):
-        super(WinCleanRename, self).__init__(parent)
+        super(PopupCleanRename, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -40,15 +40,21 @@ class WinCleanRename(QDialog, ui_rename_column.Ui_Form):
         t1 = time.time()
         df = self.get_df()
 
+        name_pairs = {}
         for i in range(self.tableWidget.rowCount()):
             new_value = self.tableWidget.item(i, 1).text().strip()
             if len(new_value) > 0:
-                df.rename(columns={self.tableWidget.item(i, 0).text() : new_value}, inplace=True)
+                old_value = self.tableWidget.item(i, 0).text()
+                name_pairs[old_value] = new_value
+
+        for old_name, new_name in name_pairs.items():
+            df.rename(columns={old_name : new_name}, inplace=True)
+
         self.set_df(df)
         t2 = time.time()
 
         msg = '重命名列，耗时{0}秒'.format(round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def get_clean_columns(self):

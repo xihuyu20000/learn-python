@@ -2,22 +2,22 @@ import os.path
 import time
 
 from PySide2.QtWidgets import QDialog, QFileDialog
-from loguru import logger
+from log import logger
 
-from helper import Cfg, Utils, MySignal
+from helper import Cfg, Utils, ssignal
 from popup.clean.uipy import ui_stop_words
 
 
-class WinStopWords(QDialog, ui_stop_words.Ui_Form):
+class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
     def __init__(self, parent):
-        super(WinStopWords, self).__init__(parent)
+        super(PopupStopWords, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
         self.column_names.addItems(self.get_clean_columns())
         self.column_names.setCurrentRow(0)
 
-        self.le1.setText(os.path.join(Cfg.dicts, '停用词表.txt'))
+        self.le1.setText(os.path.join(Cfg.dicts, Cfg.stopwords_file))
 
         self.btn1.clicked.connect(self.btn1_clicked)
         self.btn_ok.clicked.connect(lambda: self.action_ok(self.le1.text(), self.rbt1.isChecked()))
@@ -31,7 +31,7 @@ class WinStopWords(QDialog, ui_stop_words.Ui_Form):
         names = [item.text() for item in names ]
 
         if dict_path is None or dict_path.strip() == "":
-            MySignal.error.send('请选择词典')
+            ssignal.error.send('请选择词典')
             return
 
 
@@ -61,7 +61,7 @@ class WinStopWords(QDialog, ui_stop_words.Ui_Form):
         t2 = time.time()
 
         msg = '处理{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def btn1_clicked(self):

@@ -4,8 +4,9 @@ import os
 import secrets
 import uuid
 from typing import List, Dict
-
+import dbm
 import jieba
+from log import logger
 import numpy as np
 import pandas as pd
 import wmi
@@ -14,14 +15,14 @@ from strenum import StrEnum
 from zhon.hanzi import punctuation
 
 
-class MySignal:
+class ssignal:
     stack_change = signal('stack_change')
     info = signal('info')
     error = signal('error')
     finish = signal('finish')
-    clean_dataset = signal('clean_dataset')
+    set_clean_dataset = signal('set_clean_dataset')
 
-import dbm
+
 class Cfg:
     workspace = os.path.abspath(os.curdir)
     datafiles = os.path.join(workspace, 'datafiles')
@@ -31,9 +32,8 @@ class Cfg:
     table_header_bgcolor = 'lightblue'
     seperator = 'seperator'
     csv_seperator = 'csv_seperator'
-    excel_count = 'excel_count'
-    stopwords_file = 'stopwords_file'
-    synonyms_file = 'synonyms_file'
+    stopwords_file = '停用词表.txt'
+    synonyms_file = '合并词表.txt'
     def __init__(self):
         self.db = os.path.join(os.path.abspath(os.curdir), 'sci.db')
         if not os.path.exists(self.db):
@@ -41,7 +41,6 @@ class Cfg:
                 f['table_header_bgcolor'] = 'lightblue'
                 f['seperator'] = ';'
                 f['csv_seperator'] = ','
-                f['excel_count'] = '1'
                 f['stopwords_file'] = os.path.join(os.path.abspath(Cfg.dicts), '停用词表')
                 f['synonyms_file'] = os.path.join(os.path.abspath(Cfg.dicts), '同义词表')
 
@@ -65,6 +64,7 @@ class FileFormat(StrEnum):
     CSV = 'CSV'
     EXCEL = 'EXCEL'
     PICKLE = 'PICKLE'
+    PARQUET = 'PARQUET'
 
 
 # -*- codeding = uft-8 -*-

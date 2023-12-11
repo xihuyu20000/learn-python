@@ -1,18 +1,16 @@
 from PySide2.QtWidgets import QDialog, QPushButton, QSizePolicy
-from loguru import logger
-
+from log import logger
 from popup.clean.uipy import ui_datafiles_parse
-from helper import FileFormat, MySignal
-from runner import ParseFileThread
+from helper import FileFormat, ssignal
+from runner import CleanParseFileThread
 
 
-class WinDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
-    def __init__(self, parent, abs_datafiles, sep, count):
-        super(WinDatafilesParse, self).__init__(parent)
+class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
+    def __init__(self, parent, abs_datafiles, sep):
+        super(PopupDatafilesParse, self).__init__(parent)
 
         self.abs_datafiles = abs_datafiles
         self.sep = sep
-        self.count = count
 
         self.setupUi(self)
 
@@ -30,9 +28,9 @@ class WinDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
     def action_format(self):
         style = self.sender().text()
         logger.info(f'解析文件，格式 {style} 文件'+'  '.join(self.abs_datafiles))
-        MySignal.info.send('开始解析文件，请稍等')
+        ssignal.info.send('开始解析文件，请稍等')
 
         # 启用多线程，必须self
-        self.parseFileThread = ParseFileThread(self.abs_datafiles, style, self.sep, self.count)
+        self.parseFileThread = CleanParseFileThread(self.abs_datafiles, style, self.sep)
         self.parseFileThread.start()
         self.hide()

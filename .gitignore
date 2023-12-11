@@ -170,3 +170,5 @@ SciTools/cleaner.rar
 SciTools/cleaner/数据清洗/datafiles/500MB大文件.txt
 *.rar
 SciTools2/datafiles/500MB大文件.csv
+SciTools2/datafiles/我是pqt文件.pqt
+SciTools2/datafiles/2000MB大文件.csv

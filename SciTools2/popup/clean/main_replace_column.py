@@ -1,15 +1,15 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-
-from helper import MySignal, Utils, Cfg
+from log import logger
+from helper import ssignal, Utils, Cfg
 from popup.clean.uipy import ui_replace_column
 
 
-class WinReplaceColumn(QDialog, ui_replace_column.Ui_Form):
+class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):
 
     def __init__(self, parent=None):
-        super(WinReplaceColumn, self).__init__(parent)
+        super(PopupReplaceColumn, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -20,6 +20,7 @@ class WinReplaceColumn(QDialog, ui_replace_column.Ui_Form):
 
     def init_data(self):
         self.column_widget.addItems(self.get_clean_columns())
+
     def ok_clicked(self, current_tab_index, old_sep, new_sep, is_new, other_char, is_reserved):
         names = [line.text() for line in self.column_widget.selectedItems()]
 
@@ -56,9 +57,9 @@ class WinReplaceColumn(QDialog, ui_replace_column.Ui_Form):
         error2 = error1 + '新值含有中文或中文字符\r\n' if Utils.has_Chinese_or_punctuation(new_sep) else ''
         msg = error2 + '替换{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
         if error1 or error2:
-            MySignal.error.send(msg)
+            ssignal.error.send(msg)
         else:
-            MySignal.info.send(msg)
+            ssignal.info.send(msg)
             self.close()
 
 

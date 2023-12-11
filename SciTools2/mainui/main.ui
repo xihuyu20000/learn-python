@@ -403,59 +403,6 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
-                <widget class="QGroupBox" name="groupBox_5">
-                 <property name="title">
-                  <string>常用字典</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_11">
-                  <item>
-                   <widget class="QFrame" name="frame_17">
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_13">
-                     <item>
-                      <widget class="QLabel" name="label_9">
-                       <property name="text">
-                        <string>合并词表</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="config_synonym_dict_file"/>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frame_18">
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_14">
-                     <item>
-                      <widget class="QLabel" name="label_10">
-                       <property name="text">
-                        <string>停用词表</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="config_stop_words_file"/>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
                 <widget class="QGroupBox" name="groupBox_6">
                  <property name="title">
                   <string>解析数据文件参数</string>
@@ -479,32 +426,6 @@
                      </item>
                      <item>
                       <widget class="QLineEdit" name="config_datafiles_csv_seperator">
-                       <property name="text">
-                        <string/>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frame_20">
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_14">
-                     <item>
-                      <widget class="QLabel" name="label_12">
-                       <property name="text">
-                        <string>excel文件加载前N个</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="config_datafiles_excel_n">
                        <property name="text">
                         <string/>
                        </property>
@@ -582,6 +503,8 @@
     <addaction name="menu_column_delete"/>
     <addaction name="menu_split_words"/>
     <addaction name="menu_group_stat"/>
+    <addaction name="menu_clean_filter"/>
+    <addaction name="menu_clean_makeup"/>
    </widget>
    <widget class="QMenu" name="menu_library">
     <property name="title">
@@ -790,6 +713,16 @@
    </property>
    <property name="text">
     <string>词频统计</string>
+   </property>
+  </action>
+  <action name="menu_clean_filter">
+   <property name="text">
+    <string>过滤行</string>
+   </property>
+  </action>
+  <action name="menu_clean_makeup">
+   <property name="text">
+    <string>补全值</string>
    </property>
   </action>
  </widget>

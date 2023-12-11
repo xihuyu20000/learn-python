@@ -1,14 +1,14 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-
-from helper import Utils, MySignal
+from log import logger
+from helper import Utils, ssignal
 from popup.clean.uipy import ui_copy_column
 
 
-class WinCopyColumn(QDialog, ui_copy_column.Ui_Form):
+class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):
     def __init__(self, parent):
-        super(WinCopyColumn, self).__init__(parent)
+        super(PopupCopyColumn, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -40,7 +40,7 @@ class WinCopyColumn(QDialog, ui_copy_column.Ui_Form):
         t2 = time.time()
 
         msg = '复制{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def get_clean_columns(self):

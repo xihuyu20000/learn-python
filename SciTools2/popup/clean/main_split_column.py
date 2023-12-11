@@ -1,16 +1,16 @@
 import re
 import time
 from typing import List
-
+from log import logger
 from PySide2.QtWidgets import QDialog
 
-from helper import Utils, MySignal
+from helper import Utils, ssignal
 from popup.clean.uipy import ui_split_column
 
 
-class WinSplitColumn(QDialog, ui_split_column.Ui_Form):
+class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
     def __init__(self, parent):
-        super(WinSplitColumn, self).__init__(parent)
+        super(PopupSplitColumn, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -36,11 +36,11 @@ class WinSplitColumn(QDialog, ui_split_column.Ui_Form):
 
         m = re.compile(r'^[1-9]\d*$')
         if '字符' in split_style_text and not m.match(le1_text):
-            MySignal.error.send('拆分方式是按字符数，后面请填写正整数')
+            ssignal.error.send('拆分方式是按字符数，后面请填写正整数')
             return
 
         if not m.match(le2_text):
-            MySignal.error.send('拆分结果后面请填写正整数')
+            ssignal.error.send('拆分结果后面请填写正整数')
             return
 
         le2 = int(le2_text)
@@ -48,7 +48,7 @@ class WinSplitColumn(QDialog, ui_split_column.Ui_Form):
 
         t1 = time.time()
         if '分隔符' in split_style_text:
-            df['xxxyyyzzz'] = df[name].apply(lambda x: x.split(le1_text))
+            df['xxxyyyzzz'] = df[name].apply(lambda x: str(x).split(le1_text))
         if '字符' in split_style_text:
             df['xxxyyyzzz'] = df[name].apply(lambda x: self.split_string_by_length(x, le1_text))
 
@@ -72,7 +72,7 @@ class WinSplitColumn(QDialog, ui_split_column.Ui_Form):
         t2 = time.time()
         error = '分隔符含有中文或中文字符\r\n' if Utils.has_Chinese_or_punctuation(le1_text) else ''
         msg = error + '拆分{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], 1, round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
         self.close()
 
     def get_from_limit(self, i: int, arr: List[str], limit: int):

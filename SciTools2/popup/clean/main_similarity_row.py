@@ -4,18 +4,18 @@ from typing import List, Set, Dict
 
 import pandas as pd
 from PySide2.QtWidgets import QDialog
-from loguru import logger
+from log import logger
 
-from helper import Utils, MySignal
+from helper import Utils, ssignal
 from popup.clean.uipy import ui_similarity_row
 from toolkit import PandasTableModel
 
 
-class WinSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
+class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
     GROUP_LABEL_TEXT = '组号'
     ORIGINAL_LABEL_TEXT = '原行号'
     def __init__(self, parent):
-        super(WinSimilarityRows, self).__init__(parent)
+        super(PopupSimilarityRows, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -75,7 +75,7 @@ class WinSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
             # print('row0', row0)
             group_dataset.append(row0)
 
-        header_names = [WinSimilarityRows.ORIGINAL_LABEL_TEXT, WinSimilarityRows.GROUP_LABEL_TEXT,
+        header_names = [PopupSimilarityRows.ORIGINAL_LABEL_TEXT, PopupSimilarityRows.GROUP_LABEL_TEXT,
                         '相似度(%)'] + column_names
 
         group_df = pd.DataFrame(columns=header_names, data=group_dataset)
@@ -94,7 +94,7 @@ class WinSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
 
         t2 = time.time()
         msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(column_names), round(t2 - t1, 2))
-        MySignal.info.send(msg)
+        ssignal.info.send(msg)
 
     def __calc_similarity(self, df, words_list, pairs_dict):
         group_no = 0
@@ -138,7 +138,7 @@ class WinSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
 
         row_nos = self.group_table.selectedIndexes()
         if len(row_nos) == 0:
-            MySignal.error.send('请选择一行')
+            ssignal.error.send('请选择一行')
             return
 
         row_nos = [index.row() for index in self.group_table.selectedIndexes()]
@@ -146,10 +146,10 @@ class WinSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
         df = self.group_table_model.pub_get_dataset()
 
         # 更新当前分组表
-        group_nos = df.loc[row_nos, WinSimilarityRows.GROUP_LABEL_TEXT].tolist()
+        group_nos = df.loc[row_nos, PopupSimilarityRows.GROUP_LABEL_TEXT].tolist()
         # 添加到删除表中
         self.deleted_group_nos.extend(group_nos)
-        boolean_df = df[WinSimilarityRows.GROUP_LABEL_TEXT].isin(group_nos)
+        boolean_df = df[PopupSimilarityRows.GROUP_LABEL_TEXT].isin(group_nos)
         df.drop(df[boolean_df].index, inplace=True)
         self.group_table_model.pub_set_dataset(df)
 

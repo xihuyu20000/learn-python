@@ -9,7 +9,7 @@ from PySide2.QtGui import QBrush, QColor
 from PySide2.QtWidgets import QFrame, QPushButton, \
     QListWidget, \
     QAbstractItemView, QTableView, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLCDNumber
-
+from log import logger
 class InfoKit(QWidget):
     def __init__(self,):
         super().__init__()
@@ -473,7 +473,6 @@ class TableKit(QFrame):
         row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
         self.remove_rows(row_indexes)
 
-
     def get_selected_rows(self):
         return [index[0] for index in self._table.pub_selected_indexes()]
 
@@ -483,14 +482,15 @@ class TableKit(QFrame):
         # 2、更新表格视图
         self._table.reset()
 
-
     def set_bgcolor(self, i, j, color):
         self._model.pub_set_bgcolor(i, j, color)
+
     def set_user_header(self, data):
         self._model.pub_set_user_header(data)
 
     def set_item_writable(self,writable=False):
         self._model.pub_set_item_writable(writable)
+
     def init_dataset(self, df):
         # 1、更新模型
         self._model.pub_update_dataset(df, inplace_index=False, drop_index=False)

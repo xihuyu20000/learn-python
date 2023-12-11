@@ -119,6 +119,10 @@ class Ui_MainWindow(object):
         icon17 = QIcon()
         icon17.addFile(u"icons/yingyongchangjing.png", QSize(), QIcon.Normal, QIcon.Off)
         self.menu_count_stat.setIcon(icon17)
+        self.menu_clean_filter = QAction(MainWindow)
+        self.menu_clean_filter.setObjectName(u"menu_clean_filter")
+        self.menu_clean_makeup = QAction(MainWindow)
+        self.menu_clean_makeup.setObjectName(u"menu_clean_makeup")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_6 = QVBoxLayout(self.centralwidget)
@@ -327,51 +331,6 @@ class Ui_MainWindow(object):
         self.frame_12.setFrameShadow(QFrame.Raised)
         self.verticalLayout_3 = QVBoxLayout(self.frame_12)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.groupBox_5 = QGroupBox(self.frame_12)
-        self.groupBox_5.setObjectName(u"groupBox_5")
-        self.verticalLayout_11 = QVBoxLayout(self.groupBox_5)
-        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
-        self.frame_17 = QFrame(self.groupBox_5)
-        self.frame_17.setObjectName(u"frame_17")
-        self.frame_17.setFrameShape(QFrame.StyledPanel)
-        self.frame_17.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_13 = QHBoxLayout(self.frame_17)
-        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
-        self.label_9 = QLabel(self.frame_17)
-        self.label_9.setObjectName(u"label_9")
-
-        self.horizontalLayout_13.addWidget(self.label_9)
-
-        self.config_synonym_dict_file = QLineEdit(self.frame_17)
-        self.config_synonym_dict_file.setObjectName(u"config_synonym_dict_file")
-
-        self.horizontalLayout_13.addWidget(self.config_synonym_dict_file)
-
-
-        self.verticalLayout_11.addWidget(self.frame_17)
-
-        self.frame_18 = QFrame(self.groupBox_5)
-        self.frame_18.setObjectName(u"frame_18")
-        self.frame_18.setFrameShape(QFrame.StyledPanel)
-        self.frame_18.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_14 = QHBoxLayout(self.frame_18)
-        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.label_10 = QLabel(self.frame_18)
-        self.label_10.setObjectName(u"label_10")
-
-        self.horizontalLayout_14.addWidget(self.label_10)
-
-        self.config_stop_words_file = QLineEdit(self.frame_18)
-        self.config_stop_words_file.setObjectName(u"config_stop_words_file")
-
-        self.horizontalLayout_14.addWidget(self.config_stop_words_file)
-
-
-        self.verticalLayout_11.addWidget(self.frame_18)
-
-
-        self.verticalLayout_3.addWidget(self.groupBox_5)
-
         self.groupBox_6 = QGroupBox(self.frame_12)
         self.groupBox_6.setObjectName(u"groupBox_6")
         self.verticalLayout_12 = QVBoxLayout(self.groupBox_6)
@@ -394,25 +353,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_12.addWidget(self.frame_19)
-
-        self.frame_20 = QFrame(self.groupBox_6)
-        self.frame_20.setObjectName(u"frame_20")
-        self.frame_20.setFrameShape(QFrame.StyledPanel)
-        self.frame_20.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_14 = QVBoxLayout(self.frame_20)
-        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
-        self.label_12 = QLabel(self.frame_20)
-        self.label_12.setObjectName(u"label_12")
-
-        self.verticalLayout_14.addWidget(self.label_12)
-
-        self.config_datafiles_excel_n = QLineEdit(self.frame_20)
-        self.config_datafiles_excel_n.setObjectName(u"config_datafiles_excel_n")
-
-        self.verticalLayout_14.addWidget(self.config_datafiles_excel_n)
-
-
-        self.verticalLayout_12.addWidget(self.frame_20)
 
 
         self.verticalLayout_3.addWidget(self.groupBox_6)
@@ -472,6 +412,8 @@ class Ui_MainWindow(object):
         self.menu_clean.addAction(self.menu_column_delete)
         self.menu_clean.addAction(self.menu_split_words)
         self.menu_clean.addAction(self.menu_group_stat)
+        self.menu_clean.addAction(self.menu_clean_filter)
+        self.menu_clean.addAction(self.menu_clean_makeup)
 
         self.retranslateUi(MainWindow)
 
@@ -515,6 +457,8 @@ class Ui_MainWindow(object):
         self.menu_library_cocon_stat.setText(QCoreApplication.translate("MainWindow", u"\u5171\u73b0\u7edf\u8ba1", None))
         self.menu_cocon_stat.setText(QCoreApplication.translate("MainWindow", u"\u5171\u73b0\u5206\u6790", None))
         self.menu_count_stat.setText(QCoreApplication.translate("MainWindow", u"\u8bcd\u9891\u7edf\u8ba1", None))
+        self.menu_clean_filter.setText(QCoreApplication.translate("MainWindow", u"\u8fc7\u6ee4\u884c", None))
+        self.menu_clean_makeup.setText(QCoreApplication.translate("MainWindow", u"\u8865\u5168\u503c", None))
         self.datafiles_btn_list.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u5217\u8868", None))
         self.datafiles_btn_parse.setText(QCoreApplication.translate("MainWindow", u"\u663e\u793a", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab1), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
@@ -526,14 +470,9 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"GroupBox", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"\u5e38\u7528\u5b57\u5178", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"\u5408\u5e76\u8bcd\u8868", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"\u505c\u7528\u8bcd\u8868", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"csv\u6587\u4ef6\u5206\u9694\u7b26", None))
         self.config_datafiles_csv_seperator.setText("")
-        self.label_12.setText(QCoreApplication.translate("MainWindow", u"excel\u6587\u4ef6\u52a0\u8f7d\u524dN\u4e2a", None))
-        self.config_datafiles_excel_n.setText("")
         self.btn_save_config.setText(QCoreApplication.translate("MainWindow", u"\u4fdd\u5b58", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab4), QCoreApplication.translate("MainWindow", u"\u914d\u7f6e", None))
         self.menu_clean.setTitle(QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
