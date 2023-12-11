@@ -616,6 +616,11 @@ class TableKit(QFrame):
     class InnerTable(QTableView):
         def __init__(self):
             super().__init__()
+            # 不可编辑
+            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            # 选中
+            self.setSelectionBehavior(QAbstractItemView.SelectItems)
+
 
         def pub_selected_indexes(self):
             return [(index.row(), index.column()) for index in self.selectedIndexes()]
@@ -638,7 +643,7 @@ class PandasStack:
     def push(self, df):
         self.current_index +=1
         self.data_list.insert(self.current_index, df)
-        print('当前栈索引', self.current_index)
+        # print('当前栈索引', self.current_index)
 
     def can_undo(self):
         return self.current_index>0

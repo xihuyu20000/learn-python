@@ -4,9 +4,9 @@ import time
 from PySide2.QtWidgets import QDialog, QFileDialog
 from log import logger
 
-from helper import Cfg, Utils, ssignal
+from mhelper import Cfg, Utils, ssignal
 from popup.clean.uipy import ui_combine_synonym
-from runner import CleanCombineSynonymThread
+from mrunner import CleanCombineSynonymThread
 
 
 class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):

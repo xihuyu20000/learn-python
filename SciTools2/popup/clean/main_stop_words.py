@@ -4,7 +4,7 @@ import time
 from PySide2.QtWidgets import QDialog, QFileDialog
 from log import logger
 
-from helper import Cfg, Utils, ssignal
+from mhelper import Cfg, Utils, ssignal
 from popup.clean.uipy import ui_stop_words
 
 

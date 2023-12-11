@@ -3,7 +3,7 @@ import time
 from PySide2.QtWidgets import QDialog
 from log import logger
 
-from helper import ssignal, Cfg
+from mhelper import ssignal, Cfg
 from popup.clean.uipy import ui_compare_columns
 
 

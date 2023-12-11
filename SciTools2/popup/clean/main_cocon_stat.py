@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 from PySide2.QtWidgets import QDialog, QFileDialog
 
-from helper import ssignal, PandasUtil, Cfg
+from mhelper import ssignal, PandasUtil, Cfg
 from popup.clean.uipy import ui_cocon_stat
-from runner import CleanExportCoconStatThread
+from mrunner import CleanExportCoconStatThread
 
 
 class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):

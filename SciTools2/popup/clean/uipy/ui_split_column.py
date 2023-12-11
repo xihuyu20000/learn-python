@@ -17,7 +17,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(731, 496)
+        Form.resize(731, 344)
         self.horizontalLayout_3 = QHBoxLayout(Form)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.frame = QFrame(Form)

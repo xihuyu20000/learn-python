@@ -10,7 +10,7 @@ import pandas as pd
 from PySide2.QtCore import QThread
 
 import log
-from helper import Cfg, Utils
+from mhelper import Cfg, Utils
 from log import logger
 
 
@@ -217,6 +217,45 @@ class CleanBiz:
                 df.to_excel(writer, sheet_name=name, index=False)
 
     @staticmethod
+    def copy_column(df, names):
+        new_names = []
+        for col in names:
+            new_names.append(col + '-new')
+            df[col + '-new'] = df[col]
+
+        old_names = df.columns.tolist()
+        new_names = Utils.resort_columns(old_names, new_names)
+        df = df[new_names]
+        return df
+
+    @staticmethod
+    def split_column(df:pd.DataFrame, name:str, split_style:str, style_le1:str, get_style:str, style_le2:int):
+
+        if '分隔符' in split_style:
+            df['xxxyyyzzz'] = df[name].apply(lambda x: str(x).split(style_le1))
+        if '字符' in split_style:
+            df['xxxyyyzzz'] = df[name].apply(lambda x: Utils.split_string_by_length(x, style_le1))
+
+        new_names = []
+        if '前' in get_style:
+            for i in range(style_le2):
+                new_name = f'{name}-{i + 1}'
+                new_names.append(new_name)
+                df[new_name] = df['xxxyyyzzz'].map(lambda x: Utils.get_from_limit(i, x, style_le2))
+        if '第' in get_style:
+            new_name = f'{name}-1'
+            new_names.append(new_name)
+            df[new_name] = df['xxxyyyzzz'].map(lambda x: Utils.get_from_limit(style_le2, x, style_le2))
+
+        df.drop('xxxyyyzzz', axis=1, inplace=True)
+        old_names = df.columns.tolist()
+        # 下面的new_names一定要倒序
+        old_names = Utils.resort_columns(old_names, sorted(new_names, reverse=True))
+        df = df[old_names]
+
+        return df
+
+    @staticmethod
     def combine_synonym(df:pd.DataFrame, synonym_dict_path:str, names:List[str], is_new:bool) -> pd.DataFrame:
         """
 
@@ -246,16 +285,10 @@ class CleanBiz:
             col_new = col + '-new' if is_new else col
             if is_new:
                 new_names.append(col_new)
-            df[col_new] = df[col].apply(lambda x: CleanBiz.__replace(x, words_dict))
+            df[col_new] = df[col].apply(lambda x: Utils.replace(x, words_dict))
 
         old_names = df.columns.tolist()
         old_names = Utils.resort_columns(old_names, new_names)
         df = df[old_names]
 
         return df
-
-    @staticmethod
-    def __replace(line, words_dict):
-        keys = words_dict.keys()
-        words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
-        return ';'.join(words)

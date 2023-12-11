@@ -14,7 +14,7 @@ from PySide2 import QtCore
 from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar
 from loguru import logger
 
-from helper import Cfg, ssignal, FileFormat
+from mhelper import Cfg, ssignal, FileFormat
 from mainui.ui_main import Ui_MainWindow
 from popup.clean.main_cocon_stat import PopupFreqStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
@@ -31,8 +31,8 @@ from popup.clean.main_row_distinct import PopupRowDistinct
 from popup.clean.main_similarity_row import PopupSimilarityRows
 from popup.clean.main_split_column import PopupSplitColumn
 from popup.clean.main_stop_words import PopupStopWords
-from runner import CleanSaveDatasetThread, CleanParseFileThread
-from toolkit import PandasStack, TableKit
+from mrunner import CleanSaveDatasetThread, CleanParseFileThread
+from mtoolkit import PandasStack, TableKit
 
 
 class MasterWindows(QMainWindow, Ui_MainWindow):
@@ -274,7 +274,6 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.clean_toolbar.addAction(self.menu_group_stat)
         self.clean_toolbar.addAction(self.menu_clean_filter)
         self.clean_toolbar.addAction(self.menu_clean_makeup)
-
     #######################################################################
 
     def clean_do_menu_undo(self):

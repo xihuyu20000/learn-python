@@ -6,9 +6,9 @@ import pandas as pd
 from PySide2.QtWidgets import QDialog
 from log import logger
 
-from helper import Utils, ssignal
+from mhelper import Utils, ssignal
 from popup.clean.uipy import ui_similarity_row
-from toolkit import PandasTableModel
+from mtoolkit import PandasTableModel
 
 
 class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):

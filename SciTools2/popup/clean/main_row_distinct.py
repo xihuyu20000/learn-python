@@ -2,7 +2,7 @@ import time
 
 from PySide2.QtWidgets import QDialog
 from log import logger
-from helper import ssignal
+from mhelper import ssignal
 from popup.clean.uipy import ui_distinct_row
 
 

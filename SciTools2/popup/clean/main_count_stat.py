@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from PySide2.QtWidgets import QDialog, QFileDialog
 from log import logger
-from helper import Utils, ssignal, Cfg
+from mhelper import Utils, ssignal, Cfg
 from popup.clean.uipy import ui_count_stat
-from runner import CleanExportCountStatThread
+from mrunner import CleanExportCountStatThread
 
 
 class PopupCountStat(QDialog, ui_count_stat.Ui_Form):

@@ -4,7 +4,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QTableWidgetItem
 from log import logger
 
-from helper import ssignal
+from mhelper import ssignal
 from popup.clean.uipy import ui_rename_column
 
 
@@ -47,6 +47,7 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
                 old_value = self.tableWidget.item(i, 0).text()
                 name_pairs[old_value] = new_value
 
+        # 重命名
         for old_name, new_name in name_pairs.items():
             df.rename(columns={old_name : new_name}, inplace=True)
 

@@ -6,9 +6,9 @@ from PySide2.QtWidgets import QDialog, QLabel, QWidget
 
 from log import logger
 from popup.clean.uipy import ui_dataset_metadata
-from helper import Cfg, ssignal
-from runner import CleanMetadataThread
-from toolkit import PandasTableModel, TableKit, FrameKit
+from mhelper import Cfg, ssignal
+from mrunner import CleanMetadataThread
+from mtoolkit import PandasTableModel, TableKit, FrameKit
 
 
 class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):

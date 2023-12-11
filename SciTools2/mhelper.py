@@ -1,6 +1,7 @@
 import collections
 import itertools
 import os
+import re
 import secrets
 import uuid
 from typing import List, Dict
@@ -335,7 +336,36 @@ class Utils:
         green = str(hex(green))[-2:].replace('x', '0').upper()
         blue = str(hex(blue))[-2:].replace('x', '0').upper()
         return '#' + red + green + blue
+    @staticmethod
+    def replace(line, words_dict):
+        """
+        假设line是'aa;bb;cc;dd'，words_dict是{'aa':1,'cc':2}，返回值是1;bb;2;dd
+        :param line:
+        :param words_dict:
+        :return:
+        """
+        keys = words_dict.keys()
+        words = [str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)]
+        return Cfg.seperator.join(words)
 
+    @staticmethod
+    def get_from_limit(i: int, arr: List[str], limit: int):
+        if limit <= len(arr):
+            return arr[i]
+        else:
+            if i < len(arr):
+                return arr[i]
+            else:
+                return ''
+
+    @staticmethod
+    def split_string_by_length(string, length):
+        """
+        按照数量，拆分字符串
+        """
+        pattern = f".{{1,{length}}}"
+        result = re.findall(pattern, string)
+        return result
     @staticmethod
     def has_Chinese_or_punctuation(ws):
         return Utils.has_Chinese(ws) or Utils.has_punctuation(ws)

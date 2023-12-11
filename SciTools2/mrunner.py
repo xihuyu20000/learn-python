@@ -14,8 +14,8 @@ from PySide2.QtCore import QThread
 
 from pandas import DataFrame
 
-from biz import Parser, CleanBiz
-from helper import FileFormat, ssignal
+from mbiz import Parser, CleanBiz
+from mhelper import FileFormat, ssignal
 from log import logger
 
 
@@ -211,6 +211,57 @@ class CleanReplaceValuesThread(QThread):
             msg = '保存统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, 2))
             ssignal.info.send(msg)
 
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
+
+class CleanCopyColumnThread(QThread):
+    def __init__(self, df:pd.DataFrame, names:List[str]):
+        super(CleanCopyColumnThread, self).__init__()
+        self.df = df
+        self.names = names
+
+
+    def run(self) -> None:
+        ssignal.info.send('复制列，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.copy_column(self.df, self.names)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.send(msg)
+
+class CleanSplitColumnThread(QThread):
+    def __init__(self, df:pd.DataFrame, name:str, split_style:str, le1_text:str, get_style:str, le2_text:int):
+        super(CleanSplitColumnThread, self).__init__()
+        self.df = df
+        self.name = name
+        self.split_style = split_style
+        self.le1_text = le1_text
+        self.get_style = get_style
+        self.le2_text = le2_text
+
+
+    def run(self) -> None:
+        ssignal.info.send('开始拆分列，请稍等')
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.split_column(self.df, self.name, self.split_style, self.le1_text, self.get_style, self.le2_text)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
+            ssignal.info.send(msg)
+            ssignal.set_clean_dataset.send(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
