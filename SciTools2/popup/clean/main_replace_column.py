@@ -40,7 +40,7 @@ class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):
         names = [line.text() for line in self.column_widget.selectedItems()]
 
         if len(names) == 0:
-            ssignal.error.send('请选择列')
+            ssignal.error.emit('请选择列')
             return
 
         df = self.get_df()

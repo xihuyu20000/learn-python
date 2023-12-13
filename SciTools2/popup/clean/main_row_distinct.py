@@ -22,7 +22,7 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
         logger.info('列对比')
         names = [item.text() for item in self.column_names.selectedItems()]
         if len(names) == 0:
-            ssignal.error.send('请选择列')
+            ssignal.error.emit('请选择列')
             return
 
         t1 = time.time()
@@ -32,7 +32,7 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
         self.set_df(df)
         t2 = time.time()
         msg = '对比{0}条记录，{1}个列，耗时{2}秒'.format(shape[0], len(names), round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        ssignal.info.emit(msg)
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

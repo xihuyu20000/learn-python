@@ -27,22 +27,23 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
 
     def on_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
+        threshold = self.threshold_spinBox.value()
 
         if len(names) == 0 or len(names) > 2:
-            ssignal.error.send('只能选择1或者2列')
+            ssignal.error.emit('只能选择1或者2列')
             return
 
         df = self.get_df()
 
-        self.cleanCoconStatThread = CleanCoconStatThread(df, names)
+        self.cleanCoconStatThread = CleanCoconStatThread(df, names, threshold)
         self.cleanCoconStatThread.start()
-        self.close()
+        self.hide()
 
     def export_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0 or len(names) > 2:
-            ssignal.error.send('只能选择1或者2列')
+            ssignal.error.emit('只能选择1或者2列')
             return
 
         t1 = time.time()
@@ -50,15 +51,13 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
 
         df2 = pd.DataFrame()
         try:
-            threshold = -1
-            for i in range(10):
-                if len(names) == 1:
-                    df2 = PandasUtil.cocon_matrix(df, names[0], threhold=threshold)
-                if len(names) == 2:
-                    df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
-                threshold = df2.min().min()
-                if df2.shape[0] < 1000:
-                    break
+            threshold = 0
+
+            if len(names) == 1:
+                df2 = PandasUtil.cocon_matrix(df, names[0], threhold=threshold)
+            if len(names) == 2:
+                df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
+
         except Exception as e:
             print(e)
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -89,8 +88,8 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
             self.coconStatThread.start()
 
 
-        msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, Cfg.precision_point))
+        ssignal.info.emit(msg)
         self.close()
 
     def get_clean_columns(self):

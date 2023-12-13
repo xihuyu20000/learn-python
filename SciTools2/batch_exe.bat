@@ -7,4 +7,4 @@
 
 @rem rd/s/q out
 
-D:\workspace\github\learn-python\SciTools2\venv\Scripts\pyinstaller.exe main.spec
+D:\workspace\github\learn-python\SciTools2\venv32\Scripts\pyinstaller.exe main.spec

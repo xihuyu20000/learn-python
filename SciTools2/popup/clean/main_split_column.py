@@ -24,7 +24,7 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            ssignal.error.send('请选择列')
+            ssignal.error.emit('请选择列')
             return
 
         name = names[0]
@@ -36,11 +36,11 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
 
         m = re.compile(r'^[1-9]\d*$')
         if '字符' in split_style_text and not m.match(le1_text):
-            ssignal.error.send('拆分方式是按字符数，后面请填写正整数')
+            ssignal.error.emit('拆分方式是按字符数，后面请填写正整数')
             return
 
         if not m.match(le2_text):
-            ssignal.error.send('拆分结果后面请填写正整数')
+            ssignal.error.emit('拆分结果后面请填写正整数')
             return
 
         le2_text = int(le2_text)

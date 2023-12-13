@@ -28,13 +28,13 @@ class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
         names = self.column_names.selectedItems()
 
         if len(names) == 0:
-            ssignal.error.send('请选择列')
+            ssignal.error.emit('请选择列')
             return
 
         names = [item.text() for item in names ]
 
         if dict_path is None or dict_path.strip() == "":
-            ssignal.error.send('请选择词典')
+            ssignal.error.emit('请选择词典')
             return
 
 

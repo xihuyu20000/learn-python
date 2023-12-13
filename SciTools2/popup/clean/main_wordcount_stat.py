@@ -1,13 +1,8 @@
-import os
-import time
 
-import numpy as np
-import pandas as pd
-from PySide2.QtWidgets import QDialog, QFileDialog
-from log import logger
-from mhelper import Utils, ssignal, Cfg
+from PySide2.QtWidgets import QDialog
+from mhelper import ssignal
 from popup.clean.uipy import ui_count_stat
-from mrunner import CleanExportCountStatThread, CleanWordCountThread
+from mrunner import CleanWordCountThread
 
 
 class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
@@ -29,11 +24,11 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            ssignal.error.send('请选择列')
+            ssignal.error.emit('请选择列')
             return
 
         if len(names) >1:
-            ssignal.error.send('选择多列，请直接导出')
+            ssignal.error.emit('选择多列，请直接导出')
             return
 
         df = self.get_df()
@@ -45,46 +40,48 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         self.close()
 
     def export_clicked(self):
-        names = [line.text() for line in self.listWidget.selectedItems()]
-
-        if len(names) == 0:
-            ssignal.error.send('请选择列')
-            return
-
-        df = self.get_df()
-
-        results = []
-        for col in names:
-            try:
-                # 使用str.split进行拆分，并使用explode展开列表
-                df_split = df[col].str.split(Cfg.seperator, expand=True).stack()
-
-                # 使用value_counts进行统计
-                counts = df_split.value_counts()
-                # 使用reset_index()将Series转为DataFrame
-                counts = counts.reset_index()
-                # 替换空值
-                counts.fillna('', inplace=True)
-                # 为DataFrame的列命名
-                counts.columns = [col, '次数']
-                results.append(counts)
-            except Exception as e:
-                print(e)
-                counts = pd.DataFrame(columns = [col, '次数'])
-                results.append(counts)
-
-        filePath, _ = QFileDialog.getSaveFileName(
-            self,  # 父窗口对象
-            "保存词频统计文件",  # 标题
-            Cfg.datafiles,  # 起始目录
-            "Excel (*.xlsx);;"  # 选择类型过滤项，过滤内容在括号中
-        )
-
-        if filePath:
-            self.countStatThread = CleanExportCountStatThread(fpath=filePath, names=names, df_list=results)
-            self.countStatThread.start()
-
-        self.close()
+        ssignal.error.emit('暂时不导出')
+        return
+        # names = [line.text() for line in self.listWidget.selectedItems()]
+        #
+        # if len(names) == 0:
+        #     ssignal.error.emit('请选择列')
+        #     return
+        #
+        # df = self.get_df()
+        #
+        # results = []
+        # for col in names:
+        #     try:
+        #         # 使用str.split进行拆分，并使用explode展开列表
+        #         df_split = df[col].str.split(Cfg.seperator, expand=True).stack()
+        #
+        #         # 使用value_counts进行统计
+        #         counts = df_split.value_counts()
+        #         # 使用reset_index()将Series转为DataFrame
+        #         counts = counts.reset_index()
+        #         # 替换空值
+        #         counts.fillna('', inplace=True)
+        #         # 为DataFrame的列命名
+        #         counts.columns = [col, '次数']
+        #         results.append(counts)
+        #     except Exception as e:
+        #         print(e)
+        #         counts = pd.DataFrame(columns = [col, '次数'])
+        #         results.append(counts)
+        #
+        # filePath, _ = QFileDialog.getSaveFileName(
+        #     self,  # 父窗口对象
+        #     "保存词频统计文件",  # 标题
+        #     Cfg.datafiles,  # 起始目录
+        #     "Excel (*.xlsx);;"  # 选择类型过滤项，过滤内容在括号中
+        # )
+        #
+        # if filePath:
+        #     self.countStatThread = CleanExportCountStatThread(fpath=filePath, names=names, df_list=results)
+        #     self.countStatThread.start()
+        #
+        # self.close()
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

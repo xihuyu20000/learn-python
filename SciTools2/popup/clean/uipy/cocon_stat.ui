@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>414</width>
     <height>300</height>
    </rect>
   </property>
@@ -121,6 +121,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QPushButton" name="btn_ok">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);</string>
+           </property>
            <property name="text">
             <string>OK</string>
            </property>

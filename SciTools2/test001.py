@@ -1,9 +1,11 @@
-from mhelper import Cfg
 
+import sys
 
-def replace2(line, words_set):
-    words = [w for w in line.split(';') if w not in words_set]
-    print(words)
-    return ';'.join(words)
+# 获取当前 Python 版本信息
+python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+print(python_version)
 
-print(replace2('aa;bb;cc;dd', ['aa','bb']))
+import platform
+arch_info = platform.architecture()
+arch_info = arch_info[0]
+print(arch_info)

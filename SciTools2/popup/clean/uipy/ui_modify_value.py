@@ -38,11 +38,13 @@ class Ui_Form(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.btn_start = QPushButton(self.frame)
         self.btn_start.setObjectName(u"btn_start")
+        self.btn_start.setStyleSheet(u"color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);")
 
         self.horizontalLayout.addWidget(self.btn_start)
 
         self.btn_save = QPushButton(self.frame)
         self.btn_save.setObjectName(u"btn_save")
+        self.btn_save.setStyleSheet(u"color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);")
 
         self.horizontalLayout.addWidget(self.btn_save)
 

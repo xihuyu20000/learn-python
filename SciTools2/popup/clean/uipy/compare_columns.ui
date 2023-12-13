@@ -65,6 +65,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_ok">
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);</string>
+        </property>
         <property name="text">
          <string>OK</string>
         </property>

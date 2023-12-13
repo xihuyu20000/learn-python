@@ -17,7 +17,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(548, 482)
+        Form.resize(548, 280)
         self.verticalLayout_4 = QVBoxLayout(Form)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.frame_2 = QFrame(Form)
@@ -100,6 +100,7 @@ class Ui_Form(object):
 
         self.btn_ok = QPushButton(self.frame_6)
         self.btn_ok.setObjectName(u"btn_ok")
+        self.btn_ok.setStyleSheet(u"color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);")
 
         self.verticalLayout_2.addWidget(self.btn_ok)
 
@@ -109,33 +110,8 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addWidget(self.frame_3)
 
-        self.frame = QFrame(self.frame_2)
-        self.frame.setObjectName(u"frame")
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout = QHBoxLayout(self.frame)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(0, -1, -1, -1)
-        self.btn_combine_current_group = QPushButton(self.frame)
-        self.btn_combine_current_group.setObjectName(u"btn_combine_current_group")
-
-        self.horizontalLayout.addWidget(self.btn_combine_current_group)
-
-        self.btn_save_current_group = QPushButton(self.frame)
-        self.btn_save_current_group.setObjectName(u"btn_save_current_group")
-
-        self.horizontalLayout.addWidget(self.btn_save_current_group)
-
-
-        self.verticalLayout_3.addWidget(self.frame)
-
 
         self.verticalLayout_4.addWidget(self.frame_2)
-
-        self.group_table = QTableView(Form)
-        self.group_table.setObjectName(u"group_table")
-
-        self.verticalLayout_4.addWidget(self.group_table)
 
 
         self.retranslateUi(Form)
@@ -150,7 +126,5 @@ class Ui_Form(object):
         self.label_2.setText(QCoreApplication.translate("Form", u"\u76f8\u4f3c\u5ea6\u9608\u503c", None))
         self.vaLable.setText(QCoreApplication.translate("Form", u"85", None))
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
-        self.btn_combine_current_group.setText(QCoreApplication.translate("Form", u"\u5408\u5e76\u8be5\u5206\u7ec4", None))
-        self.btn_save_current_group.setText(QCoreApplication.translate("Form", u"\u4fdd\u5b58\u4fee\u6539", None))
     # retranslateUi
 

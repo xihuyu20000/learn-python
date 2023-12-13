@@ -8,16 +8,40 @@ import time
 from typing import List, Set
 
 import pandas as pd
+import watchdog
 from PySide2 import QtCore
 
 from PySide2.QtCore import QThread
 
 from pandas import DataFrame
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from mbiz import Parser, CleanBiz
-from mhelper import FileFormat, ssignal, Utils
+from mhelper import FileFormat, ssignal, Utils, Cfg, PandasUtil
 from log import logger
 
+class WatchDataFilesChaningThread(QThread):
+
+
+    def run(self) -> None:
+        event_handler = WatchDataFilesChaningThread.DataFilesChaningHandler()
+        observer = Observer()
+        observer.schedule(event_handler, path='.', recursive=False)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+
+    class DataFilesChaningHandler(FileSystemEventHandler):
+        def on_any_event(self, event):
+            try:
+                ssignal.datafiles_changing.emit()
+            except Exception as e:
+                logger.exception(e)
 
 class CleanParseFileThread(QThread):
     """
@@ -37,7 +61,7 @@ class CleanParseFileThread(QThread):
         self.sep = sep
 
     def run(self) -> None:
-        ssignal.info.send('开始解析文件，请稍等')
+        ssignal.info.emit('开始解析文件，请稍等')
 
         try:
             t1 = time.time()
@@ -58,13 +82,16 @@ class CleanParseFileThread(QThread):
                 raise Exception("没有处理的数据类型" + self.format)
 
             t2 = time.time()
-            msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+
+
+            msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.reset_stack.emit()
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '解析出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanSaveDatasetThread(QThread):
@@ -83,27 +110,27 @@ class CleanSaveDatasetThread(QThread):
         self.fpath = fpath
 
     def run(self) -> None:
-        ssignal.info.send('开始下载文件，请稍等')
+        ssignal.info.emit('开始下载文件，请稍等')
         try:
             t1 = time.time()
             if self.fpath.endswith('.csv'):
-                self.df.to_csv(self.fpath, index=False)
+                PandasUtil.write_csv(self.df, self.fpath, index=False)
             elif self.fpath.endswith('.xlsx') or self.fpath.endswith('.xls'):
-                self.df.to_excel(self.fpath, index=True)
+                PandasUtil.write_excel(self.df, self.fpath, 'Sheet0', index=False)
             elif self.fpath.endswith('pkl'):
-                self.df.to_pickle(self.fpath, compression="gzip")
+                PandasUtil.write_pickle(self.df, self.fpath, compression="gzip")
             elif self.fpath.endswith('pqt'):
-                self.df.to_parquet(self.fpath, engine="fastparquet", compression="snappy")
+                PandasUtil.write_parquet(self.df, self.fpath)
             else:
                 raise Exception("没有处理的保存类型 " + self.fpath)
             t2 = time.time()
-            msg = '保存{0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, 2))
-            ssignal.info.send(msg)
-
+            msg = '保存{0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.reset_stack.emit()
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanMetadataThread(QThread):
@@ -120,20 +147,20 @@ class CleanMetadataThread(QThread):
         self.df = df
 
     def run(self) -> None:
-        ssignal.info.send('开始分析，请稍等')
+        ssignal.info.emit('开始分析，请稍等')
         try:
             t1 = time.time()
 
             stat_df, pairs = CleanBiz.metadata(self.df)
 
             t2 = time.time()
-            msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
+            msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
             self.dataset.emit(stat_df, pairs)
         except Exception as e:
             logger.exception(e)
             msg = '解析出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanExportCountStatThread(QThread):
@@ -148,7 +175,7 @@ class CleanExportCountStatThread(QThread):
         self.df_list = df_list
 
     def run(self) -> None:
-        ssignal.info.send('开始下载文件，请稍等')
+        ssignal.info.emit('开始下载文件，请稍等')
         try:
             t1 = time.time()
 
@@ -156,13 +183,13 @@ class CleanExportCountStatThread(QThread):
                 CleanBiz.save_excel(self.df_list[i], self.fpath, self.names[i])
 
             t2 = time.time()
-            msg = '保存词频统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, 2))
-            ssignal.info.send(msg)
+            msg = '保存词频统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
 
         except Exception as e:
             logger.exception(e)
             msg = '解析出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanExportCoconStatThread(QThread):
@@ -175,20 +202,20 @@ class CleanExportCoconStatThread(QThread):
         self.df = df
 
     def run(self) -> None:
-        ssignal.info.send('开始下载文件，请稍等')
+        ssignal.info.emit('开始下载文件，请稍等')
         try:
             t1 = time.time()
 
             CleanBiz.save_excel(self.df, self.fpath, '0')
 
             t2 = time.time()
-            msg = '保存统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, 2))
-            ssignal.info.send(msg)
+            msg = '保存统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
 
         except Exception as e:
             logger.exception(e)
             msg = '解析出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanReplaceValuesThread(QThread):
@@ -201,20 +228,20 @@ class CleanReplaceValuesThread(QThread):
         self.df = df
 
     def run(self) -> None:
-        ssignal.info.send('开始替换值，请稍等')
+        ssignal.info.emit('开始替换值，请稍等')
         try:
             t1 = time.time()
 
             CleanBiz.save_excel(self.df, self.fpath, '0')
 
             t2 = time.time()
-            msg = '保存统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, 2))
-            ssignal.info.send(msg)
+            msg = '保存统计文件 {0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
 
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanCopyColumnThread(QThread):
@@ -225,21 +252,21 @@ class CleanCopyColumnThread(QThread):
 
 
     def run(self) -> None:
-        ssignal.info.send('复制列，请稍等')
+        ssignal.info.emit('复制列，请稍等')
         try:
             t1 = time.time()
 
             df = CleanBiz.copy_column(self.df, self.names)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
 
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 class CleanSplitColumnThread(QThread):
     def __init__(self, df:pd.DataFrame, name:str, split_style:str, le1_text:str, get_style:str, le2_text:int):
@@ -253,20 +280,20 @@ class CleanSplitColumnThread(QThread):
 
 
     def run(self) -> None:
-        ssignal.info.send('开始拆分列，请稍等')
+        ssignal.info.emit('开始拆分列，请稍等')
         try:
             t1 = time.time()
 
             df = CleanBiz.split_column(self.df, self.name, self.split_style, self.le1_text, self.get_style, self.le2_text)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanReplaceValueThread(QThread):
@@ -283,21 +310,21 @@ class CleanReplaceValueThread(QThread):
 
 
     def run(self) -> None:
-        ssignal.info.send('开始替换值，请稍等')
+        ssignal.info.emit('开始替换值，请稍等')
         try:
             t1 = time.time()
 
             df = CleanBiz.repalce_values(self.df, self.names, self.current_tab_index, self.old_sep, self.new_sep, self.other_char, self.is_reserved, self.is_new)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
 
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanCombineSynonymThread(QThread):
@@ -310,20 +337,20 @@ class CleanCombineSynonymThread(QThread):
 
 
     def run(self) -> None:
-        ssignal.info.send('开始同义词，请稍等')
+        ssignal.info.emit('开始同义词，请稍等')
         try:
             t1 = time.time()
 
             df = CleanBiz.combine_synonym(self.df, self.fpath, self.names, self.is_new)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 class CleanStopWordsThread(QThread):
@@ -336,68 +363,94 @@ class CleanStopWordsThread(QThread):
 
 
     def run(self) -> None:
-        ssignal.info.send('开始停用词，请稍等')
+        ssignal.info.emit('开始停用词，请稍等')
         try:
             t1 = time.time()
 
             df = CleanBiz.stop_words(self.df, self.names, self.words_set, self.is_new)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 
 class CleanWordCountThread(QThread):
-    def __init__(self, df:pd.DataFrame, name:str, threshold:int):
+    def __init__(self, df:pd.DataFrame, col_name:str, threshold:int):
         super(CleanWordCountThread, self).__init__()
         self.df = df
-        self.name = name
+        self.col_name = col_name
         self.threshold = threshold
 
 
     def run(self) -> None:
-        ssignal.info.send('开始词频统计，请稍等')
+        ssignal.info.emit('开始词频统计，请稍等')
         try:
             t1 = time.time()
 
-            df = CleanBiz.wordcount_stat(self.df, self.name, self.threshold)
+            df = CleanBiz.wordcount_stat(self.df, self.col_name, self.threshold)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
 
 
 
 class CleanCoconStatThread(QThread):
-    def __init__(self, df:pd.DataFrame, names:List[str]):
+    def __init__(self, df:pd.DataFrame, names:List[str], threshold:int):
         super(CleanCoconStatThread, self).__init__()
         self.df = df
         self.names = names
+        self.threshold = threshold
 
 
     def run(self) -> None:
-        ssignal.info.send('开始共现分析，请稍等')
+        ssignal.info.emit('开始共现分析，请稍等')
         try:
             t1 = time.time()
 
-            df = CleanBiz.cocon_stat(self.df, self.names)
+            df = CleanBiz.cocon_stat(self.df, self.names, self.threshold)
 
             t2 = time.time()
-            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, 2))
-            ssignal.info.send(msg)
-            ssignal.set_clean_dataset.send(df)
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
-            ssignal.error.send(msg)
+            ssignal.error.emit(msg)
+
+
+class CleanRowSimilarityThread(QThread):
+    def __init__(self, df:pd.DataFrame, column_names:List[str], limited:int):
+        super(CleanRowSimilarityThread, self).__init__()
+        self.df = df
+        self.column_names = column_names
+        self.limited = limited
+
+
+    def run(self) -> None:
+        ssignal.info.emit('开始分析相似度，请稍等')
+        try:
+            t1 = time.time()
+
+            df_new = CleanBiz.row_similarity(self.df, self.column_names, self.limited)
+            logger.info(df_new)
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df_new)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.emit(msg)

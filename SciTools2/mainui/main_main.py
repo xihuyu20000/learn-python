@@ -6,7 +6,6 @@
 方法的logger下面，必须空一行
 """
 import os.path
-import time
 from typing import List
 
 import pandas as pd
@@ -31,7 +30,7 @@ from popup.clean.main_row_distinct import PopupRowDistinct
 from popup.clean.main_similarity_row import PopupSimilarityRows
 from popup.clean.main_split_column import PopupSplitColumn
 from popup.clean.main_stop_words import PopupStopWords
-from mrunner import CleanSaveDatasetThread, CleanParseFileThread
+from mrunner import CleanSaveDatasetThread, CleanParseFileThread, WatchDataFilesChaningThread
 from mtoolkit import PandasStack, TableKit
 
 
@@ -56,6 +55,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         ssignal.info.connect(self.master_show_info)
         ssignal.error.connect(self.master_show_error)
         ssignal.set_clean_dataset.connect(self.master_set_clean_df)
+        ssignal.datafiles_changing.connect(self.master_action_datafiles_list)
 
         ## 3、清洗部分初始化 #####################################################
 
@@ -64,6 +64,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.clean_toolbar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         # clean 数据栈
         self.cleanTableStack = PandasStack(self)
+
         # clean 数据表
         self.clean_datatable = TableKit(column_sortable=True, header_horizontal_movable=True)
         # clean 布局管理器
@@ -90,9 +91,13 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.library_init_toolbar()
 
 
+        ## 5、  数据初始化 ######################################################################
+        self.watchDataFilesChangingThread = WatchDataFilesChaningThread()
+        self.watchDataFilesChangingThread.start()
 
-
+        self.master_action_datafiles_list()
         self.master_show_info('欢迎使用本软件，祝您有愉快的一天')
+
 
     def master_init_ui(self) -> None:
         # splitter左右比例
@@ -104,6 +109,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         main.ui所有的事件槽函数，都在这里
         :return:
         """
+        # 监听datafiles目录的文件变化
         # 数据文件列表，双击
         self.datafiles_list.itemDoubleClicked.connect(self.master_action_dblclick_datafiles_list)
         # 数据文件列表，按钮，刷新加载列表
@@ -118,8 +124,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         初始化配置项中的参数
         :return:
         """
-        cfg = Cfg()
-        self.config_datafiles_csv_seperator.setText(cfg.get(Cfg.csv_seperator))
+        self.config_datafiles_csv_seperator.setText(Cfg.csv_seperator)
 
     def master_show_info(self, val) -> None:
         """
@@ -140,7 +145,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
     def master_set_clean_df(self, df, inplace_index=True, drop_index=True) -> None:
         self.clean_datatable.set_dataset(df, inplace_index=inplace_index, drop_index=drop_index)
         self.mainTabWidget.setCurrentIndex(0)
-        self.cleanTableStack.push(df)
+
 
     def master_get_clean_columns(self) -> List[str]:
         return self.master_get_clean_df().columns
@@ -168,20 +173,19 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             format = 'error'
 
         if format == 'error':
-            ssignal.error.send('不识别的文件格式，请点击解析按钮')
+            ssignal.error.emit('不识别的文件格式，请点击解析按钮')
             return
 
         # 双击，只会选择一个文件，所以包装成list
         abs_datafiles = os.path.join(Cfg.datafiles, fname)
         abs_datafiles = [abs_datafiles]
         # csv文件分隔符
-        sep = self.config_datafiles_csv_seperator.text()
+        sep = Cfg.csv_seperator
 
         self.cleanSaveDatasetThread = CleanParseFileThread(abs_datafiles, format, sep)
         self.cleanSaveDatasetThread.start()
 
-    def master_action_datafiles_list(self):
-        logger.info('数据文件列表按钮，加载数据列表')
+    def master_action_datafiles_list(self, *args):
 
         fnames = [fname for fname in os.listdir(Cfg.datafiles)]
         # 过滤文件夹，只保留文件
@@ -191,7 +195,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.datafiles_list.addItems(fnames)
         self.datafiles_list.setCurrentRow(0)
 
-        ssignal.info.send(f'加载{len(fnames)}个数据文件')
+        ssignal.info.emit(f'加载{len(fnames)}个数据文件')
 
     def master_action_datafiles_parse(self):
         logger.info('数据文件列表按钮，解析数据文件')
@@ -199,7 +203,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         selected_fnames = [item.text() for item in self.datafiles_list.selectedItems()]
 
         if len(selected_fnames) == 0:
-            ssignal.error.send(f'错误，请选择同一种类型的数据文件')
+            ssignal.error.emit(f'错误，请选择同一种类型的数据文件')
             return
 
         # 获取所有的扩展名
@@ -216,12 +220,10 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.popupDatafilesParse.show()
 
     def master_action_save_configs(self):
-        cfg = Cfg()
-        cfg.set(Cfg.synonyms_file, self.config_synonym_dict_file.text())
-        cfg.set(Cfg.stopwords_file, self.config_stop_words_file.text())
-        cfg.set(Cfg.csv_seperator, self.config_datafiles_csv_seperator.text())
+        logger.info('保存配置信息')
+        Cfg.csv_seperator = self.config_datafiles_csv_seperator.text().strip()
 
-        ssignal.info.send('保存成功')
+        ssignal.info.emit('保存成功')
 
     ########################################################################
 
@@ -281,26 +283,26 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         df = self.cleanTableStack.undo()
         if df is not None:
-            ssignal.set_clean_dataset.send(df)
-            ssignal.info.send('撤销')
+            ssignal.set_clean_dataset.emit(df)
+            ssignal.info.emit('撤销')
         else:
-            ssignal.error.send('无法撤销')
+            ssignal.error.emit('无法撤销')
 
     def clean_do_menu_redo(self):
         logger.info('清洗，恢复')
 
         df = self.cleanTableStack.redo()
         if df is not None:
-            ssignal.set_clean_dataset.send(df)
-            ssignal.info.send('恢复')
+            ssignal.set_clean_dataset.emit(df)
+            ssignal.info.emit('恢复')
         else:
-            ssignal.error.send('无法恢复')
+            ssignal.error.emit('无法恢复')
 
     def clean_do_menu_metadata(self):
         logger.info('清洗，元数据')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupCleanMetadata = PopupCleanMetadata(self)
@@ -310,7 +312,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，保存')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         filePath, _ = QFileDialog.getSaveFileName(
@@ -328,7 +330,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，重命名')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupCleanRename = PopupCleanRename(self)
@@ -338,7 +340,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，复制列')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupCopyColumn = PopupCopyColumn(self)
@@ -348,7 +350,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，拆分列')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupSplitColumn = PopupSplitColumn(self)
@@ -358,7 +360,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，替换值')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupReplaceColumn = PopupReplaceColumn(self)
@@ -368,7 +370,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，合并词')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupCombineSynonym = PopupCombineSynonym(self)
@@ -378,7 +380,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，停用词')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupStopWords = PopupStopWords(self)
@@ -388,7 +390,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，词频统计')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupWordCountStat = PopupWordCountStat(self)
@@ -399,7 +401,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，共现分析')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupFreqStat = PopupFreqStat(self)
@@ -409,7 +411,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，对比列')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupCompareColumns = PopupCompareColumns(self)
@@ -419,7 +421,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，修改值')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupModifyValues = PopupModifyValues(self)
@@ -429,7 +431,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，行去重')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupRowDistinct = PopupRowDistinct(self)
@@ -439,7 +441,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，相似度')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.popupSimilarityRows = PopupSimilarityRows(self)
@@ -449,42 +451,42 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，删除行')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.clean_datatable.remove_selected_rows()
         self.master_set_clean_df(self.master_get_clean_df())
-        ssignal.info.send('删除行')
+        ssignal.info.emit('删除行')
 
     def clean_do_menu_column_delete(self):
         logger.info('清洗，删除列')
 
         if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
+            ssignal.error.emit('没有数据')
             return
 
         self.clean_datatable.remove_selected_columns()
         self.master_set_clean_df(self.master_get_clean_df())
-        ssignal.info.send('删除列')
+        ssignal.info.emit('删除列')
 
     def clean_do_menu_group_stat(self):
         logger.info('清洗，分组统计')
-        ssignal.error.send('还没有实现')
+        ssignal.error.emit('还没有实现')
 
-        if self.master_clean_no_data():
-            ssignal.error.send('没有数据')
-            return
-
-        self.popupCleanGroupStat = PopupCleanGroupStat(self)
-        self.popupCleanGroupStat.show()
+        # if self.master_clean_no_data():
+        #     ssignal.error.emit('没有数据')
+        #     return
+        #
+        # self.popupCleanGroupStat = PopupCleanGroupStat(self)
+        # self.popupCleanGroupStat.show()
 
     def clean_do_menu_clean_filter(self):
         logger.info('清洗，过滤')
-        ssignal.error.send('还没有实现')
+        ssignal.error.emit('还没有实现')
 
     def clean_do_menu_clean_makeup(self):
         logger.info('清洗，补全值')
-        ssignal.error.send('还没有实现')
+        ssignal.error.emit('还没有实现')
 
     #######################################################################
     def library_init_menubar(self):

@@ -33,13 +33,13 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
 
         t2 = time.time()
         msg = '清除{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
-        ssignal.error.send(msg)
+        ssignal.error.emit(msg)
 
     def action_ok(self):
         logger.info('列对比')
         indexes = [item.row() for item in self.column_names.selectedIndexes()]
         if len(indexes) != 2:
-            ssignal.error.send('只能选择2列')
+            ssignal.error.emit('只能选择2列')
             return
 
         t1 = time.time()
@@ -50,7 +50,7 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
                 table.set_bgcolor(i, indexes[1], '#a3a9a8')
         t2 = time.time()
         msg = '对比{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], len(indexes), round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        ssignal.info.emit(msg)
         self.close()
 
     def __replace(self, line, words_set):

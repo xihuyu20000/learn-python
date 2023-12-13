@@ -1,6 +1,7 @@
 
 from typing import List
 
+import pandas
 import pandas as pd
 from PySide2 import QtCore, QtWidgets
 from PySide2 import QtGui
@@ -10,6 +11,9 @@ from PySide2.QtWidgets import QFrame, QPushButton, \
     QListWidget, \
     QAbstractItemView, QTableView, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLCDNumber
 from log import logger
+from mhelper import ssignal
+
+
 class InfoKit(QWidget):
     def __init__(self,):
         super().__init__()
@@ -218,7 +222,7 @@ class PandasTableModel(QtCore.QAbstractTableModel):
     def pub_set_dataset(self, df, inplace_index=True, drop_index=True):
         self.beginResetModel()
         self._data = df
-        self._data.reset_index(inplace=inplace_index, drop=drop_index)
+        self._data._reset_index(inplace=inplace_index, drop=drop_index)
         self.endResetModel()
 
     def pub_get_dataset(self):
@@ -239,122 +243,6 @@ class PandasTableModel(QtCore.QAbstractTableModel):
         self._backgrounds[i] = QBrush(QColor(color))
         self.dataChanged.emit(index, index)
 
-#
-# class TableKit(QFrame):
-#     """
-#     封装所有的表格操作
-#     """
-#     signal_info = Signal(str)
-#
-#     def __init__(self, parent=None, single_select=False, column_sortable=False, header_horizontal_movable=False, vertical_header_hide=False, horizontal_header_color='#abfaa6'):
-#         super(TableKit, self).__init__(parent)
-#         self._layout = QtWidgets.QVBoxLayout(self)
-#         self._table = TableKit.InnerTable()
-#
-#         self._layout.addWidget(self._table)
-#         self._model = TableKit.InnerModel(pd.DataFrame(columns=[], index=[], data=[]))
-#         self._table.setModel(self._model)
-#
-#         self.__init_table(single_select, column_sortable, header_horizontal_movable, vertical_header_hide, horizontal_header_color)
-#
-#     def has_dataset(self):
-#         return self._model.pub_has_dataset()
-#
-#     def get_dataset(self):
-#         """
-#         获取数据的copy
-#         """
-#         df = self._model.pub_get_dataset()
-#         return df
-#
-#     def remove_rows(self, rows: List[int]):
-#         """
-#         删除多行
-#         """
-#         if rows is not None and len(rows) > 0:
-#             ds = self.get_dataset()
-#             ds.drop(index=ds.index[rows], inplace=True)
-#             self.set_dataset(ds)
-#
-#     def remove_rows_reserve_index(self, indexes:List[int]):
-#         """
-#         删除行，但是不改变索引
-#         """
-#         self._model.pub_remove_rows_reserve_index(indexes)
-#
-#     def remove_columns(self, columns: List[int]):
-#         """
-#         删除多列
-#         """
-#         if columns is not None and len(columns) > 0:
-#             ds = self.get_dataset()
-#             ds.drop(columns=ds.columns[columns], inplace=True)
-#             self.set_dataset(ds)
-#
-#     def remove_selected_columns(self):
-#         """
-#         删除选中列
-#         """
-#         col_indexes = [index[1] for index in self._table.pub_selected_indexes()]
-#         self.remove_columns(col_indexes)
-#
-#     def remove_selected_rows(self):
-#         """
-#         删除选中行
-#         """
-#         row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
-#         self.remove_rows(row_indexes)
-#
-#
-#     def get_selected_rows(self):
-#         return [index[0] for index in self._table.pub_selected_indexes()]
-#
-#     def set_dataset(self, df, inplace_index=True, drop_index=True):
-#         # 1、更新模型
-#         self._model.pub_update_dataset(df, inplace_index=inplace_index, drop_index=drop_index)
-#         # 2、更新表格视图
-#         self._table.reset()
-#
-#
-#     def set_bgcolor(self, i, j, color):
-#         self._model.pub_set_bgcolor(i, j, color)
-#     def set_user_header(self, data):
-#         self._model.pub_set_user_header(data)
-#
-#     def set_item_writable(self,writable=False):
-#         self._model.pub_set_item_writable(writable)
-#     def init_dataset(self, df):
-#         # 1、更新模型
-#         self._model.pub_update_dataset(df, inplace_index=False, drop_index=False)
-#         # 2、更新表格视图
-#         self._table.reset()
-#
-#
-#     def __init_table(self, single_select, column_sortable, header_movable, vertical_header_hide, horizontal_header_color):
-#         """
-#         设置表参数
-#         """
-#         if single_select:
-#             self._table.setSelectionMode(QAbstractItemView.SingleSelection)
-#             self._table.setSelectionBehavior(QAbstractItemView.SelectItems)
-#         self._table.setSortingEnabled(column_sortable)
-#         self._table.horizontalHeader().setSectionsMovable(header_movable)
-#         if vertical_header_hide:
-#             self._table.verticalHeader().hide()
-#         self._table.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:{horizontal_header_color};}}");
-#     class InnerTable(QTableView):
-#         def __init__(self):
-#             super().__init__()
-#
-#         def pub_selected_indexes(self):
-#             return [(index.row(), index.column()) for index in self.selectedIndexes()]
-#
-#         def pub_selectedItems(self):
-#             return self.selectedItems()
-#
-#
-#         def sortByColumn(self, column, order):
-#             print('视图排序')
 
 class ListKit(QFrame):
     """
@@ -455,7 +343,6 @@ class TableKit(QFrame):
         """
         if columns is not None and len(columns) > 0:
             ds = self.get_dataset()
-            print('列编号', columns)
             ds.drop(columns=ds.columns[columns], inplace=True)
             self.set_dataset(ds)
 
@@ -476,7 +363,10 @@ class TableKit(QFrame):
     def get_selected_rows(self):
         return [index[0] for index in self._table.pub_selected_indexes()]
 
-    def set_dataset(self, df, inplace_index=True, drop_index=True):
+    def set_dataset(self, df:pd.DataFrame, inplace_index=True, drop_index=True):
+        if not isinstance(df.index, pandas.RangeIndex):
+            inplace_index=False
+            drop_index=False
         # 1、更新模型
         self._model.pub_update_dataset(df, inplace_index=inplace_index, drop_index=drop_index)
         # 2、更新表格视图
@@ -490,13 +380,6 @@ class TableKit(QFrame):
 
     def set_item_writable(self,writable=False):
         self._model.pub_set_item_writable(writable)
-
-    def init_dataset(self, df):
-        # 1、更新模型
-        self._model.pub_update_dataset(df, inplace_index=False, drop_index=False)
-        # 2、更新表格视图
-        self._table.reset()
-
 
     def __init_table(self, single_select, column_sortable, header_movable, vertical_header_hide, horizontal_header_color):
         """
@@ -514,24 +397,13 @@ class TableKit(QFrame):
 
         def __init__(self, data=None):
             super().__init__()
-            self._user_headers = dict()
+            # self._user_headers = dict()
             self._data = data
             # 存储背景颜色，key是i_j
             self._backgrounds = {}
             # 是否允许修改
             self._cell_writable = False
 
-        def data(self, index, role):
-            """
-            获取单元格中的数据
-            """
-            if role in (Qt.DisplayRole , Qt.EditRole):
-                value = self._data.iloc[index.row(), index.column()]
-
-                return str(value)
-            elif role == Qt.BackgroundRole:
-                i = '{0}_{1}'.format(index.row(), index.column())
-                return self._backgrounds[i] if i in self._backgrounds else ''
 
         def rowCount(self, index):
             """
@@ -545,14 +417,30 @@ class TableKit(QFrame):
             """
             return self._data.shape[1]
 
+        def data(self, index, role):
+            """
+            获取单元格中的数据
+            """
+            if role in (Qt.DisplayRole , Qt.EditRole):
+                try:
+                    value = self._data.iloc[index.row(), index.column()]
+                    return str(value)
+                except IndexError:
+                    return ''
+            elif role == Qt.BackgroundRole:
+                i = '{0}_{1}'.format(index.row(), index.column())
+                return self._backgrounds[i] if i in self._backgrounds else ''
         def headerData(self, section, orientation, role):
             """
             设置行标题和列标题
             """
             if role == Qt.DisplayRole:
                 if orientation == Qt.Horizontal:
-                    key = str(self._data.columns[section])
-                    return self._user_headers[key] if key in self._user_headers else key
+                    try:
+                        label = str(self._data.columns[section])
+                        return label
+                    except(IndexError, ):
+                        return None
 
                 if orientation == Qt.Vertical:
                     return str(self._data.index[section])
@@ -588,9 +476,9 @@ class TableKit(QFrame):
                 self.removeRow(i)
 
 
-        def pub_update_dataset(self, df, inplace_index, drop_index):
+        def pub_update_dataset(self, df:pd.DataFrame, inplace_index, drop_index):
             self.beginResetModel()
-            self._data = df
+            self._data = df.copy()
             self._data.reset_index(inplace=inplace_index, drop= drop_index)
             self.endResetModel()
 
@@ -637,30 +525,53 @@ class PandasStack:
         super().__init__()
         self.parent = parent
         self.data_list = [pd.DataFrame()]
-        self.current_index = 0
+        self.__current_index = 0
+
+        ssignal.reset_stack.connect(self.reset_stack)
+
+    def _inc_index(self):
+        logger.info('inc_index')
+        self.__current_index += 1
+    def _dec_index(self):
+        logger.info('dec_index')
+        self.__current_index -= 1
+    def _get_index(self):
+        logger.info('get_index')
+        return self.__current_index
+
+    def _reset_index(self):
+        logger.info('reset_index')
+        self.__current_index = 0
+        self.data_list = self.data_list[0]
+    def reset_stack(self, *args):
+        """
+        当加载新的数据文件时，或者保存之后，就需要重置
+        :return:
+        """
+        self._reset_index()
 
     def push(self, df):
-        self.current_index +=1
-        self.data_list.insert(self.current_index, df)
+        self._inc_index()
+        self.data_list.insert(self._get_index(), df)
         # print('当前栈索引', self.current_index)
 
     def can_undo(self):
-        return self.current_index>0
+        return self._get_index()>0
 
     def can_redo(self):
-        return self.current_index+1<len(self.data_list)
+        return self._get_index()+1<len(self.data_list)
 
     def undo(self) -> pd.DataFrame:
         if self.can_undo():
-            self.current_index -= 1
-            dd = self.data_list[self.current_index]
+            self._dec_index()
+            dd = self.data_list[self._get_index()]
             return dd
         return None
 
     def redo(self) -> pd.DataFrame:
         if self.can_redo():
-            self.current_index +=1
-            dd = self.data_list[self.current_index]
+            self._inc_index()
+            dd = self.data_list[self._get_index()]
             return dd
         return None
 

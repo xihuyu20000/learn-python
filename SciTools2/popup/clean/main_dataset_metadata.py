@@ -34,10 +34,10 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
 
         for col_name, vlist in pairs.items():
             table1 = TableKit(vertical_header_hide=True)
-            table1.init_dataset(vlist[0])
+            table1.set_dataset(vlist[0])
 
             table2 = TableKit(vertical_header_hide=True)
-            table2.init_dataset(vlist[1])
+            table2.set_dataset(vlist[1])
 
             widget = FrameKit()
             widget.add_widgets(table1, table2)

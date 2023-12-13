@@ -89,8 +89,7 @@ class WinGroupStat(QDialog, ui_group_stat.Ui_Form):
     def action_ok(self):
         group_children = [item.get_value() for item in self.widget_group.findChildren(ClosableButton)]
         stat_children = [item.get_value() for item in self.widget_stat.findChildren(StatWidget)]
-        print(group_children)
-        print(stat_children)
+
 
 
 # if __name__ == '__main__':

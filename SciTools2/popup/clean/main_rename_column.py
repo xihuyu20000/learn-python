@@ -55,7 +55,7 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
         t2 = time.time()
 
         msg = '重命名列，耗时{0}秒'.format(round(t2 - t1, 2))
-        ssignal.info.send(msg)
+        ssignal.info.emit(msg)
         self.close()
 
     def get_clean_columns(self):

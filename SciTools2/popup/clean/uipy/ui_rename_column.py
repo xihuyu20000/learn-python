@@ -36,6 +36,7 @@ class Ui_Form(object):
 
         self.pushButton = QPushButton(Form)
         self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setStyleSheet(u"color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);")
 
         self.verticalLayout.addWidget(self.pushButton)
 

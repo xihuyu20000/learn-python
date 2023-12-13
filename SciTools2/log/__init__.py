@@ -1,3 +1,4 @@
+import os
 import sys
 
 import loguru
@@ -10,8 +11,8 @@ format_error = '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <
             '| <magenta>{process}</magenta>:<yellow>{thread}</yellow> ' \
             '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
 
-
-
+# 使用 getattr 检查 sys.frozen 属性,判断脚本是否运行在一个EXE文件中
+_abs_path = os.path.expanduser('~') if getattr(sys, 'frozen', False) else os.path.abspath(os.curdir)
 
 class MyLogger:
     def __init__(self):
@@ -20,18 +21,19 @@ class MyLogger:
         # 清空所有设置
         self.__logger.remove()
 
-        # 添加控制台输出的格式,sys.stdout为输出到屏幕;关于这些配置还需要自定义请移步官网查看相关参数说明
-        self.__logger.add(sys.stdout,
-                          colorize=True,
-                        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "  # 颜色>时间
-                               "<cyan>{module}</cyan>.<cyan>{function}</cyan>"  # 模块名.方法名
-                               ":<cyan>{line}</cyan> | "  # 行号
-                               "<level>{level}</level>: "  # 等级
-                               "<level>{message}</level>",  # 日志内容
-                          )
+        if not getattr(sys, 'frozen', False):
+            # 添加控制台输出的格式,sys.stdout为输出到屏幕;关于这些配置还需要自定义请移步官网查看相关参数说明
+            self.__logger.add(sys.stdout,
+                            colorize=True,
+                            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "  # 颜色>时间
+                                   "<cyan>{module}</cyan>.<cyan>{function}</cyan>"  # 模块名.方法名
+                                   ":<cyan>{line}</cyan> | "  # 行号
+                                   "<level>{level}</level>: "  # 等级
+                                   "<level>{message}</level>",  # 日志内容
+                              )
 
         self.__logger.add(
-            sink="clean-info.log",
+            sink=os.path.join(_abs_path, ".clean-info.log"),
             enqueue=True,
             rotation="4 weeks",
             retention="4 months",
@@ -45,7 +47,7 @@ class MyLogger:
         )
 
         self.__logger.add(
-            sink="clean-error.log",
+            sink=os.path.join(_abs_path, ".clean-error.log"),
             enqueue=True,
             encoding="utf-8",
             backtrace=True,
@@ -59,4 +61,11 @@ class MyLogger:
     def get_logger(self):
         return self.__logger
 
+    # def info(self, *args):
+    #     self.__logger.info(' , '.join(args))
+    #
+    # def error(self, *args):
+    #     self.__logger.error(' , '.join(args))
+
 logger = MyLogger().get_logger()
+

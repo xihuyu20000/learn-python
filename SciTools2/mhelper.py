@@ -1,62 +1,140 @@
+"""
+这是工具模块，这里的代码，一定不能依赖其他项目模块
+"""
 import collections
+import configparser
 import itertools
 import os
 import re
 import secrets
+import sys
+import time
 import uuid
 from typing import List, Dict, Union, Set
-import dbm
 import jieba
+from PySide2 import QtCore
+
 from log import logger
-import numpy as np
-import pandas as pd
 import wmi
-from blinker import signal
 from strenum import StrEnum
 from zhon.hanzi import punctuation
 
 
-class ssignal:
-    stack_change = signal('stack_change')
-    info = signal('info')
-    error = signal('error')
-    finish = signal('finish')
-    set_clean_dataset = signal('set_clean_dataset')
+class MySignal(QtCore.QObject):
+    info = QtCore.Signal(str)
+    error = QtCore.Signal(str)
+    set_clean_dataset = QtCore.Signal(object)
+    datafiles_changing = QtCore.Signal()
+    reset_stack = QtCore.Signal()
 
+ssignal = MySignal()
 
-class Cfg:
+class ConfigHandler(object):
     workspace = os.path.abspath(os.curdir)
     datafiles = os.path.join(workspace, 'datafiles')
     dicts = os.path.join(workspace, 'dicts')
 
-
-    table_header_bgcolor = 'lightblue'
-    seperator = 'seperator'
-    csv_seperator = 'csv_seperator'
     stopwords_file = '停用词表.txt'
     synonyms_file = '合并词表.txt'
+
+    _abs_path = os.path.expanduser('~') if getattr(sys, 'frozen', False) else os.path.abspath(os.curdir)
+
     def __init__(self):
-        self.db = os.path.join(os.path.abspath(os.curdir), 'sci.db')
+        self.default = 'default'
+
+        self.db = os.path.join(ConfigHandler._abs_path, 'sci.db')
+
         if not os.path.exists(self.db):
-            with dbm.open(self.db, 'c') as f:
-                f['table_header_bgcolor'] = 'lightblue'
-                f['seperator'] = ';'
-                f['csv_seperator'] = ','
-                f['stopwords_file'] = os.path.join(os.path.abspath(Cfg.dicts), '停用词表')
-                f['synonyms_file'] = os.path.join(os.path.abspath(Cfg.dicts), '同义词表')
-
-    def set(self, k, v):
-        file = dbm.open(self.db, 'c')
-        file[k] = bytes(v, encoding='utf-8')
-        file.close()
-
-    def get(self, k):
-        file = dbm.open(self.db, 'c')
-        v = file[k]
-        file.close()
-        return str(v,'utf-8')
+            self.__write_ini('table_header_bgcolor', 'lightblue')
+            # 文件默认的分隔符
+            self.__write_ini('seperator', ';')
+            # 读取csv文件时，的分隔符
+            self.__write_ini('csv_seperator', ',')
+            # 程序运行的计时器，精确度
+            self.__write_ini('precision_point', '4')
+            # 打开时，弹出窗口，可以关闭，当天不显示
+            self.__write_ini('popup_startup', '')
 
 
+    ###############################################################
+    @property
+    def seperator(self):
+        cf = configparser.ConfigParser()
+        cf.read(self.db, encoding='utf-8')
+        return cf[self.default]['seperator']
+    @seperator.setter
+    def seperator(self, value):
+        cf = configparser.ConfigParser()
+        cf.read(self.db, encoding='utf-8')
+        cf.set(self.default, 'seperator', value)
+        with open(self.db, 'w', encoding='utf-8') as f:
+            cf.write(f)
+    ###############################################################
+    @property
+    def csv_seperator(self):
+        return self.__read_ini('csv_seperator')
+
+
+    @csv_seperator.setter
+    def csv_seperator(self, value):
+        self.__write_ini('csv_seperator', value)
+
+    ###############################################################
+    @property
+    def precision_point(self) -> int:
+        return int(self.__read_ini('precision_point').strip())
+    @precision_point.setter
+    def precision_point(self, value):
+        self.__write_ini(self.db, self.default, 'precision_point', str(value))
+
+    ###############################################################
+    @property
+    def popup_startup(self):
+        return self.__read_ini('popup_startup')
+    @popup_startup.setter
+    def _precision_point(self, value):
+        self.__write_ini(self.db, self.default, 'popup_startup', str(value))
+
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    ###############################################################
+    def __read_ini(self, key):
+        """
+        读取INI文件中的单个值
+        """
+
+        config = configparser.ConfigParser()
+        config.read(self.db, encoding='utf-8')
+
+        try:
+            value = config.get(self.default, key)
+            return value
+        except configparser.Error as e:
+            print(f"Error reading INI file: {e}")
+            return None
+
+    def __write_ini(self, key, value):
+        """
+        修改INI文件中的单个值
+        """
+        config = configparser.ConfigParser()
+        config.read(self.db)
+
+        if self.default not in config:
+            config.add_section(self.default)
+
+        config.set(self.default, key, value)
+
+        with open(self.db, 'w', encoding='utf-8') as config_file:
+            config.write(config_file)
+
+
+Cfg = ConfigHandler()
 
 
 class FileFormat(StrEnum):
@@ -321,7 +399,17 @@ class Utils:
                 if val >= threshold:
                     result[index] = val
         return result
-
+    @staticmethod
+    def jaccard_similarity(set1:Set[str], set2:Set[str]) -> float:
+        """
+        计算杰卡德相似度
+        :param set1: set类型
+        :param set2:
+        :return: 在[0,1]之间的值
+        """
+        intersection = len(set1.intersection(set2))
+        union = len(set1.union(set2))
+        return intersection/union
     @staticmethod
     def generate_random_color():
         """
@@ -391,7 +479,18 @@ class Utils:
     @staticmethod
     def has_Chinese_or_punctuation(ws):
         return Utils.has_Chinese(ws) or Utils.has_punctuation(ws)
-
+    @staticmethod
+    def join_values(row, col_names:List[str]) -> Set[str]:
+        """
+        :param row:
+        :param col_names:
+        :return:
+        """
+        # 先合并
+        joined = Cfg.seperator.join([row[col] for col in col_names])
+        # 再分割
+        values = [item.strip() for item in re.split(r'\s+|;', joined) if item.strip()]
+        return set(values)
     @staticmethod
     def has_Chinese(ws):
         return any([True if '\u4e00' <= w <= '\u9fff' else False for w in jieba.lcut(ws)])
@@ -474,10 +573,15 @@ class MachineCode:
         with open(self.licence_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
+import warnings
+from typing import Tuple, List
+
+import numpy as np
+import pandas as pd
 
 class PandasUtil:
     @staticmethod
-    def cocon_matrix(df, col_name, threhold=0, diagonal_values=False):
+    def cocon_matrix(df, col_name, threhold, diagonal_values=False):
         """
         共现矩阵
         :param df:
@@ -488,34 +592,35 @@ class PandasUtil:
         df2 = df[col_name].str.split(Cfg.seperator)
         # 根据对角线是否有值，决定使用哪个函数
         sfunc = itertools.combinations_with_replacement if diagonal_values else itertools.combinations
-
+        logger.info('{} {}'.format(1, time.time()))
         df2 = df2.apply(lambda x: [Cfg.seperator.join(sorted(item)) for item in sfunc(x, 2)])
-
+        logger.info('{} {}'.format(2, time.time()))
         total_pairs = collections.defaultdict(int)
-
+        logger.info('{} {}'.format(3, time.time()))
         for row in df2:
             for pair in row:
                 total_pairs[pair] += 1
-
+        logger.info('{} {}'.format(4, time.time()))
         total_pairs = {k: v for k, v in total_pairs.items() if v > threhold}
-
+        logger.info('{} {}'.format(5, time.time()))
         total_words = set()
         for k, v in total_pairs.items():
             total_words.update(k.split(Cfg.seperator))
-
+        logger.info('{} {}'.format(6, time.time()))
         result = pd.DataFrame(index=list(total_words), columns=list(total_words), dtype=np.uint8)
         for k, v in total_pairs.items():
             ss = k.split(Cfg.seperator)
             i, j = ss[0], ss[1]
             result.loc[i, j] = v
             result.loc[j, i] = v
+        logger.info('{} {}'.format(7, time.time()))
         result.fillna(0, inplace=True)
         result.reset_index(inplace=False, drop=False)
 
         return result
 
     @staticmethod
-    def heter_matrix(df, col_name1, col_name2, threshold=0):
+    def heter_matrix(df, col_name1, col_name2, threshold):
         df.fillna('', inplace=True)
         df1 = df[col_name1].str.split(Cfg.seperator)
         df2 = df[col_name2].str.split(Cfg.seperator)
@@ -547,3 +652,99 @@ class PandasUtil:
         result = result.drop(columns=columns_to_remove)
 
         return result
+
+    @staticmethod
+    def calc_similarity(df:pd.DataFrame, words_list:List[Set[str]], limited:int) -> List[Tuple[int, int, str]]:
+        """
+
+        :param df:
+        :param words_list: list中的每每个元素是一个set，set中存放的单词，这个set表示该行的用于相似度判断的所有单词
+        :return: list中嵌套一个tuple，里面的结构是[原df的index， 组号，相似度]
+        """
+        assert df.shape[0] == len(words_list)
+        assert limited >= 0
+
+
+
+
+        t1 = time.time()
+        pairs_dict = []
+        group_no = 0
+        for source_i, source_words in enumerate(words_list):
+            logger.info('第{}轮  {}'.format(source_i, time.time()))
+            # 第1个不取，形成三角矩阵，不包括对角线
+            used_indexes = [p[0] for p in pairs_dict]
+            # 注意下面的判断逻辑：
+            # 1、index>i表示只处理后面的句子
+            # 2、index not in used_indexes表示不在 前面相似选择出来的范围内
+            # 符合以上一个条件，返回本身；否则，返回空串。这样的目的，是为了保持句子的原始顺序号不变化
+            targets: List[Set[str]] = []
+            # 以下的代码不能合并到一起，必须保持这样
+            for index, words in enumerate(words_list):
+                if index > source_i:
+                    if index not in used_indexes:
+                        targets.append(words)
+                    else:
+                        targets.append(set())
+                else:
+                    targets.append(set())
+            # print('比较完成的index',used_indexes)
+            # print('待比较的句子', sentences)
+
+            # 缩小到[0,1]之间
+            threshold = limited / 100
+            assert threshold > 0 and threshold <= 1
+            # 计算出相似度
+            result: Dict[int, float] = Utils.calculate_jaccard_similarity(threshold, source_words, targets)
+            # print(threshold, result, source_words, targets)
+            # print('比较结果', result)
+            if result:
+                # 组号+1
+                group_no += 1
+                # 把当前的句子放进去，第3个表示当前句子，使用None表示不跟自己比较相似度
+                pairs_dict.append([source_i, group_no, '100'])
+                for target_index, simil in result.items():
+                    pairs_dict.append((target_index, group_no, '{:.1f}'.format(simil * 100)))
+        # logger.info(pairs_dict)
+        t2 = time.time()
+        logger.info('计算相似度，耗时{0}'.format( round(t2-t1, 2)))
+        return pairs_dict
+
+
+    @staticmethod
+    def read_csv(fpath: str, sep:str) -> pd.DataFrame:
+        return pd.read_csv(fpath, sep=sep, encoding='UTF-8', dtype=str)
+    @staticmethod
+    def write_csv(df: pd.DataFrame, fpath: str, index:bool) -> None:
+        df.to_csv(fpath, index=index)
+
+    @staticmethod
+    def read_excel(fpath:str) ->pd.DataFrame:
+        return pd.read_excel(fpath, sheet_name=0, engine='openpyxl', dtype=str)
+    @staticmethod
+    def write_excel(df:pd.DataFrame, fpath:str, name:str, index):
+        """
+
+        :param df: 数据集
+        :param fpath: 保存路径
+        :param name: sheet名称
+        :param index: 是否写入索引
+        :return:
+        """
+        with pd.ExcelWriter(fpath) as writer:
+            df.to_excel(writer, sheet_name=name, index=index)
+
+    @staticmethod
+    def read_pickle(fpath: str) -> pd.DataFrame:
+        return pd.read_pickle(fpath, compression='gzip')
+
+    @staticmethod
+    def write_pickle(df:pd.DataFrame, fpath:str, compression):
+        return df.to_pickle(fpath, compression=compression)
+    @staticmethod
+    def read_parquet(fpath:str):
+        return pd.read_parquet(fpath)
+    @staticmethod
+    def write_parquet(df:pd.DataFrame, fpath:str):
+        df.to_parquet(fpath)
+

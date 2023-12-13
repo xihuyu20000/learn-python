@@ -158,6 +158,7 @@ class Ui_Form(object):
 
         self.ok_button = QPushButton(self.frame_2)
         self.ok_button.setObjectName(u"ok_button")
+        self.ok_button.setStyleSheet(u"color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);")
 
         self.verticalLayout_3.addWidget(self.ok_button)
 

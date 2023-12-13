@@ -460,7 +460,7 @@ class Ui_MainWindow(object):
         self.menu_clean_filter.setText(QCoreApplication.translate("MainWindow", u"\u8fc7\u6ee4\u884c", None))
         self.menu_clean_makeup.setText(QCoreApplication.translate("MainWindow", u"\u8865\u5168\u503c", None))
         self.datafiles_btn_list.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u5217\u8868", None))
-        self.datafiles_btn_parse.setText(QCoreApplication.translate("MainWindow", u"\u663e\u793a", None))
+        self.datafiles_btn_parse.setText(QCoreApplication.translate("MainWindow", u"\u89e3\u6790", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab1), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab2), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab3), QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))

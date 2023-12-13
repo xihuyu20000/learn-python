@@ -1,12 +1,13 @@
 pyside2
 numpy
-pandas[pyarrow]
+pandas
 openpyxl
-fastparquet
 strenum
 jieba
+# datasketch==1.5.4
 zhon
 loguru
+arrow
 pyinstaller
 wmi
-blinker
+watchdog
