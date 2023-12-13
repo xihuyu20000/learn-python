@@ -31,6 +31,7 @@ class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
 
     def action_ok(self, limited):
         logger.info('相似度')
+
         column_names = self.column_names.selectedItems()
         if len(column_names) == 0:
             ssignal.error.emit('请选择列')
@@ -39,8 +40,10 @@ class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
         column_names = [item.text() for item in column_names]
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
+        
         # 缩小到[0,1]
         limited = float(limited/100)
+
         self.cleanRowSimilarityThread = CleanRowSimilarityThread(df, column_names, limited)
         self.cleanRowSimilarityThread.start()
 
