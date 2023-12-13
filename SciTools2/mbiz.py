@@ -341,7 +341,7 @@ class CleanBiz:
         # 为DataFrame的列命名
         counts.columns = [col_name, '次数']
         # 讲col_name改为索引
-        counts.set_index([col_name], inplace=True)
+        # counts.set_index([col_name], inplace=True)
 
         return counts
 
