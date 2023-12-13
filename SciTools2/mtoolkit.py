@@ -542,7 +542,7 @@ class PandasStack:
     def _reset_index(self):
         logger.info('reset_index')
         self.__current_index = 0
-        self.data_list = self.data_list[0]
+        self.data_list = [pd.DataFrame()]
     def reset_stack(self, *args):
         """
         当加载新的数据文件时，或者保存之后，就需要重置

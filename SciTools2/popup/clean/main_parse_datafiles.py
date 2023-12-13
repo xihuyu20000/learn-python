@@ -26,7 +26,7 @@ class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
                 self.gridLayout.addWidget(btn, i, j)
 
     def action_format(self):
-        style = self.emiter().text()
+        style = self.sender().text()
         logger.info(f'解析文件，格式 {style} 文件'+'  '.join(self.abs_datafiles))
         ssignal.info.emit('开始解析文件，请稍等')
 
