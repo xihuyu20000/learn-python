@@ -724,7 +724,7 @@ class PandasUtil:
     def read_excel(fpath:str) ->pd.DataFrame:
         return pd.read_excel(fpath, sheet_name=0, engine='openpyxl', dtype=str)
     @staticmethod
-    def write_excel(df:pd.DataFrame, fpath:str, name:str, index):
+    def write_excel(df:pd.DataFrame, fpath:str, name:str):
         """
 
         :param df: 数据集
@@ -734,7 +734,20 @@ class PandasUtil:
         :return:
         """
         with pd.ExcelWriter(fpath) as writer:
-            df.to_excel(writer, sheet_name=name, index=index)
+            df.to_excel(writer, sheet_name=name, index=False)
+
+    @staticmethod
+    def write_excel_many_sheet(fpath:str, sheet_name_and_df:Dict[str,pd.DataFrame]):
+        """
+        写入多个sheet
+        :param fpath:
+        :param sheet_name_and_df:
+        :return:
+        """
+        with pd.ExcelWriter(fpath) as writer:
+            for sheet_name, df in sheet_name_and_df.items():
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
+
 
     @staticmethod
     def read_pickle(fpath: str) -> pd.DataFrame:

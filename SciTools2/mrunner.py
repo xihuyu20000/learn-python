@@ -116,7 +116,7 @@ class CleanSaveDatasetThread(QThread):
             if self.fpath.endswith('.csv'):
                 PandasUtil.write_csv(self.df, self.fpath, index=False)
             elif self.fpath.endswith('.xlsx') or self.fpath.endswith('.xls'):
-                PandasUtil.write_excel(self.df, self.fpath, 'Sheet0', index=False)
+                PandasUtil.write_excel(self.df, self.fpath, 'Sheet0')
             elif self.fpath.endswith('pkl'):
                 PandasUtil.write_pickle(self.df, self.fpath, compression="gzip")
             elif self.fpath.endswith('pqt'):
@@ -399,6 +399,36 @@ class CleanWordCountThread(QThread):
             msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
+        except Exception as e:
+            logger.exception(e)
+            msg = '出错:{0}'.format(str(e))
+            ssignal.error.emit(msg)
+
+class CleanWordCountExportThread(QThread):
+    def __init__(self, df:pd.DataFrame, col_names:List[str], threshold:int, fpath:str):
+        super(CleanWordCountExportThread, self).__init__()
+        self.df = df
+        self.col_names = col_names
+        self.threshold = threshold
+        self.fpath = fpath
+
+
+    def run(self) -> None:
+        ssignal.info.emit('开始词频统计文件导出，请稍等')
+        try:
+            t1 = time.time()
+
+            sheet_name_and_df = {}
+
+            for col_name in self.col_names:
+                sheet_name_and_df[col_name] = CleanBiz.wordcount_stat(self.df, col_name, self.threshold)
+
+            PandasUtil.write_excel_many_sheet(fpath=self.fpath, sheet_name_and_df=sheet_name_and_df)
+
+            t2 = time.time()
+            msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
+            ssignal.info.emit(msg)
+
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
