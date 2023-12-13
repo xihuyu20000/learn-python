@@ -26,6 +26,7 @@ class MySignal(QtCore.QObject):
     set_clean_dataset = QtCore.Signal(object)
     datafiles_changing = QtCore.Signal()
     reset_stack = QtCore.Signal()
+    push_stack = QtCore.Signal(object)
 
 ssignal = MySignal()
 

@@ -454,6 +454,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit('没有数据')
             return
 
+        ssignal.push_stack.emit(self.master_get_clean_df())
         self.clean_datatable.remove_selected_rows()
         self.master_set_clean_df(self.master_get_clean_df())
         ssignal.info.emit('删除行')
@@ -465,6 +466,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit('没有数据')
             return
 
+        ssignal.push_stack.emit(self.master_get_clean_df())
         self.clean_datatable.remove_selected_columns()
         self.master_set_clean_df(self.master_get_clean_df())
         ssignal.info.emit('删除列')

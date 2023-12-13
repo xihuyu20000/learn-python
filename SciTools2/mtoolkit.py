@@ -528,6 +528,7 @@ class PandasStack:
         self.__current_index = 0
 
         ssignal.reset_stack.connect(self.reset_stack)
+        ssignal.push_stack.connect(self.push_stack)
 
     def _inc_index(self):
         logger.info('inc_index')
@@ -550,10 +551,9 @@ class PandasStack:
         """
         self._reset_index()
 
-    def push(self, df):
+    def push_stack(self, df):
         self._inc_index()
-        self.data_list.insert(self._get_index(), df)
-        # print('当前栈索引', self.current_index)
+        self.data_list.append(df.copy(deep=True))
 
     def can_undo(self):
         return self._get_index()>0
@@ -564,7 +564,7 @@ class PandasStack:
     def undo(self) -> pd.DataFrame:
         if self.can_undo():
             self._dec_index()
-            dd = self.data_list[self._get_index()]
+            dd = self.data_list.pop()
             return dd
         return None
 
