@@ -551,10 +551,17 @@ class PandasStack:
             pass
 
     def push_cache(self, df):
+        """
+        如果是多次undo后push的流程如下：
+        假设原始数据是[1,2,3,4] undo三次后，当前是[1]；再次push，结果是[1,2]
+
+        :param df:
+        :return:
+        """
         self.current = df
         self.index += 1
         self.cache.set(self.index, df)
-        for i in range(self.index+1, self.highest):
+        for i in range(self.index+1, self.highest+1):
             del self.cache[i]
         self.highest = self.index
 
@@ -566,12 +573,18 @@ class PandasStack:
         return None
 
     def redo(self) -> pd.DataFrame:
+        """
+        redo会影响当前的index，从而index+1;但是不会影响highest的值
+        :return:
+        """
         if self.index<self.highest:
             self.index+=1
             self.current = self.cache.get(self.index)
+            return self.current
         return None
 
     def show(self):
-        for key in self.cache.iterkeys():
-            value = self.cache[key]
-            print(f"Key: {key}, Value: {value}")
+        print(f'{self.index=}', f'{self.highest=}', [i for i in self.cache.iterkeys()])
+        # for key in self.cache.iterkeys():
+        #     value = self.cache[key]
+        #     print(f"Key: {key}, Value: {value}")
