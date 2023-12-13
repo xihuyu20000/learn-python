@@ -30,8 +30,8 @@ class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        cleanCopyColumnThread = CleanCopyColumnThread(df, names)
-        cleanCopyColumnThread.start()
+        self.cleanCopyColumnThread = CleanCopyColumnThread(df, names)
+        self.cleanCopyColumnThread.start()
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()
