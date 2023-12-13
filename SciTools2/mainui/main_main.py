@@ -292,11 +292,14 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         logger.info('清洗，恢复')
 
         df = self.cleanTableStack.redo()
-        if df is not None:
-            ssignal.set_clean_dataset.emit(df)
-            ssignal.info.emit('恢复')
-        else:
+
+        if df is None:
             ssignal.error.emit('无法恢复')
+            return
+
+        ssignal.info.emit('恢复')
+        ssignal.set_clean_dataset.emit(df)
+
 
     def clean_do_menu_metadata(self):
         logger.info('清洗，元数据')
