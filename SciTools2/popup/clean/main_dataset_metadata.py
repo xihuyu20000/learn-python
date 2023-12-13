@@ -18,6 +18,7 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
         self.setupUi(self)
         self.parent = parent
 
+        self.tableView.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:#abfaa6;}}");
         # 数据统计
         df = self.get_dataset()
         self.cleanMetadataThread = CleanMetadataThread(df)

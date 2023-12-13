@@ -26,7 +26,10 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
             return
 
         t1 = time.time()
+
         df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
+
         shape = df.shape
         df.drop_duplicates(subset=names, keep='first', inplace=True)
         self.set_df(df)

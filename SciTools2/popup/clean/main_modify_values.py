@@ -18,6 +18,8 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
 
         self.get_table().set_item_writable(True)
 
+        ssignal.push_cache.emit(self.get_df())
+
         msg = '开始修改'
         ssignal.info.emit(msg)
 

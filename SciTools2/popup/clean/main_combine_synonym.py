@@ -36,7 +36,10 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
             ssignal.error.emit('请选择词典')
             return
 
-        self.cleanCombineSynonymThread = CleanCombineSynonymThread(self.get_df(), os.path.join(Cfg.dicts, Cfg.synonyms_file), names, is_new)
+        df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
+
+        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Cfg.dicts, Cfg.synonyms_file), names, is_new)
         self.cleanCombineSynonymThread.start()
         self.close()
 

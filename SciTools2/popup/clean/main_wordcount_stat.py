@@ -31,9 +31,11 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
             ssignal.error.emit('选择多列，请直接导出')
             return
 
-        df = self.get_df()
-
         name = names[0]
+
+        df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
+
 
         self.cleanWordCountThread = CleanWordCountThread(df, name, threshold)
         self.cleanWordCountThread.start()

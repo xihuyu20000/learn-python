@@ -195,7 +195,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.datafiles_list.addItems(fnames)
         self.datafiles_list.setCurrentRow(0)
 
-        ssignal.info.emit(f'加载{len(fnames)}个数据文件')
+        # ssignal.info.emit(f'加载{len(fnames)}个数据文件')
 
     def master_action_datafiles_parse(self):
         logger.info('数据文件列表按钮，解析数据文件')
@@ -319,7 +319,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             self,  # 父窗口对象
             "保存数据文件",  # 标题
             Cfg.datafiles,  # 起始目录
-            "Excel (*.xlsx);;Csv (*.csv);;Pickle (*.pkl);;Parquet (*.pqt);;"  # 选择类型过滤项，过滤内容在括号中
+            "Excel (*.xlsx);;Csv (*.csv);;Pickle (*.pkl)"  # 选择类型过滤项，过滤内容在括号中
         )
 
         if filePath:
@@ -454,7 +454,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit('没有数据')
             return
 
-        ssignal.push_stack.emit(self.master_get_clean_df())
+        ssignal.push_cache.emit(self.master_get_clean_df())
         self.clean_datatable.remove_selected_rows()
         self.master_set_clean_df(self.master_get_clean_df())
         ssignal.info.emit('删除行')
@@ -466,7 +466,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit('没有数据')
             return
 
-        ssignal.push_stack.emit(self.master_get_clean_df())
+        ssignal.push_cache.emit(self.master_get_clean_df())
         self.clean_datatable.remove_selected_columns()
         self.master_set_clean_df(self.master_get_clean_df())
         ssignal.info.emit('删除列')

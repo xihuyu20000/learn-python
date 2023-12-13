@@ -44,6 +44,7 @@ class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):
             return
 
         df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
 
         self.cleanReplaceValueThread = CleanReplaceValueThread(df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new)
         self.cleanReplaceValueThread.start()

@@ -34,6 +34,7 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
             return
 
         df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
 
         self.cleanCoconStatThread = CleanCoconStatThread(df, names, threshold)
         self.cleanCoconStatThread.start()

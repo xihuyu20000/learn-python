@@ -429,6 +429,6 @@ class CleanBiz:
 
         # 排序
         df_new.sort_values(by=[GROUP_LABEL], ascending=True, na_position='last', inplace=True)
-        df_new._reset_index(drop=True, inplace=True)
+        df_new.reset_index(drop=True, inplace=True)
         df_new.fillna('', inplace=True)
         return df_new

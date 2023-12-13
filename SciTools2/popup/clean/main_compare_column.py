@@ -44,6 +44,7 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
 
         t1 = time.time()
         df = self.get_df()
+
         table = self.get_table()
         for i in range(df.shape[0]):
             if df.iloc[i, indexes[0]] != df.iloc[i, indexes[1]]:

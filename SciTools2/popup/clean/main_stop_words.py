@@ -46,7 +46,10 @@ class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
             for line in lines:
                 words_set.update(line.split(';'))
 
-        self.cleanStopWordsThread = CleanStopWordsThread(self.get_df(), names, words_set, is_new)
+        df = self.get_df()
+        ssignal.push_cache.emit(self.get_df())
+
+        self.cleanStopWordsThread = CleanStopWordsThread(df, names, words_set, is_new)
         self.cleanStopWordsThread.start()
         self.close()
 

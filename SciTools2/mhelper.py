@@ -11,6 +11,7 @@ import sys
 import time
 import uuid
 from typing import List, Dict, Union, Set
+
 import jieba
 from PySide2 import QtCore
 
@@ -25,8 +26,8 @@ class MySignal(QtCore.QObject):
     error = QtCore.Signal(str)
     set_clean_dataset = QtCore.Signal(object)
     datafiles_changing = QtCore.Signal()
-    reset_stack = QtCore.Signal()
-    push_stack = QtCore.Signal(object)
+    reset_cache = QtCore.Signal()
+    push_cache = QtCore.Signal(object)
 
 ssignal = MySignal()
 

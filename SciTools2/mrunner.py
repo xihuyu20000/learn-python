@@ -86,7 +86,7 @@ class CleanParseFileThread(QThread):
 
             msg = '解析{0}条记录，{1}个列，耗时{2}秒'.format(df.shape[0], df.shape[1], round(t2 - t1, Cfg.precision_point))
             ssignal.info.emit(msg)
-            ssignal.reset_stack.emit()
+            ssignal.reset_cache.emit()
             ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
@@ -126,7 +126,7 @@ class CleanSaveDatasetThread(QThread):
             t2 = time.time()
             msg = '保存{0}，耗时{1}秒'.format(self.fpath, round(t2 - t1, Cfg.precision_point))
             ssignal.info.emit(msg)
-            ssignal.reset_stack.emit()
+            ssignal.reset_cache.emit()
         except Exception as e:
             logger.exception(e)
             msg = '出错:{0}'.format(str(e))
@@ -445,7 +445,7 @@ class CleanRowSimilarityThread(QThread):
             t1 = time.time()
 
             df_new = CleanBiz.row_similarity(self.df, self.column_names, self.limited)
-            logger.info(df_new)
+
             t2 = time.time()
             msg = '执行{0}条记录，{1}个列，耗时{2}秒'.format(self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point))
             ssignal.info.emit(msg)

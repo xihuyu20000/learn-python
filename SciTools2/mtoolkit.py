@@ -1,4 +1,4 @@
-
+import os
 from typing import List
 
 import pandas
@@ -518,60 +518,60 @@ class TableKit(QFrame):
 
         def sortByColumn(self, column, order):
             print('视图排序')
-
-
+from diskcache import Cache
+import shutil
 class PandasStack:
+    cache_dir = os.path.join(os.path.expanduser('~'), '.clean-cache')
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.data_list = [pd.DataFrame()]
-        self.__current_index = 0
 
-        ssignal.reset_stack.connect(self.reset_stack)
-        ssignal.push_stack.connect(self.push_stack)
+        self.cache = Cache(PandasStack.cache_dir)
+        self.index = 0
+        self.highest = 0
+        self.current = None
 
-    def _inc_index(self):
-        logger.info('inc_index')
-        self.__current_index += 1
-    def _dec_index(self):
-        logger.info('dec_index')
-        self.__current_index -= 1
-    def _get_index(self):
-        logger.info('get_index')
-        return self.__current_index
+        ssignal.reset_cache.connect(self.reset_cache)
+        ssignal.push_cache.connect(self.push_cache)
 
-    def _reset_index(self):
-        logger.info('reset_index')
-        self.__current_index = 0
-        self.data_list = [pd.DataFrame()]
-    def reset_stack(self, *args):
+        self.reset_cache()
+
+    def reset_cache(self, *args):
         """
         当加载新的数据文件时，或者保存之后，就需要重置
         :return:
         """
-        self._reset_index()
+        self.cache.clear()
+        self.index = 0
+        self.highest = 0
+        self.current = None
+        try:
+            shutil.rmtree(PandasStack.cache_dir)
+        except OSError:  # Windows wonkiness
+            pass
 
-    def push_stack(self, df):
-        self._inc_index()
-        self.data_list.append(df.copy(deep=True))
-
-    def can_undo(self):
-        return self._get_index()>0
-
-    def can_redo(self):
-        return self._get_index()+1<len(self.data_list)
+    def push_cache(self, df):
+        self.current = df
+        self.index += 1
+        self.cache.set(self.index, df)
+        for i in range(self.index+1, self.highest):
+            del self.cache[i]
+        self.highest = self.index
 
     def undo(self) -> pd.DataFrame:
-        if self.can_undo():
-            self._dec_index()
-            dd = self.data_list.pop()
-            return dd
+        if self.index>1:
+            self.index -=1
+            self.current = self.cache.get(self.index)
+            return self.current
         return None
 
     def redo(self) -> pd.DataFrame:
-        if self.can_redo():
-            self._inc_index()
-            dd = self.data_list[self._get_index()]
-            return dd
+        if self.index<self.highest:
+            self.index+=1
+            self.current = self.cache.get(self.index)
         return None
 
+    def show(self):
+        for key in self.cache.iterkeys():
+            value = self.cache[key]
+            print(f"Key: {key}, Value: {value}")

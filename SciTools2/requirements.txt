@@ -1,3 +1,4 @@
+pytest
 pyside2
 numpy
 pandas
@@ -11,3 +12,5 @@ arrow
 pyinstaller
 wmi
 watchdog
+
+diskcache
