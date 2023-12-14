@@ -17,49 +17,220 @@ class Parser:
     """
     导出txt时，文件末尾多2个空行
     """
-    CORE_ITEMS = ('RT'  # 文献类型
-                  , 'A1'  # 作者
-                  , 'AD'  # 工作单位
-                  , 'T1'  # 题名
-                  , 'JF'  # 来源
-                  , 'YR'  # 出版年
-                  , 'FD'  # 出版日期
-                  , 'K1'  # 关键词
-                  , 'AB'  # 摘要
-                  )
 
     @staticmethod
     def parse_cnki(filenames) -> pd.DataFrame:
         """
         解析cnki的refworks格式的数据
         """
+        flags = (
+            "RT",  # 文献类型
+            "SR",
+            "A1",  # 作者
+            "AD",  # 工作单位
+            "T1",  # 题名
+            "JF",  # 来源
+            "OP",
+            "SN",
+            "DS",
+            "LK",
+            "DO",
+            "IS",
+            "PB",
+            "LA",
+            "CN",
+            "PP",
+            "YR",  # 出版年
+            "FD",  # 出版日期
+            "K1",  # 关键词
+            "AB",  # 摘要
+            "vo"
+        )
+
         ds = []
         if isinstance(filenames, str):
             filenames = [filenames]
 
         for filename in filenames:
-            with open(filename, encoding='utf-8') as f:
+            with open(filename, encoding="utf-8") as f:
+                # 所有行，去掉有空格
+                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
 
-                values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '', 'AB': ''}
-                for linone, line in enumerate(f.readlines()):
-                    # 前2个字母是具体的key
-                    name = line[:2].strip()
-                    if name in Parser.CORE_ITEMS:
-                        values[name] = line[2:].strip()
+                flag = ""
+                record = {}
+                # 前2行不重要，去掉
+                for index, line in enumerate(lines[2:]):
+                    # 每行的前2个字符
+                    start = line[:2]
+                    # 判断是否属于保留符号
+                    if start in flags:
+                        flag = start
+                        # 是否记录结束
+                        if flag == "A1":
+                            if record:
+                                ds.append(record)
+                            record = {}
 
-                    # 空行，表示上一条结束，新的一条开始
-                    if len(line.strip()) == 0:
-                        if values and len(values['RT']) > 0:
-                            ds.append(values)
-                        # 每次初始化数据
+                        # 新的字段开始
+                        record[flag] = line[2:]
+                    # elif start.strip() == "":
+                    #     # 还是属于上一个字段的内容
+                    #     record[flag].append(line[3:])
+                    else:
+                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
 
-                        values = {'RT': '', 'A1': '', 'AD': '', 'T1': '', 'JF': '', 'YR': '', 'FD': '', 'K1': '',
-                                  'AB': ''}
-
-        df = pd.DataFrame(ds, dtype='object')
+        df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
-        df.fillna('', inplace=True)
+        df.fillna("", inplace=True)
+        return df
+
+    @staticmethod
+    def parse_weipu(filenames) -> pd.DataFrame:
+        """
+        解析weipu的refworks格式的数据
+        """
+        flags = (
+            "RT",  # 文献类型
+            "SR",
+            "A1",  # 作者
+            "AD",  # 工作单位
+            "T1",  # 题名
+            "JF",  # 来源
+            "OP",
+            "SN",
+            "DS",
+            "LK",
+            "DO",
+            "IS",
+            "PB",
+            "LA",
+            "CN",
+            "PP",
+            "YR",  # 出版年
+            "FD",  # 出版日期
+            "K1",  # 关键词
+            "AB",  # 摘要
+            "VO",
+            "CL",
+            "NO"
+        )
+
+        ds = []
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
+        for filename in filenames:
+            with open(filename, encoding="utf-8") as f:
+                # 所有行，去掉有空格
+                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+
+                flag = ""
+                record = {}
+
+                for index, line in enumerate(lines):
+                    # 每行的前2个字符
+                    start = line[:2]
+                    # 判断是否属于保留符号
+                    if start in flags:
+                        flag = start
+                        # 是否记录结束
+                        if flag == "A1":
+                            if record:
+                                ds.append(record)
+                            record = {}
+
+                        record[flag] = line[2:]
+                        # 单独处理NO字段
+                        if flag == 'NO':
+                            arr = line[2:].split(';')
+                            record['作者个数'] = arr[0][6:]
+                            record['第一作者'] = arr[1][6:]
+
+                    # elif start.strip() == "":
+                    #     # 还是属于上一个字段的内容
+                    #     record[flag].append(line[3:])
+                    else:
+                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+
+        df = pd.DataFrame(ds, dtype="object")
+        # 使用 fillna 将 NaN 替换为空字符串
+        df.fillna("", inplace=True)
         df = df.astype(str)
+        return df
+
+    @staticmethod
+    def parse_wanfang(filenames) -> pd.DataFrame:
+        """
+        解析wanfang的refworks格式的数据
+        """
+        flags = (
+            "RT",  # 文献类型
+            "SR",
+            "A1",  # 作者
+            "AD",  # 工作单位
+            "T1",  # 题名
+            "JF",  # 来源
+            "OP",
+            "SN",
+            "DS",
+            "LK",
+            "DO",
+            "IS",
+            "PB",
+            "LA",
+            "CN",
+            "PP",
+            "YR",  # 出版年
+            "FD",  # 出版日期
+            "K1",  # 关键词
+            "AB",  # 摘要
+            "VO",
+            "CL",
+            "NO",
+            "T2",
+            "基金项目"
+        )
+
+        ds = []
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
+        for filename in filenames:
+            with open(filename, encoding="utf-8") as f:
+                # 所有行，去掉有空格
+                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+
+                flag = ""
+                record = {}
+
+                for index, line in enumerate(lines):
+                    # 每行的前2个字符
+                    start = line[:2]
+                    start2 = line[:4]
+
+                    # 判断是否属于保留符号
+                    if start in flags:
+                        flag = start
+                        # 是否记录结束
+                        if flag == "A1":
+                            if record:
+                                ds.append(record)
+                            record = {}
+
+                        # 新的字段开始
+                        record[flag] = line[2:]
+
+                    # elif start.strip() == "":
+                    #     # 还是属于上一个字段的内容
+                    #     record[flag].append(line[3:])
+                    elif start2 in flags:
+                        record[start2] = line[5:]
+                    else:
+                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+
+        df = pd.DataFrame(ds, dtype=str)
+        # 使用 fillna 将 NaN 替换为空字符串
+        df.fillna("", inplace=True)
         return df
 
     @staticmethod
@@ -126,7 +297,7 @@ class Parser:
             df = PandasUtil.read_csv(fname, sep=seperator)
             df_list.append(df)
         df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
-        df.fillna('', inplace=True)
+        df.fillna("", inplace=True)
         df = df.astype(str)
         return df
 
@@ -137,7 +308,7 @@ class Parser:
             df = PandasUtil.read_excel(fname)
             df_list.append(df)
         df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
-        df.fillna('', inplace=True)
+        df.fillna("", inplace=True)
         df = df.astype(str)
         return df
 
@@ -148,7 +319,7 @@ class Parser:
             df = PandasUtil.read_pickle(os.path.join(Cfg.datafiles, fname))
             df_list.append(df)
         df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
-        df.fillna('', inplace=True)
+        df.fillna("", inplace=True)
         df = df.astype(str)
         return df
 
@@ -159,7 +330,7 @@ class Parser:
             df = PandasUtil.read_parquet(os.path.join(Cfg.datafiles, fname))
             df_list.append(df)
         df = pd.concat(df_list, axis=0, ignore_index=True, sort=True)
-        df.fillna('', inplace=True)
+        df.fillna("", inplace=True)
         df = df.astype(str)
         return df
 
@@ -169,14 +340,17 @@ class CleanBiz:
     def metadata(df: pd.DataFrame):
         # 判断nulls必须放在这里，不能放到下面
         stat_df = df.copy()
-        nulls = (stat_df.isna().sum() + stat_df.eq('').sum())
+        nulls = stat_df.isna().sum() + stat_df.eq("").sum()
         stat_df = stat_df.describe(include=[object])
         # 丢掉行
-        stat_df.drop('top', axis=0, inplace=True)
+        stat_df.drop("top", axis=0, inplace=True)
         # 空值情况
-        stat_df.loc['nulls'] = nulls
+        stat_df.loc["nulls"] = nulls
         # 重命名索引
-        stat_df.rename(index={'count': '总数', 'unique': '唯一', 'freq': '众频', 'nulls': '空值'}, inplace=True)
+        stat_df.rename(
+            index={"count": "总数", "unique": "唯一", "freq": "众频", "nulls": "空值"},
+            inplace=True,
+        )
 
         ##########################################################################
 
@@ -193,13 +367,13 @@ class CleanBiz:
 
             datalist = collections.Counter(datalist)
             datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-            item_df = pd.DataFrame(datalist, columns=['词语', '频次'])
+            item_df = pd.DataFrame(datalist, columns=["词语", "频次"])
 
             # 频次统计
             datalist = [item[1] for item in datalist]
             datalist = collections.Counter(datalist)
             datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-            freq_df = pd.DataFrame(datalist, columns=['词语频次', '次数'])
+            freq_df = pd.DataFrame(datalist, columns=["词语频次", "次数"])
 
             result[col_name] = [item_df, freq_df]
 
@@ -209,8 +383,8 @@ class CleanBiz:
     def copy_column(df, names):
         new_names = []
         for col in names:
-            new_names.append(col + '-new')
-            df[col + '-new'] = df[col]
+            new_names.append(col + "-new")
+            df[col + "-new"] = df[col]
 
         old_names = df.columns.tolist()
         new_names = Utils.resort_columns(old_names, new_names)
@@ -218,25 +392,37 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def split_column(df: pd.DataFrame, name: str, split_style: str, style_le1: str, get_style: str, style_le2: int):
-
-        if '分隔符' in split_style:
-            df['xxxyyyzzz'] = df[name].apply(lambda x: str(x).split(style_le1))
-        if '字符' in split_style:
-            df['xxxyyyzzz'] = df[name].apply(lambda x: Utils.split_string_by_length(x, style_le1))
+    def split_column(
+            df: pd.DataFrame,
+            name: str,
+            split_style: str,
+            style_le1: str,
+            get_style: str,
+            style_le2: int,
+    ):
+        if "分隔符" in split_style:
+            df["xxxyyyzzz"] = df[name].apply(lambda x: str(x).split(style_le1))
+        if "字符" in split_style:
+            df["xxxyyyzzz"] = df[name].apply(
+                lambda x: Utils.split_string_by_length(x, style_le1)
+            )
 
         new_names = []
-        if '前' in get_style:
+        if "前" in get_style:
             for i in range(style_le2):
-                new_name = f'{name}-{i + 1}'
+                new_name = f"{name}-{i + 1}"
                 new_names.append(new_name)
-                df[new_name] = df['xxxyyyzzz'].map(lambda x: Utils.get_from_limit(i, x, style_le2))
-        if '第' in get_style:
-            new_name = f'{name}-1'
+                df[new_name] = df["xxxyyyzzz"].map(
+                    lambda x: Utils.get_from_limit(i, x, style_le2)
+                )
+        if "第" in get_style:
+            new_name = f"{name}-1"
             new_names.append(new_name)
-            df[new_name] = df['xxxyyyzzz'].map(lambda x: Utils.get_from_limit(style_le2, x, style_le2))
+            df[new_name] = df["xxxyyyzzz"].map(
+                lambda x: Utils.get_from_limit(style_le2, x, style_le2)
+            )
 
-        df.drop('xxxyyyzzz', axis=1, inplace=True)
+        df.drop("xxxyyyzzz", axis=1, inplace=True)
         old_names = df.columns.tolist()
         # 下面的new_names一定要倒序
         old_names = Utils.resort_columns(old_names, sorted(new_names, reverse=True))
@@ -245,22 +431,30 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def repalce_values(df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new):
+    def repalce_values(
+            df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new
+    ):
         new_names = []
         for col in names:
-            new_col = col + '-new' if is_new else col
+            new_col = col + "-new" if is_new else col
             if is_new:
                 new_names.append(new_col)
 
             if current_tab_index == 0:
-                df[new_col] = df[col].astype(str).str.replace(old_sep, new_sep).fillna(df[col])
+                df[new_col] = (
+                    df[col].astype(str).str.replace(old_sep, new_sep).fillna(df[col])
+                )
             if current_tab_index == 1:
                 if is_reserved:
                     # 只保留该字符
-                    df[new_col] = df[col].apply(lambda x: Utils.reserve_chars(other_char, x))
+                    df[new_col] = df[col].apply(
+                        lambda x: Utils.reserve_chars(other_char, x)
+                    )
                 else:
                     # 删除该字符
-                    df[new_col] = df[col].astype(str).str.replace(other_char, '').fillna(df[col])
+                    df[new_col] = (
+                        df[col].astype(str).str.replace(other_char, "").fillna(df[col])
+                    )
 
         # 下面的new_names一定要倒序
         old_names = df.columns.tolist()
@@ -270,7 +464,9 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def combine_synonym(df: pd.DataFrame, synonym_dict_path: str, names: List[str], is_new: bool) -> pd.DataFrame:
+    def combine_synonym(
+            df: pd.DataFrame, synonym_dict_path: str, names: List[str], is_new: bool
+    ) -> pd.DataFrame:
         """
 
         :param df:  数据集
@@ -281,11 +477,11 @@ class CleanBiz:
         """
         # key是被替换的词，value是新词【第1个】
         words_dict = {}
-        with open(synonym_dict_path, encoding='utf-8') as f:
+        with open(synonym_dict_path, encoding="utf-8") as f:
             lines = f.readlines()
-            lines = [line.strip() for line in lines if not line.strip().startswith('#')]
+            lines = [line.strip() for line in lines if not line.strip().startswith("#")]
             for line in lines:
-                words = line.split(';')
+                words = line.split(";")
                 # 一行一个词，那么长度是1
                 if len(words) > 1:
                     tgt = words[0]
@@ -295,7 +491,7 @@ class CleanBiz:
         new_names = []
         # 遍历每一列，对每一列的每一个值，进行替换处理
         for col in names:
-            col_new = col + '-new' if is_new else col
+            col_new = col + "-new" if is_new else col
             if is_new:
                 new_names.append(col_new)
             df[col_new] = df[col].apply(lambda x: Utils.replace(x, words_dict))
@@ -307,12 +503,13 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def stop_words(df: pd.DataFrame, names: List[str], words_set: Set[str], is_new: bool):
-
+    def stop_words(
+            df: pd.DataFrame, names: List[str], words_set: Set[str], is_new: bool
+    ):
         new_names = []
         # 遍历每一列，对每一列的每一个值，进行替换处理
         for col in names:
-            col_new = col + '-new' if is_new else col
+            col_new = col + "-new" if is_new else col
             if is_new:
                 new_names.append(col_new)
             df[col_new] = df[col].apply(lambda x: Utils.replace2(x, words_set))
@@ -337,9 +534,9 @@ class CleanBiz:
         # 使用reset_index()将Series转为DataFrame
         counts: pd.DataFrame = counts.reset_index()
         # 替换空值
-        counts.fillna('', inplace=True)
+        counts.fillna("", inplace=True)
         # 为DataFrame的列命名
-        counts.columns = [col_name, '次数']
+        counts.columns = [col_name, "次数"]
         # 讲col_name改为索引
         # counts.set_index([col_name], inplace=True)
 
@@ -354,25 +551,26 @@ class CleanBiz:
         if len(names) == 2:
             df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
 
-        df2 = df2.astype(np.uint8, errors='raise')
+        df2 = df2.astype(np.uint8, errors="raise")
 
         return df2
 
     @staticmethod
     def row_similarity(df: pd.DataFrame, column_names: List[str], limited: float):
+        UUID = "uuid"
+        JOINED_WORDS = "joined_words"
 
-        UUID = 'uuid'
-        JOINED_WORDS = 'joined_words'
+        GROUP_LABEL = "组号"
+        SIMILARITY_LABEL = "相似度"
 
-        GROUP_LABEL = '组号'
-        SIMILARITY_LABEL = '相似度'
-
-        assert limited<=1
+        assert limited <= 1
         # 增加一列uuid
         df[UUID] = [str(i) for i in range(df.shape[0])]
         df_uuid = df.copy(True)
         # 需要进行相似度判断的words
-        df[JOINED_WORDS] = df.apply(lambda row: Utils.join_values(row, column_names), axis=1)
+        df[JOINED_WORDS] = df.apply(
+            lambda row: Utils.join_values(row, column_names), axis=1
+        )
 
         # 带有分组的df
         df_3 = pd.DataFrame(columns=[UUID, GROUP_LABEL, SIMILARITY_LABEL])
@@ -380,10 +578,8 @@ class CleanBiz:
         new_group_uuids = []
 
         # 组号
-        group_index:int = 0
+        group_index: int = 0
         while True:
-
-
             s1_row = df.loc[0]
             s1 = s1_row[JOINED_WORDS]
             df.drop(index=[0], inplace=True)
@@ -401,14 +597,18 @@ class CleanBiz:
                     # 一定插入到新分组的uuid集合
                     new_group_uuids.append(current_uuid)
                     # 插入新的行
-                    df_3.loc[len(df_3.index)] = [current_uuid, group_index, int(sim_val * 100)]
+                    df_3.loc[len(df_3.index)] = [
+                        current_uuid,
+                        group_index,
+                        int(sim_val * 100),
+                    ]
             # 循环结束后，做3件事
             # 1、循环完后，退出
             if df.shape[0] <= 1:
                 break
             # 2、缩短df
             if new_group_uuids:
-                condition = (df[UUID].isin(new_group_uuids))
+                condition = df[UUID].isin(new_group_uuids)
                 df.drop(df[condition].index, inplace=True)
                 df_3.loc[len(df_3.index)] = [s1_row[UUID], group_index, int(100)]
             df.reset_index(drop=True, inplace=True)
@@ -416,7 +616,7 @@ class CleanBiz:
             new_group_uuids.clear()
 
         # 通过uuid join到一起
-        df_new = pd.merge(df_uuid, df_3, how='left', on=UUID)
+        df_new = pd.merge(df_uuid, df_3, how="left", on=UUID)
         # 删除uuid列
         df_new.drop(UUID, axis=1, inplace=True)
 
@@ -428,7 +628,13 @@ class CleanBiz:
         df_new = df_new[new_cols]
 
         # 排序
-        df_new.sort_values(by=[GROUP_LABEL], ascending=True, na_position='last', inplace=True)
+        df_new.sort_values(
+            by=[GROUP_LABEL], ascending=True, na_position="last", inplace=True
+        )
         df_new.reset_index(drop=True, inplace=True)
-        df_new.fillna('', inplace=True)
+        df_new.fillna("", inplace=True)
         return df_new
+
+# if __name__ == '__main__':
+#     result = Parser.parse_wanfang([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks万方.txt'])
+#     print(result)
