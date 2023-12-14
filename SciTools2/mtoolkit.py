@@ -1,6 +1,7 @@
 import os
 from typing import List
-
+from diskcache import Cache
+import shutil
 import pandas
 import pandas as pd
 from PySide2 import QtCore, QtWidgets
@@ -25,7 +26,7 @@ from mhelper import ssignal
 
 class InfoKit(QWidget):
     def __init__(
-        self,
+            self,
     ):
         super().__init__()
         self.resize(300, 200)
@@ -340,13 +341,13 @@ class TableKit(QFrame):
     signal_info = Signal(str)
 
     def __init__(
-        self,
-        parent=None,
-        single_select=False,
-        column_sortable=False,
-        header_horizontal_movable=False,
-        vertical_header_hide=False,
-        horizontal_header_color="#abfaa6",
+            self,
+            parent=None,
+            single_select=False,
+            column_sortable=False,
+            header_horizontal_movable=False,
+            vertical_header_hide=False,
+            horizontal_header_color="#abfaa6",
     ):
         super(TableKit, self).__init__(parent)
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -438,12 +439,12 @@ class TableKit(QFrame):
         self._model.pub_set_item_writable(writable)
 
     def __init_table(
-        self,
-        single_select,
-        column_sortable,
-        header_movable,
-        vertical_header_hide,
-        horizontal_header_color,
+            self,
+            single_select,
+            column_sortable,
+            header_movable,
+            vertical_header_hide,
+            horizontal_header_color,
     ):
         """
         设置表参数
@@ -582,10 +583,6 @@ class TableKit(QFrame):
 
         def sortByColumn(self, column, order):
             print("视图排序")
-
-
-from diskcache import Cache
-import shutil
 
 
 class PandasStack:
