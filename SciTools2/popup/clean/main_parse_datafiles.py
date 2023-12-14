@@ -16,7 +16,7 @@ class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
 
         btns_arr = [[FileFormat.CNKI, FileFormat.WEIPU, FileFormat.WANFANG],
                     [FileFormat.CSV, FileFormat.EXCEL, FileFormat.PICKLE],
-                    [FileFormat.WOS]]
+                    [FileFormat.CNKI_PATENT, FileFormat.WOS]]
         for i, btns in enumerate(btns_arr):
             for j, label in enumerate(btns):
                 btn = QPushButton(label)

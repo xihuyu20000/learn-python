@@ -85,6 +85,52 @@ class Parser:
         return df
 
     @staticmethod
+    def parse_cnki_patent(filenames) -> pd.DataFrame:
+        """
+        解析cnki的refworks格式的专利
+        """
+        flags = (
+            "RT", "SR", "A1", "A2", "T1", "AD", "FD", "ID", "CL", "AB", "DB", "DS"
+        )
+
+        ds = []
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
+        # 必须放到外面
+        record = {}
+        for filename in filenames:
+            with open(filename, encoding="utf-8") as f:
+                # 所有行，去掉有空格
+                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+
+                flag = ""
+
+                # 前2行不重要，去掉
+                for index, line in enumerate(lines[2:]):
+                    # 每行的前2个字符
+                    start = line[:2]
+                    # 判断是否属于保留符号
+                    if start in flags:
+                        flag = start
+                        # 是否记录结束
+                        if flag == "RT":
+                            if record:
+                                ds.append(record)
+                            record = {}
+
+                        # 新的字段开始
+                        record[flag] = line[2:]
+                    else:
+                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+        if record:
+            ds.append(record)
+        df = pd.DataFrame(ds, dtype=str)
+        # 使用 fillna 将 NaN 替换为空字符串
+        df.fillna("", inplace=True)
+        return df
+
+    @staticmethod
     def parse_weipu(filenames) -> pd.DataFrame:
         """
         解析weipu的refworks格式的数据
@@ -152,10 +198,9 @@ class Parser:
                     else:
                         raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
 
-        df = pd.DataFrame(ds, dtype="object")
+        df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
         df.fillna("", inplace=True)
-        df = df.astype(str)
         return df
 
     @staticmethod
@@ -635,6 +680,7 @@ class CleanBiz:
         df_new.fillna("", inplace=True)
         return df_new
 
-# if __name__ == '__main__':
-#     result = Parser.parse_wanfang([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks万方.txt'])
-#     print(result)
+
+if __name__ == '__main__':
+    result = Parser.parse_cnki_patent([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks知网专利.txt'])
+    print(result.tail())

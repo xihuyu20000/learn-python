@@ -185,6 +185,7 @@ class FileFormat(StrEnum):
     CNKI = "知网"
     WEIPU = "维普"
     WANFANG = "万方"
+    CNKI_PATENT = "知网专利"
     WOS = "WOS"
     CSV = "CSV"
     EXCEL = "EXCEL"

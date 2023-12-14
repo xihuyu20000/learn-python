@@ -68,6 +68,8 @@ class CleanParseFileThread(QThread):
 
             if self.format == FileFormat.CNKI:
                 df = Parser.parse_cnki(self.filenames)
+            elif self.format == FileFormat.CNKI_PATENT:
+                df = Parser.parse_cnki_patent(self.filenames)
             elif self.format == FileFormat.WEIPU:
                 df = Parser.parse_weipu(self.filenames)
             elif self.format == FileFormat.WANFANG:
