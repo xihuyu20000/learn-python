@@ -145,6 +145,9 @@
               <property name="selectionMode">
                <enum>QAbstractItemView::ExtendedSelection</enum>
               </property>
+              <property name="spacing">
+               <number>4</number>
+              </property>
              </widget>
             </item>
            </layout>
@@ -274,7 +277,7 @@
                <item>
                 <widget class="QGroupBox" name="groupBox">
                  <property name="title">
-                  <string>GroupBox</string>
+                  <string>字体</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_4">
                   <item>
@@ -285,16 +288,33 @@
                     <property name="frameShadow">
                      <enum>QFrame::Raised</enum>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_5">
+                    <layout class="QVBoxLayout" name="verticalLayout_7">
                      <item>
                       <widget class="QLabel" name="label">
                        <property name="text">
-                        <string>TextLabel</string>
+                        <string>字体大小</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit"/>
+                      <widget class="QSpinBox" name="config_global_font_size">
+                       <property name="minimum">
+                        <number>6</number>
+                       </property>
+                       <property name="maximum">
+                        <number>64</number>
+                       </property>
+                       <property name="value">
+                        <number>14</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_5">
+                       <property name="text">
+                        <string>【保存后，需要重启软件才生效】</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -501,6 +521,7 @@
     <addaction name="menu_row_similarity"/>
     <addaction name="menu_row_delete"/>
     <addaction name="menu_column_delete"/>
+    <addaction name="menu_vertical_concat"/>
     <addaction name="menu_split_words"/>
     <addaction name="menu_group_stat"/>
     <addaction name="menu_clean_filter"/>
@@ -723,6 +744,15 @@
   <action name="menu_clean_makeup">
    <property name="text">
     <string>补全值</string>
+   </property>
+  </action>
+  <action name="menu_vertical_concat">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/vertical_concat.png</normaloff>../icons/vertical_concat.png</iconset>
+   </property>
+   <property name="text">
+    <string>数据合并</string>
    </property>
   </action>
  </widget>

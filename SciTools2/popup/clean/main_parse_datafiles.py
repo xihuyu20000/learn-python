@@ -14,9 +14,9 @@ class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
 
         self.setupUi(self)
 
-        btns_arr = [[FileFormat.CNKI, FileFormat.WOS],
-                [FileFormat.CSV, FileFormat.EXCEL],
-                [FileFormat.PICKLE]]
+        btns_arr = [[FileFormat.CNKI, FileFormat.WEIPU, FileFormat.WANFANG],
+                    [FileFormat.CSV, FileFormat.EXCEL, FileFormat.PICKLE],
+                    [FileFormat.WOS]]
         for i, btns in enumerate(btns_arr):
             for j, label in enumerate(btns):
                 btn = QPushButton(label)
@@ -27,7 +27,7 @@ class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
 
     def action_format(self):
         style = self.sender().text()
-        logger.info(f'解析文件，格式 {style} 文件'+'  '.join(self.abs_datafiles))
+        logger.info(f'解析文件，格式 {style} 文件' + '  '.join(self.abs_datafiles))
         ssignal.info.emit('开始解析文件，请稍等')
 
         # 启用多线程，必须self

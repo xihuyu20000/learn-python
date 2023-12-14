@@ -68,6 +68,10 @@ class CleanParseFileThread(QThread):
 
             if self.format == FileFormat.CNKI:
                 df = Parser.parse_cnki(self.filenames)
+            elif self.format == FileFormat.WEIPU:
+                df = Parser.parse_weipu(self.filenames)
+            elif self.format == FileFormat.WANFANG:
+                df = Parser.parse_wanfang(self.filenames)
             elif self.format == FileFormat.WOS:
                 df = Parser.parse_wos(self.filenames)
             elif self.format == FileFormat.CSV:
@@ -286,13 +290,13 @@ class CleanCopyColumnThread(QThread):
 
 class CleanSplitColumnThread(QThread):
     def __init__(
-        self,
-        df: pd.DataFrame,
-        name: str,
-        split_style: str,
-        le1_text: str,
-        get_style: str,
-        le2_text: int,
+            self,
+            df: pd.DataFrame,
+            name: str,
+            split_style: str,
+            le1_text: str,
+            get_style: str,
+            le2_text: int,
     ):
         super(CleanSplitColumnThread, self).__init__()
         self.df = df
@@ -330,15 +334,15 @@ class CleanSplitColumnThread(QThread):
 
 class CleanReplaceValueThread(QThread):
     def __init__(
-        self,
-        df: pd.DataFrame,
-        names: List[str],
-        current_tab_index: int,
-        old_sep: str,
-        new_sep: str,
-        other_char: str,
-        is_reserved: str,
-        is_new: str,
+            self,
+            df: pd.DataFrame,
+            names: List[str],
+            current_tab_index: int,
+            old_sep: str,
+            new_sep: str,
+            other_char: str,
+            is_reserved: str,
+            is_new: str,
     ):
         super(CleanReplaceValueThread, self).__init__()
         self.df = df
@@ -381,7 +385,7 @@ class CleanReplaceValueThread(QThread):
 
 class CleanCombineSynonymThread(QThread):
     def __init__(
-        self, df: pd.DataFrame, synonym_dict_path: str, names: List[str], is_new: bool
+            self, df: pd.DataFrame, synonym_dict_path: str, names: List[str], is_new: bool
     ):
         super(CleanCombineSynonymThread, self).__init__()
         self.df = df
@@ -410,7 +414,7 @@ class CleanCombineSynonymThread(QThread):
 
 class CleanStopWordsThread(QThread):
     def __init__(
-        self, df: pd.DataFrame, names: List[str], words_set: Set[str], is_new: bool
+            self, df: pd.DataFrame, names: List[str], words_set: Set[str], is_new: bool
     ):
         super(CleanStopWordsThread, self).__init__()
         self.df = df
@@ -465,7 +469,7 @@ class CleanWordCountThread(QThread):
 
 class CleanWordCountExportThread(QThread):
     def __init__(
-        self, df: pd.DataFrame, col_names: List[str], threshold: int, fpath: str
+            self, df: pd.DataFrame, col_names: List[str], threshold: int, fpath: str
     ):
         super(CleanWordCountExportThread, self).__init__()
         self.df = df
@@ -544,6 +548,37 @@ class CleanRowSimilarityThread(QThread):
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
                 self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point)
+            )
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df_new)
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
+
+
+class CleanVerticalConcatThread(QThread):
+    def __init__(self, abs_paths: List[str]):
+        super(CleanVerticalConcatThread, self).__init__()
+        self.abs_paths = abs_paths
+
+    def run(self) -> None:
+        ssignal.info.emit("开始数据合并，请稍等")
+
+        try:
+            t1 = time.time()
+
+            ddss = []
+
+            for abs_path in self.abs_paths:
+                ddss.append(Parser.parse_csv([abs_path], ','))
+
+            # 使用 concat 沿着行的方向连接
+            df_new = pd.concat(ddss, ignore_index=True)
+            df_new.fillna('', inplace=True)
+            t2 = time.time()
+            msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
+                df_new.shape[0], df_new.shape[1], round(t2 - t1, Cfg.precision_point)
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df_new)

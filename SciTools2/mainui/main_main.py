@@ -19,6 +19,7 @@ from popup.clean.main_cocon_stat import PopupFreqStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
 from popup.clean.main_copy_column import PopupCopyColumn
+from popup.clean.main_vertical_concat import PopupVerticalConcat
 from popup.clean.main_wordcount_stat import PopupWordCountStat
 from popup.clean.main_dataset_metadata import PopupCleanMetadata
 from popup.clean.main_group_stat import WinGroupStat, PopupCleanGroupStat
@@ -136,6 +137,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         初始化配置项中的参数
         :return:
         """
+        self.config_global_font_size.setValue(int(Cfg.global_font_size))
         self.config_datafiles_csv_seperator.setText(Cfg.csv_seperator)
 
     def master_show_info(self, val) -> None:
@@ -144,11 +146,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         :param val:
         :return:
         """
-        self.statusBar().setStyleSheet("color: blue;font-weight: bold;font-size: 16px;")
+        self.statusBar().setStyleSheet("color: blue;font-weight: bold;")
         self.statusBar().showMessage(val, 10000)
 
     def master_show_error(self, val) -> None:
-        self.statusBar().setStyleSheet("color: red;font-weight: bold;font-size: 16px;")
+        self.statusBar().setStyleSheet("color: red;font-weight: bold;")
         self.statusBar().showMessage(val, 10000)
 
     def master_get_clean_df(self) -> pd.DataFrame:
@@ -239,6 +241,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
     def master_action_save_configs(self):
         logger.info("保存配置信息")
+
+        Cfg.global_font_size = self.config_global_font_size.text()
         Cfg.csv_seperator = self.config_datafiles_csv_seperator.text().strip()
 
         ssignal.info.emit("保存成功")
@@ -267,6 +271,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
         self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
         self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
+        self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
         self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
         self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
         self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
@@ -291,6 +296,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.clean_toolbar.addAction(self.menu_row_similarity)
         self.clean_toolbar.addAction(self.menu_row_delete)
         self.clean_toolbar.addAction(self.menu_column_delete)
+        self.clean_toolbar.addAction(self.menu_vertical_concat)
         self.clean_toolbar.addAction(self.menu_group_stat)
         self.clean_toolbar.addAction(self.menu_clean_filter)
         self.clean_toolbar.addAction(self.menu_clean_makeup)
@@ -494,6 +500,29 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.clean_datatable.remove_selected_columns()
         self.master_set_clean_df(self.master_get_clean_df())
         ssignal.info.emit("删除列")
+
+    def clean_do_menu_vertical_concat(self):
+        logger.info("清洗，数据合并")
+
+        selected_fnames = [item.text() for item in self.datafiles_list.selectedItems()]
+
+        if len(selected_fnames) < 2:
+            ssignal.error.emit(f"错误，请选择至少2个同一种类型的数据文件")
+            return
+
+        # 获取所有的扩展名
+        suffixes = [str(fname).split(".")[1] for fname in selected_fnames]
+
+        if len(set(suffixes)) != 1:
+            self.master_show_error(f"错误，请选择同一种类型的数据文件")
+            return
+
+        abs_datafiles = [
+            os.path.join(Cfg.datafiles, fname) for fname in selected_fnames
+        ]
+
+        self.popupVerticalConcat = PopupVerticalConcat(self, abs_datafiles)
+        self.popupVerticalConcat.show()
 
     def clean_do_menu_group_stat(self):
         logger.info("清洗，分组统计")

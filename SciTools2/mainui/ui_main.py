@@ -123,6 +123,11 @@ class Ui_MainWindow(object):
         self.menu_clean_filter.setObjectName(u"menu_clean_filter")
         self.menu_clean_makeup = QAction(MainWindow)
         self.menu_clean_makeup.setObjectName(u"menu_clean_makeup")
+        self.menu_vertical_concat = QAction(MainWindow)
+        self.menu_vertical_concat.setObjectName(u"menu_vertical_concat")
+        icon18 = QIcon()
+        icon18.addFile(u"icons/vertical_concat.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.menu_vertical_concat.setIcon(icon18)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_6 = QVBoxLayout(self.centralwidget)
@@ -173,12 +178,12 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
-
         self.verticalLayout_2.addWidget(self.frame_5)
 
         self.datafiles_list = QListWidget(self.frame_3)
         self.datafiles_list.setObjectName(u"datafiles_list")
         self.datafiles_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.datafiles_list.setSpacing(4)
 
         self.verticalLayout_2.addWidget(self.datafiles_list)
 
@@ -236,18 +241,25 @@ class Ui_MainWindow(object):
         self.frame_7.setObjectName(u"frame_7")
         self.frame_7.setFrameShape(QFrame.StyledPanel)
         self.frame_7.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_5 = QHBoxLayout(self.frame_7)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.verticalLayout_7 = QVBoxLayout(self.frame_7)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.label = QLabel(self.frame_7)
         self.label.setObjectName(u"label")
 
-        self.horizontalLayout_5.addWidget(self.label)
+        self.verticalLayout_7.addWidget(self.label)
 
-        self.lineEdit = QLineEdit(self.frame_7)
-        self.lineEdit.setObjectName(u"lineEdit")
+        self.config_global_font_size = QSpinBox(self.frame_7)
+        self.config_global_font_size.setObjectName(u"config_global_font_size")
+        self.config_global_font_size.setMinimum(6)
+        self.config_global_font_size.setMaximum(64)
+        self.config_global_font_size.setValue(14)
 
-        self.horizontalLayout_5.addWidget(self.lineEdit)
+        self.verticalLayout_7.addWidget(self.config_global_font_size)
 
+        self.label_5 = QLabel(self.frame_7)
+        self.label_5.setObjectName(u"label_5")
+
+        self.verticalLayout_7.addWidget(self.label_5)
 
         self.verticalLayout_4.addWidget(self.frame_7)
 
@@ -267,9 +279,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6.addWidget(self.lineEdit_2)
 
-
         self.verticalLayout_4.addWidget(self.frame_8)
-
 
         self.verticalLayout_8.addWidget(self.groupBox)
 
@@ -293,7 +303,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addWidget(self.lineEdit_3)
 
-
         self.verticalLayout_5.addWidget(self.frame_9)
 
         self.frame_10 = QFrame(self.groupBox_2)
@@ -312,16 +321,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addWidget(self.lineEdit_4)
 
-
         self.verticalLayout_5.addWidget(self.frame_10)
-
 
         self.verticalLayout_8.addWidget(self.groupBox_2)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_8.addItem(self.verticalSpacer)
-
 
         self.horizontalLayout_17.addWidget(self.frame_11)
 
@@ -351,9 +357,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_13.addWidget(self.config_datafiles_csv_seperator)
 
-
         self.verticalLayout_12.addWidget(self.frame_19)
-
 
         self.verticalLayout_3.addWidget(self.groupBox_6)
 
@@ -365,7 +369,6 @@ class Ui_MainWindow(object):
         self.btn_save_config.setObjectName(u"btn_save_config")
 
         self.verticalLayout_3.addWidget(self.btn_save_config)
-
 
         self.horizontalLayout_17.addWidget(self.frame_12)
 
@@ -410,6 +413,7 @@ class Ui_MainWindow(object):
         self.menu_clean.addAction(self.menu_row_similarity)
         self.menu_clean.addAction(self.menu_row_delete)
         self.menu_clean.addAction(self.menu_column_delete)
+        self.menu_clean.addAction(self.menu_vertical_concat)
         self.menu_clean.addAction(self.menu_split_words)
         self.menu_clean.addAction(self.menu_group_stat)
         self.menu_clean.addAction(self.menu_clean_filter)
@@ -419,16 +423,16 @@ class Ui_MainWindow(object):
 
         self.mainTabWidget.setCurrentIndex(0)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.menu_clean_save.setText(QCoreApplication.translate("MainWindow", u"\u4fdd\u5b58", None))
-#if QT_CONFIG(shortcut)
+        # if QT_CONFIG(shortcut)
         self.menu_clean_save.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
-#endif // QT_CONFIG(shortcut)
+        # endif // QT_CONFIG(shortcut)
         self.menu_clean_metadata.setText(QCoreApplication.translate("MainWindow", u"\u5143\u6570\u636e", None))
         self.menu_clean_rename.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u547d\u540d", None))
         self.menu_copy_column.setText(QCoreApplication.translate("MainWindow", u"\u590d\u5236\u5217", None))
@@ -445,37 +449,46 @@ class Ui_MainWindow(object):
         self.menu_split_words.setText(QCoreApplication.translate("MainWindow", u"\u5207\u5206\u8bcd", None))
         self.menu_column_delete_2.setText(QCoreApplication.translate("MainWindow", u"\u8865\u5168\u503c", None))
         self.menu_clean_undo.setText(QCoreApplication.translate("MainWindow", u"\u64a4\u9500", None))
-#if QT_CONFIG(shortcut)
+        # if QT_CONFIG(shortcut)
         self.menu_clean_undo.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+Z", None))
-#endif // QT_CONFIG(shortcut)
+        # endif // QT_CONFIG(shortcut)
         self.menu_clean_redo.setText(QCoreApplication.translate("MainWindow", u"\u6062\u590d", None))
-#if QT_CONFIG(shortcut)
+        # if QT_CONFIG(shortcut)
         self.menu_clean_redo.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+Y", None))
-#endif // QT_CONFIG(shortcut)
+        # endif // QT_CONFIG(shortcut)
         self.menu_group_stat.setText(QCoreApplication.translate("MainWindow", u"\u5206\u7ec4\u7edf\u8ba1", None))
         self.menu_library_freq_stat.setText(QCoreApplication.translate("MainWindow", u"\u9891\u6b21\u7edf\u8ba1", None))
-        self.menu_library_cocon_stat.setText(QCoreApplication.translate("MainWindow", u"\u5171\u73b0\u7edf\u8ba1", None))
+        self.menu_library_cocon_stat.setText(
+            QCoreApplication.translate("MainWindow", u"\u5171\u73b0\u7edf\u8ba1", None))
         self.menu_cocon_stat.setText(QCoreApplication.translate("MainWindow", u"\u5171\u73b0\u5206\u6790", None))
         self.menu_count_stat.setText(QCoreApplication.translate("MainWindow", u"\u8bcd\u9891\u7edf\u8ba1", None))
         self.menu_clean_filter.setText(QCoreApplication.translate("MainWindow", u"\u8fc7\u6ee4\u884c", None))
         self.menu_clean_makeup.setText(QCoreApplication.translate("MainWindow", u"\u8865\u5168\u503c", None))
+        self.menu_vertical_concat.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u5408\u5e76", None))
         self.datafiles_btn_list.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u5217\u8868", None))
         self.datafiles_btn_parse.setText(QCoreApplication.translate("MainWindow", u"\u89e3\u6790", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab1), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab2), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab3), QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"GroupBox", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab1),
+                                      QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab2),
+                                      QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab3),
+                                      QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53\u5927\u5c0f", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow",
+                                                        u"\u3010\u4fdd\u5b58\u540e\uff0c\u9700\u8981\u91cd\u542f\u8f6f\u4ef6\u624d\u751f\u6548\u3011",
+                                                        None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"GroupBox", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))
+        self.groupBox_6.setTitle(
+            QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"csv\u6587\u4ef6\u5206\u9694\u7b26", None))
         self.config_datafiles_csv_seperator.setText("")
         self.btn_save_config.setText(QCoreApplication.translate("MainWindow", u"\u4fdd\u5b58", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab4), QCoreApplication.translate("MainWindow", u"\u914d\u7f6e", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab4),
+                                      QCoreApplication.translate("MainWindow", u"\u914d\u7f6e", None))
         self.menu_clean.setTitle(QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
         self.menu_library.setTitle(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
     # retranslateUi
-
