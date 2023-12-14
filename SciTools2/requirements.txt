@@ -3,6 +3,7 @@ pyside2
 numpy
 pandas
 openpyxl
+diskcache
 strenum
 jieba
 # datasketch==1.5.4
@@ -13,4 +14,5 @@ pyinstaller
 wmi
 watchdog
 
-diskcache
+
+black

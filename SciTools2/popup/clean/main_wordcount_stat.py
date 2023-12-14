@@ -1,4 +1,3 @@
-
 from PySide2.QtWidgets import QDialog, QFileDialog
 from mhelper import ssignal, Cfg
 from popup.clean.uipy import ui_count_stat
@@ -24,18 +23,17 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            ssignal.error.emit('请选择列')
+            ssignal.error.emit("请选择列")
             return
 
-        if len(names) >1:
-            ssignal.error.emit('选择多列，请直接导出')
+        if len(names) > 1:
+            ssignal.error.emit("选择多列，请直接导出")
             return
 
         name = names[0]
 
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
-
 
         self.cleanWordCountThread = CleanWordCountThread(df, name, threshold)
         self.cleanWordCountThread.start()
@@ -46,20 +44,21 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
         if len(names) == 0:
-            ssignal.error.emit('请选择列')
+            ssignal.error.emit("请选择列")
             return
 
         df = self.get_df()
-
 
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存词频统计文件",  # 标题
             Cfg.datafiles,  # 起始目录
-            "Excel (*.xlsx);;"  # 选择类型过滤项，过滤内容在括号中
+            "Excel (*.xlsx);;",  # 选择类型过滤项，过滤内容在括号中
         )
 
-        self.cleanWordCountExportThread = CleanWordCountExportThread(df, names, threshold, filePath)
+        self.cleanWordCountExportThread = CleanWordCountExportThread(
+            df, names, threshold, filePath
+        )
         self.cleanWordCountExportThread.start()
         self.close()
 
@@ -68,7 +67,6 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
 
     def get_df(self):
         return self.parent.master_get_clean_df()
-
 
     def set_df(self, df):
         self.parent.master_set_clean_df(df)
