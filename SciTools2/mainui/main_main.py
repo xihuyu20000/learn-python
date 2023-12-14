@@ -507,14 +507,14 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         selected_fnames = [item.text() for item in self.datafiles_list.selectedItems()]
 
         if len(selected_fnames) < 2:
-            ssignal.error.emit(f"错误，请选择至少2个同一种类型的数据文件")
+            ssignal.error.emit(f"错误，请选择至少2个csv类型的数据文件")
             return
 
         # 获取所有的扩展名
         suffixes = [str(fname).split(".")[1] for fname in selected_fnames]
 
         if len(set(suffixes)) != 1:
-            self.master_show_error(f"错误，请选择同一种类型的数据文件")
+            self.master_show_error(f"错误，请选择csv类型的数据文件")
             return
 
         abs_datafiles = [
