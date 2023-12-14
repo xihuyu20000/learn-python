@@ -51,13 +51,14 @@ class Parser:
         if isinstance(filenames, str):
             filenames = [filenames]
 
+        record = {}
         for filename in filenames:
             with open(filename, encoding="utf-8") as f:
                 # 所有行，去掉有空格
                 lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
 
                 flag = ""
-                record = {}
+
                 # 前2行不重要，去掉
                 for index, line in enumerate(lines[2:]):
                     # 每行的前2个字符
@@ -78,6 +79,8 @@ class Parser:
                     #     record[flag].append(line[3:])
                     else:
                         raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+        if record:
+            ds.append(record)
 
         df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
@@ -165,13 +168,13 @@ class Parser:
         if isinstance(filenames, str):
             filenames = [filenames]
 
+        record = {}
         for filename in filenames:
             with open(filename, encoding="utf-8") as f:
                 # 所有行，去掉有空格
                 lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
 
                 flag = ""
-                record = {}
 
                 for index, line in enumerate(lines):
                     # 每行的前2个字符
@@ -197,6 +200,9 @@ class Parser:
                     #     record[flag].append(line[3:])
                     else:
                         raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+
+        if record:
+            ds.append(record)
 
         df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
@@ -240,13 +246,13 @@ class Parser:
         if isinstance(filenames, str):
             filenames = [filenames]
 
+        record = {}
         for filename in filenames:
             with open(filename, encoding="utf-8") as f:
                 # 所有行，去掉有空格
                 lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
 
                 flag = ""
-                record = {}
 
                 for index, line in enumerate(lines):
                     # 每行的前2个字符
@@ -272,6 +278,9 @@ class Parser:
                         record[start2] = line[5:]
                     else:
                         raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+
+        if record:
+            ds.append(record)
 
         df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
@@ -682,5 +691,5 @@ class CleanBiz:
 
 
 if __name__ == '__main__':
-    result = Parser.parse_cnki_patent([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks知网专利.txt'])
+    result = Parser.parse_wanfang([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks万方.txt'])
     print(result.tail())
