@@ -51,7 +51,7 @@ class Parser:
         if isinstance(filenames, str):
             filenames = [filenames]
 
-        record = {}
+        record = collections.defaultdict(list)
         for filename in filenames:
             with open(filename, encoding="utf-8") as f:
                 # 所有行，去掉有空格
@@ -72,15 +72,17 @@ class Parser:
                                 ds.append(record)
                             record = {}
 
-                        # 新的字段开始
-                        record[flag] = line[2:]
-                    # elif start.strip() == "":
-                    #     # 还是属于上一个字段的内容
-                    #     record[flag].append(line[3:])
+                    # 新的字段开始
+                    if flag in record.keys():
+                        record[flag].append(line)
                     else:
-                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+                        record[flag] = [line[2:]]
         if record:
             ds.append(record)
+
+        for record in ds:
+            for flag, values in record.items():
+                record[flag] = ''.join([v.strip() for v in values])
 
         df = pd.DataFrame(ds, dtype=str)
         # 使用 fillna 将 NaN 替换为空字符串
@@ -691,5 +693,5 @@ class CleanBiz:
 
 
 if __name__ == '__main__':
-    result = Parser.parse_wanfang([r'D:\workspace\github\learn-python\SciTools2\datafiles\refworks万方.txt'])
+    result = Parser.parse_cnki([r'D:\workspace\github\learn-python\SciTools2\datafiles\2023年图清1.txt'])
     print(result.tail())
