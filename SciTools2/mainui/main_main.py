@@ -81,7 +81,6 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         # clean 菜单栏、工具栏
         self.clean_init_menubar()
-        self.clean_init_toolbar()
 
         ## 4、 可视化部分初始化 ###################################################
 
@@ -254,51 +253,70 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         :return:
         """
         self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
-        self.menu_clean_redo.triggered.connect(self.clean_do_menu_redo)
-        self.menu_clean_save.triggered.connect(self.clean_do_menu_save)
-        self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
-        self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
-        self.menu_copy_column.triggered.connect(self.clean_do_menu_copy_column)
-        self.menu_split_column.triggered.connect(self.clean_do_menu_split_column)
-        self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
-        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
-        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
-        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
-        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
-        self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
-        self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
-        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
-        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
-        self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
-        self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
-        self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
-        self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
-        self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
-        self.menu_clean_makeup.triggered.connect(self.clean_do_menu_clean_makeup)
+        self.clean_toolbar.addAction(self.menu_clean_undo, self.clean_do_menu_undo)
 
-    def clean_init_toolbar(self):
-        self.clean_toolbar.addAction(self.menu_clean_undo)
-        self.clean_toolbar.addAction(self.menu_clean_redo)
-        self.clean_toolbar.addAction(self.menu_clean_save)
-        self.clean_toolbar.addAction(self.menu_clean_metadata)
-        self.clean_toolbar.addAction(self.menu_clean_rename)
-        self.clean_toolbar.addAction(self.menu_copy_column)
-        self.clean_toolbar.addAction(self.menu_split_column)
-        self.clean_toolbar.addAction(self.menu_replace_column)
-        self.clean_toolbar.addAction(self.menu_combine_synonym)
-        self.clean_toolbar.addAction(self.menu_stop_words)
-        self.clean_toolbar.addAction(self.menu_count_stat)
-        self.clean_toolbar.addAction(self.menu_cocon_stat)
-        self.clean_toolbar.addAction(self.menu_compare_columns)
-        self.clean_toolbar.addAction(self.menu_modify_value)
-        self.clean_toolbar.addAction(self.menu_row_distinct)
-        self.clean_toolbar.addAction(self.menu_row_similarity)
-        self.clean_toolbar.addAction(self.menu_row_delete)
-        self.clean_toolbar.addAction(self.menu_column_delete)
-        self.clean_toolbar.addAction(self.menu_vertical_concat)
-        self.clean_toolbar.addAction(self.menu_group_stat)
-        self.clean_toolbar.addAction(self.menu_clean_filter)
-        self.clean_toolbar.addAction(self.menu_clean_makeup)
+        self.menu_clean_redo.triggered.connect(self.clean_do_menu_redo)
+        self.clean_toolbar.addAction(self.menu_clean_redo, self.clean_do_menu_redo)
+
+        self.menu_clean_save.triggered.connect(self.clean_do_menu_save)
+        self.clean_toolbar.addAction(self.menu_clean_save, self.clean_do_menu_save)
+
+        self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
+        self.clean_toolbar.addAction(self.menu_clean_metadata, self.clean_do_menu_metadata)
+
+        self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
+        self.clean_toolbar.addAction(self.menu_clean_rename, self.clean_do_menu_rename)
+
+        self.menu_copy_column.triggered.connect(self.clean_do_menu_copy_column)
+        self.clean_toolbar.addAction(self.menu_copy_column, self.clean_do_menu_copy_column)
+
+        self.menu_split_column.triggered.connect(self.clean_do_menu_split_column)
+        self.clean_toolbar.addAction(self.menu_split_column, self.clean_do_menu_split_column)
+
+        self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
+        self.clean_toolbar.addAction(self.menu_replace_column, self.clean_do_menu_replace_column)
+
+        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
+        self.clean_toolbar.addAction(self.menu_combine_synonym, self.clean_do_menu_combine_synonym)
+
+        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
+        self.clean_toolbar.addAction(self.menu_stop_words, self.clean_do_menu_stop_words)
+
+        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
+        self.clean_toolbar.addAction(self.menu_count_stat, self.clean_do_menu_wordcount_stat)
+
+        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
+        self.clean_toolbar.addAction(self.menu_cocon_stat, self.clean_do_menu_cocon_stat)
+
+        self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
+        self.clean_toolbar.addAction(self.menu_compare_columns, self.clean_do_menu_compare_columns)
+
+        self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
+        self.clean_toolbar.addAction(self.menu_modify_value, self.clean_do_menu_modify_value)
+
+        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
+        self.clean_toolbar.addAction(self.menu_row_distinct, self.clean_do_menu_row_distinct)
+
+        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
+        self.clean_toolbar.addAction(self.menu_row_similarity, self.clean_do_menu_row_similarity)
+
+        self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
+        self.clean_toolbar.addAction(self.menu_row_delete, self.clean_do_menu_row_delete)
+
+        self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
+        self.clean_toolbar.addAction(self.menu_vertical_concat, self.clean_do_menu_vertical_concat)
+
+        self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
+        self.clean_toolbar.addAction(self.menu_column_delete, self.clean_do_menu_column_delete)
+
+        self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
+        self.clean_toolbar.addAction(self.menu_group_stat, self.clean_do_menu_group_stat)
+
+        self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
+        self.clean_toolbar.addAction(self.menu_clean_filter, self.clean_do_menu_clean_filter)
+
+        self.menu_clean_makeup.triggered.connect(self.clean_do_menu_clean_makeup)
+        self.clean_toolbar.addAction(self.menu_clean_makeup, self.clean_do_menu_clean_makeup)
 
     #######################################################################
 

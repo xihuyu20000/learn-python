@@ -750,10 +750,11 @@ class ScrollWidget(QtWidgets.QWidget):
         """
         scroll_area.horizontalScrollBar().setStyleSheet(scroll_bar_style)
 
-    def addAction(self, action):
+    def addAction(self, action, callback):
         btn = QToolButton()
         btn.setIcon(action.icon())
         btn.setText(action.text())
+        btn.clicked.connect(callback)
         self.addToolButton(btn)
 
     def addToolButton(self, btn: QToolButton):
@@ -764,17 +765,3 @@ class ScrollWidget(QtWidgets.QWidget):
         for btn in tbns:
             btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.scroll_layout.addWidget(btn)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = ScrollWidget()
-    for i in range(20):
-        btn = QToolButton()
-        btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        btn.setText(f'ad阿道夫{i}adf')
-        btn.setIcon(QIcon('./icons/app.png'))
-        window.addToolButton(btn)
-
-    window.show()
-    sys.exit(app.exec_())
