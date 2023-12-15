@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import List
 from diskcache import Cache
 import shutil
@@ -6,8 +7,8 @@ import pandas
 import pandas as pd
 from PySide2 import QtCore, QtWidgets
 from PySide2 import QtGui
-from PySide2.QtCore import Qt, Signal, QModelIndex, QTimer
-from PySide2.QtGui import QBrush, QColor
+from PySide2.QtCore import Qt, Signal, QModelIndex, QTimer, QRect
+from PySide2.QtGui import QBrush, QColor, QIcon
 from PySide2.QtWidgets import (
     QFrame,
     QPushButton,
@@ -18,7 +19,7 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QWidget,
-    QLCDNumber,
+    QLCDNumber, QScrollArea, QToolBar, QToolButton, QApplication, QMainWindow,
 )
 from log import logger
 from mhelper import ssignal
@@ -663,3 +664,117 @@ class PandasStack:
             f"{self.highest}",
             str([i for i in self.cache.iterkeys()]),
         )
+
+
+# class ScrollableToolBar(QWidget):
+#     def __init__(self):
+#         super(ScrollableToolBar, self).__init__()
+#
+#         self.scrollArea = QScrollArea(self)
+#         self.scrollArea.setContentsMargins(0, 0, 0, 0)
+#         self.scrollArea.setWidgetResizable(True)
+#         self.innerWgt = QWidget()
+#         self.layout = QHBoxLayout(self.innerWgt)
+#         self.layout.setContentsMargins(0, 0, 0, 0)
+#         self.layout.setSpacing(0)
+#
+#         self.scrollArea.setWidget(self.innerWgt)
+#
+#     def addWidgets(self, widgets):
+#         for wid in widgets:
+#             self.layout.addWidget(wid)
+class ScrollWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super(ScrollWidget, self).__init__()
+
+        # 创建一个 QWidget 作为外部容器
+        container = QWidget(self)
+
+        # 创建一个 QVBoxLayout 作为外部容器的布局管理器
+        container_layout = QHBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(0)
+        # 设置外部容器的布局管理器
+        container.setLayout(container_layout)
+
+        # 创建一个 QScrollArea
+        scroll_area = QScrollArea(container)
+        scroll_area.setWidgetResizable(True)
+
+        # 创建一个 QWidget 作为 QScrollArea 的内部容器
+        scroll_content = QWidget(scroll_area)
+
+        # 在 QScrollArea 内的 QWidget 上设置布局管理器，这里用 QVBoxLayout 作为示例
+        self.scroll_layout = QHBoxLayout(scroll_content)
+        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        self.scroll_layout.setSpacing(0)
+
+        # 设置内部容器的布局管理器
+        scroll_content.setLayout(self.scroll_layout)
+
+        # 设置 QScrollArea 的内部容器
+        scroll_area.setWidget(scroll_content)
+
+        # 将 QScrollArea 添加到外部容器的布局中
+        container_layout.addWidget(scroll_area)
+
+        # 设置外部容器为主窗口的中央部件
+        self.setLayout(container_layout)
+
+        # 修改水平滚动条的宽度（这里设置为10像素）
+        scroll_bar_style = """
+            QScrollBar:horizontal {
+                height: 10px;
+            }
+
+            QScrollBar::handle:horizontal {
+                background: #606060;
+                min-width: 20px;
+            }
+
+            QScrollBar::add-line:horizontal {
+                background: #F0F0F0;
+                border: 2px solid #7F7F7F;
+                width: 20px;
+                subcontrol-position: right;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::sub-line:horizontal {
+                background: #F0F0F0;
+                border: 2px solid #7F7F7F;
+                width: 20px;
+                subcontrol-position: left;
+                subcontrol-origin: margin;
+            }
+        """
+        scroll_area.horizontalScrollBar().setStyleSheet(scroll_bar_style)
+
+    def addAction(self, action):
+        btn = QToolButton()
+        btn.setIcon(action.icon())
+        btn.setText(action.text())
+        self.addToolButton(btn)
+
+    def addToolButton(self, btn: QToolButton):
+        btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self.scroll_layout.addWidget(btn)
+
+    def addToolButtons(self, tbns: List[QToolButton]):
+        for btn in tbns:
+            btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+            self.scroll_layout.addWidget(btn)
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ScrollWidget()
+    for i in range(20):
+        btn = QToolButton()
+        btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        btn.setText(f'ad阿道夫{i}adf')
+        btn.setIcon(QIcon('./icons/app.png'))
+        window.addToolButton(btn)
+
+    window.show()
+    sys.exit(app.exec_())

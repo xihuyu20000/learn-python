@@ -10,7 +10,8 @@ from typing import List
 
 import pandas as pd
 from PySide2 import QtCore
-from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar, QToolButton
 from loguru import logger
 
 from mhelper import Cfg, ssignal, FileFormat
@@ -36,7 +37,7 @@ from mrunner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
-from mtoolkit import PandasStack, TableKit
+from mtoolkit import PandasStack, TableKit, ScrollWidget
 
 
 class MasterWindows(QMainWindow, Ui_MainWindow):
@@ -65,10 +66,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         ## 3、清洗部分初始化 #####################################################
 
         # clean 工具栏
-        self.clean_toolbar = QToolBar()
-        self.clean_toolbar.setToolButtonStyle(
-            QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon
-        )
+        self.clean_toolbar = ScrollWidget()
+        self.clean_toolbar.setFixedHeight(69)
         # clean 数据栈
         self.cleanTableStack = PandasStack(self)
 
@@ -526,14 +525,13 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
     def clean_do_menu_group_stat(self):
         logger.info("清洗，分组统计")
-        ssignal.error.emit("还没有实现")
 
-        # if self.master_clean_no_data():
-        #     ssignal.error.emit('没有数据')
-        #     return
-        #
-        # self.popupCleanGroupStat = PopupCleanGroupStat(self)
-        # self.popupCleanGroupStat.show()
+        if self.master_clean_no_data():
+            ssignal.error.emit('没有数据')
+            return
+
+        self.popupCleanGroupStat = PopupCleanGroupStat(self)
+        self.popupCleanGroupStat.show()
 
     def clean_do_menu_clean_filter(self):
         logger.info("清洗，过滤")
