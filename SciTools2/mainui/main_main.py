@@ -20,6 +20,7 @@ from popup.clean.main_cocon_stat import PopupFreqStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
 from popup.clean.main_copy_column import PopupCopyColumn
+from popup.clean.main_split_words import PopupSplitWords
 from popup.clean.main_vertical_concat import PopupVerticalConcat
 from popup.clean.main_wordcount_stat import PopupWordCountStat
 from popup.clean.main_dataset_metadata import PopupCleanMetadata
@@ -252,69 +253,96 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         槽函数，必须是clean_do_menu_开头
         :return:
         """
+
+        # 撤回
         self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
         self.clean_toolbar.addAction(self.menu_clean_undo, self.clean_do_menu_undo)
 
+        # 恢复
         self.menu_clean_redo.triggered.connect(self.clean_do_menu_redo)
         self.clean_toolbar.addAction(self.menu_clean_redo, self.clean_do_menu_redo)
 
-        self.menu_clean_save.triggered.connect(self.clean_do_menu_save)
-        self.clean_toolbar.addAction(self.menu_clean_save, self.clean_do_menu_save)
-
-        self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
-        self.clean_toolbar.addAction(self.menu_clean_metadata, self.clean_do_menu_metadata)
-
-        self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
-        self.clean_toolbar.addAction(self.menu_clean_rename, self.clean_do_menu_rename)
-
-        self.menu_copy_column.triggered.connect(self.clean_do_menu_copy_column)
-        self.clean_toolbar.addAction(self.menu_copy_column, self.clean_do_menu_copy_column)
-
-        self.menu_split_column.triggered.connect(self.clean_do_menu_split_column)
-        self.clean_toolbar.addAction(self.menu_split_column, self.clean_do_menu_split_column)
-
-        self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
-        self.clean_toolbar.addAction(self.menu_replace_column, self.clean_do_menu_replace_column)
-
-        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
-        self.clean_toolbar.addAction(self.menu_combine_synonym, self.clean_do_menu_combine_synonym)
-
-        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
-        self.clean_toolbar.addAction(self.menu_stop_words, self.clean_do_menu_stop_words)
-
-        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
-        self.clean_toolbar.addAction(self.menu_count_stat, self.clean_do_menu_wordcount_stat)
-
-        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
-        self.clean_toolbar.addAction(self.menu_cocon_stat, self.clean_do_menu_cocon_stat)
-
-        self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
-        self.clean_toolbar.addAction(self.menu_compare_columns, self.clean_do_menu_compare_columns)
-
-        self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
-        self.clean_toolbar.addAction(self.menu_modify_value, self.clean_do_menu_modify_value)
-
-        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
-        self.clean_toolbar.addAction(self.menu_row_distinct, self.clean_do_menu_row_distinct)
-
-        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
-        self.clean_toolbar.addAction(self.menu_row_similarity, self.clean_do_menu_row_similarity)
-
+        # 删除行
         self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
         self.clean_toolbar.addAction(self.menu_row_delete, self.clean_do_menu_row_delete)
 
-        self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
-        self.clean_toolbar.addAction(self.menu_vertical_concat, self.clean_do_menu_vertical_concat)
-
+        # 删除列
         self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
         self.clean_toolbar.addAction(self.menu_column_delete, self.clean_do_menu_column_delete)
 
+        # 保存
+        self.menu_clean_save.triggered.connect(self.clean_do_menu_save)
+        self.clean_toolbar.addAction(self.menu_clean_save, self.clean_do_menu_save)
+
+        # 元数据
+        self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
+        self.clean_toolbar.addAction(self.menu_clean_metadata, self.clean_do_menu_metadata)
+
+        # 重命名
+        self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
+        self.clean_toolbar.addAction(self.menu_clean_rename, self.clean_do_menu_rename)
+
+        # 复制列
+        self.menu_copy_column.triggered.connect(self.clean_do_menu_copy_column)
+        self.clean_toolbar.addAction(self.menu_copy_column, self.clean_do_menu_copy_column)
+
+        # 拆分列
+        self.menu_split_column.triggered.connect(self.clean_do_menu_split_column)
+        self.clean_toolbar.addAction(self.menu_split_column, self.clean_do_menu_split_column)
+
+        # 替换值
+        self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
+        self.clean_toolbar.addAction(self.menu_replace_column, self.clean_do_menu_replace_column)
+
+        # 合并词
+        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
+        self.clean_toolbar.addAction(self.menu_combine_synonym, self.clean_do_menu_combine_synonym)
+
+        # 停用词
+        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
+        self.clean_toolbar.addAction(self.menu_stop_words, self.clean_do_menu_stop_words)
+
+        # 词频统计
+        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
+        self.clean_toolbar.addAction(self.menu_count_stat, self.clean_do_menu_wordcount_stat)
+
+        # 共现分析
+        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
+        self.clean_toolbar.addAction(self.menu_cocon_stat, self.clean_do_menu_cocon_stat)
+
+        # 列比较
+        self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
+        self.clean_toolbar.addAction(self.menu_compare_columns, self.clean_do_menu_compare_columns)
+
+        # 修改值
+        self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
+        self.clean_toolbar.addAction(self.menu_modify_value, self.clean_do_menu_modify_value)
+
+        # 分词
+        self.menu_split_words.triggered.connect(self.clean_do_menu_split_words)
+        self.clean_toolbar.addAction(self.menu_split_words, self.clean_do_menu_split_words)
+
+        # 行去重
+        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
+        self.clean_toolbar.addAction(self.menu_row_distinct, self.clean_do_menu_row_distinct)
+
+        # 相似度
+        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
+        self.clean_toolbar.addAction(self.menu_row_similarity, self.clean_do_menu_row_similarity)
+
+        # 数据合并
+        self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
+        self.clean_toolbar.addAction(self.menu_vertical_concat, self.clean_do_menu_vertical_concat)
+
+        # 分组统计
         self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
         self.clean_toolbar.addAction(self.menu_group_stat, self.clean_do_menu_group_stat)
 
+        # 过滤值
         self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
         self.clean_toolbar.addAction(self.menu_clean_filter, self.clean_do_menu_clean_filter)
 
+        # 补全值
         self.menu_clean_makeup.triggered.connect(self.clean_do_menu_clean_makeup)
         self.clean_toolbar.addAction(self.menu_clean_makeup, self.clean_do_menu_clean_makeup)
 
@@ -550,6 +578,16 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         self.popupCleanGroupStat = PopupCleanGroupStat(self)
         self.popupCleanGroupStat.show()
+
+    def clean_do_menu_split_words(self):
+        logger.info("清洗，分词")
+
+        if self.master_clean_no_data():
+            ssignal.error.emit('没有数据')
+            return
+
+        self.popupSplitWords = PopupSplitWords(self)
+        self.popupSplitWords.show()
 
     def clean_do_menu_clean_filter(self):
         logger.info("清洗，过滤")

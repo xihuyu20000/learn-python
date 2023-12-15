@@ -6,6 +6,7 @@ import collections
 import os
 from typing import List, Set
 
+import jieba
 import numpy as np
 import pandas as pd
 
@@ -436,7 +437,13 @@ class CleanBiz:
         return stat_df, result
 
     @staticmethod
-    def copy_column(df, names):
+    def copy_column(df, names: List[str]):
+        """
+        复制列
+        :param df:
+        :param names:
+        :return:
+        """
         new_names = []
         for col in names:
             new_names.append(col + "-new")
@@ -456,6 +463,16 @@ class CleanBiz:
             get_style: str,
             style_le2: int,
     ):
+        """
+        拆分列
+        :param df:
+        :param name:
+        :param split_style:
+        :param style_le1:
+        :param get_style:
+        :param style_le2:
+        :return:
+        """
         if "分隔符" in split_style:
             df["xxxyyyzzz"] = df[name].apply(lambda x: str(x).split(style_le1))
         if "字符" in split_style:
@@ -490,6 +507,18 @@ class CleanBiz:
     def repalce_values(
             df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new
     ):
+        """
+        替换值
+        :param df:
+        :param names:
+        :param current_tab_index:
+        :param old_sep:
+        :param new_sep:
+        :param other_char:
+        :param is_reserved:
+        :param is_new:
+        :return:
+        """
         new_names = []
         for col in names:
             new_col = col + "-new" if is_new else col
@@ -524,7 +553,7 @@ class CleanBiz:
             df: pd.DataFrame, synonym_dict_path: str, names: List[str], is_new: bool
     ) -> pd.DataFrame:
         """
-
+        合并词
         :param df:  数据集
         :param synonym_dict_path:   同义词典完整路径
         :param names: 需要替换的列名
@@ -562,6 +591,14 @@ class CleanBiz:
     def stop_words(
             df: pd.DataFrame, names: List[str], words_set: Set[str], is_new: bool
     ):
+        """
+        停用词
+        :param df:
+        :param names:
+        :param words_set:
+        :param is_new:
+        :return:
+        """
         new_names = []
         # 遍历每一列，对每一列的每一个值，进行替换处理
         for col in names:
@@ -577,7 +614,32 @@ class CleanBiz:
         return df
 
     @staticmethod
+    def split_words(df, names: List[str]):
+        """
+        切分词
+        :param df:
+        :param names:
+        :return:
+        """
+        new_names = []
+        for col in names:
+            new_names.append(col + "-切词")
+            df[col + "-切词"] = df[col].astype(str).apply(lambda x: jieba.lcut(x))
+
+        old_names = df.columns.tolist()
+        new_names = Utils.resort_columns(old_names, new_names)
+        df = df[new_names]
+        return df
+
+    @staticmethod
     def wordcount_stat(df: pd.DataFrame, col_name: str, threshold: int):
+        """
+        词频统计
+        :param df:
+        :param col_name:
+        :param threshold:
+        :return:
+        """
         # 使用str.split进行拆分，并使用explode展开多列，每个单词是一列
         df_split = df[col_name].str.split(Cfg.seperator, expand=True)
         # 然后使用stack把列转为行
@@ -600,6 +662,13 @@ class CleanBiz:
 
     @staticmethod
     def cocon_stat(df: pd.DataFrame, names: List[str], threshold: int):
+        """
+        共现分析
+        :param df:
+        :param names:
+        :param threshold:
+        :return:
+        """
         df2 = pd.DataFrame()
 
         if len(names) == 1:
@@ -613,6 +682,13 @@ class CleanBiz:
 
     @staticmethod
     def row_similarity(df: pd.DataFrame, column_names: List[str], limited: float):
+        """
+        相似度
+        :param df:
+        :param column_names:
+        :param limited:
+        :return:
+        """
         UUID = "uuid"
         JOINED_WORDS = "joined_words"
 

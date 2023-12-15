@@ -588,3 +588,29 @@ class CleanVerticalConcatThread(QThread):
             logger.exception(e)
             msg = "出错:{0}".format(str(e))
             ssignal.error.emit(msg)
+
+
+class CleanSplitWordsThread(QThread):
+    def __init__(self, df: pd.DataFrame, names: List[str]):
+        super(CleanSplitWordsThread, self).__init__()
+        self.df = df
+        self.names = names
+
+    def run(self) -> None:
+        ssignal.info.emit("正在切分词，请稍等")
+        try:
+            t1 = time.time()
+
+            df = CleanBiz.split_words(self.df, self.names)
+
+            t2 = time.time()
+            msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point)
+            )
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(df)
+
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
