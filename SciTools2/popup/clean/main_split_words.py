@@ -32,7 +32,6 @@ class PopupSplitWords(QDialog, ui_split_words.Ui_Form):
 
         self.cleanSplitWordsThread = CleanSplitWordsThread(df, names)
         self.cleanSplitWordsThread.start()
-        self.close()
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

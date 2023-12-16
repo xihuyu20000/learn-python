@@ -2,8 +2,8 @@
 这是工具模块，这里的代码，一定不能依赖其他项目模块
 """
 import collections
-import configparser
 import itertools
+import json
 import os
 import re
 import secrets
@@ -39,7 +39,12 @@ class ConfigHandler(object):
     dicts = os.path.join(workspace, "dicts")
 
     stopwords_file = "停用词表.txt"
-    synonyms_file = "合并词表.txt"
+    combinewords_file = "合并词表.txt"
+    controlledwords_file = "受控词表.txt"
+
+    stopwords_abs_path = os.path.join(dicts, stopwords_file)
+    combinewords_abs_path = os.path.join(dicts, combinewords_file)
+    controlledwords_abs_path = os.path.join(dicts, controlledwords_file)
 
     _abs_path = (
         os.path.expanduser("~")
@@ -57,6 +62,13 @@ class ConfigHandler(object):
         self.__init_option("global_font_size", "14")
         # 文件默认的分隔符
         self.__init_option("seperator", ";")
+        # 停用词
+        self.__init_option("stopwords_file", ConfigHandler.stopwords_abs_path)
+        # 合并词
+        self.__init_option("combinewords_file", ConfigHandler.combinewords_abs_path)
+        # 受控词
+        self.__init_option("controlledwords_file", ConfigHandler.controlledwords_abs_path)
+
         # 读取csv文件时，的分隔符
         self.__init_option("csv_seperator", ",")
         # 程序运行的计时器，精确度
@@ -69,32 +81,20 @@ class ConfigHandler(object):
     ###############################################################
     @property
     def global_font_size(self):
-        cf = configparser.ConfigParser()
-        cf.read(self.db, encoding="utf-8")
-        return cf[self.default]["global_font_size"]
+        return self.__read_ini("global_font_size")
 
     @global_font_size.setter
     def global_font_size(self, value):
-        cf = configparser.ConfigParser()
-        cf.read(self.db, encoding="utf-8")
-        cf.set(self.default, "global_font_size", value)
-        with open(self.db, "w", encoding="utf-8") as f:
-            cf.write(f)
+        self.__write_ini("global_font_size", value)
 
     ###############################################################
     @property
     def seperator(self):
-        cf = configparser.ConfigParser()
-        cf.read(self.db, encoding="utf-8")
-        return cf[self.default]["seperator"]
+        return self.__read_ini("seperator")
 
     @seperator.setter
     def seperator(self, value):
-        cf = configparser.ConfigParser()
-        cf.read(self.db, encoding="utf-8")
-        cf.set(self.default, "seperator", value)
-        with open(self.db, "w", encoding="utf-8") as f:
-            cf.write(f)
+        self.__write_ini("seperator", value)
 
     ###############################################################
     @property
@@ -106,13 +106,43 @@ class ConfigHandler(object):
         self.__write_ini("csv_seperator", value)
 
     ###############################################################
+
+    @property
+    def stopwords_file(self):
+        return self.__read_ini("stopwords_file")
+
+    @stopwords_file.setter
+    def stopwords_file(self, value):
+        self.__write_ini("stopwords_file", value)
+
+    ###############################################################
+
+    @property
+    def combinewords_file(self):
+        return self.__read_ini("combinewords_file")
+
+    @combinewords_file.setter
+    def combinewords_file(self, value):
+        self.__write_ini("combinewords_file", value)
+
+    ###############################################################
+
+    @property
+    def controlledwords_file(self):
+        return self.__read_ini("controlledwords_file")
+
+    @controlledwords_file.setter
+    def controlledwords_file(self, value):
+        self.__write_ini("controlledwords_file", value)
+
+    ###############################################################
     @property
     def precision_point(self) -> int:
         return int(self.__read_ini("precision_point").strip())
 
     @precision_point.setter
     def precision_point(self, value):
-        self.__write_ini(self.db, self.default, "precision_point", str(value))
+        self.__write_ini("precision_point", str(value))
 
     ###############################################################
     @property
@@ -121,7 +151,7 @@ class ConfigHandler(object):
 
     @popup_startup.setter
     def _precision_point(self, value):
-        self.__write_ini(self.db, self.default, "popup_startup", str(value))
+        self.__write_ini("popup_startup", str(value))
 
     ###############################################################
     ###############################################################
@@ -135,47 +165,31 @@ class ConfigHandler(object):
         """
         读取INI文件中的单个值
         """
-
-        config = configparser.ConfigParser()
-        config.read(self.db, encoding="utf-8")
-
-        try:
-            value = config.get(self.default, key)
-            return value
-        except configparser.Error as e:
-            print(f"Error reading INI file: {e}")
+        with open(self.db, encoding="utf-8") as load_f:
+            load_dict = json.load(load_f)
+            if key in load_dict:
+                return load_dict[key]
             return None
 
     def __write_ini(self, key, value):
         """
         修改INI文件中的单个值
         """
-        config = configparser.ConfigParser()
-        config.read(self.db)
+        load_dict = {}
+        if os.path.exists(self.db):
+            with open(self.db, encoding="utf-8") as load_f:
+                load_dict = json.load(load_f)
 
-        if self.default not in config:
-            config.add_section(self.default)
+        load_dict[key] = value
 
-        config.set(self.default, key, value)
-
-        with open(self.db, "w", encoding="utf-8") as config_file:
-            config.write(config_file)
+        with open(self.db, 'w', encoding="utf-8") as write_f:
+            json.dump(load_dict, write_f, indent=4, ensure_ascii=False)
 
     def __init_option(self, key, value):
         """
         初始化INI文件中的单个值
         """
-        config = configparser.ConfigParser()
-        config.read(self.db)
-
-        if self.default not in config:
-            config.add_section(self.default)
-
-        if not config.has_option(self.default, key):
-            config.set(self.default, key, value)
-
-        with open(self.db, "w", encoding="utf-8") as config_file:
-            config.write(config_file)
+        self.__write_ini(key, value)
 
 
 Cfg = ConfigHandler()

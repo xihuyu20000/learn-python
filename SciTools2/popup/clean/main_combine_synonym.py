@@ -30,7 +30,7 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
             ssignal.error.emit('请选择列')
             return
 
-        names = [item.text() for item in names ]
+        names = [item.text() for item in names]
 
         if dict_path is None or dict_path.strip() == "":
             ssignal.error.emit('请选择词典')
@@ -39,7 +39,8 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Cfg.dicts, Cfg.synonyms_file), names, is_new)
+        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Cfg.dicts, Cfg.combinewords_file),
+                                                                   names, is_new)
         self.cleanCombineSynonymThread.start()
         self.close()
 
@@ -51,7 +52,6 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
             "文件类型 (*.csv *.txt *.xls *.xlsx)"  # 选择类型过滤项，过滤内容在括号中
         )
         self.le1.setText(filePath)
-
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

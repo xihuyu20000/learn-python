@@ -128,6 +128,12 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.datafiles_btn_list.clicked.connect(self.master_action_datafiles_list)
         # 数据文件列表，按钮，显示
         self.datafiles_btn_parse.clicked.connect(self.master_action_datafiles_parse)
+        # 配置项，停用词
+        self.btn_stop_words_dict.clicked.connect(self.master_action_datafiles_stop_words_dict)
+        # 配置项，合并词
+        self.btn_combine_words_dict.clicked.connect(self.master_action_datafiles_combine_words_dict)
+        # 配置项，受控词
+        self.btn_controlled_words_dict.clicked.connect(self.master_action_datafiles_controlled_words_dict)
         # 配置项，保存
         self.btn_save_config.clicked.connect(self.master_action_save_configs)
 
@@ -138,6 +144,9 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         """
         self.config_global_font_size.setValue(int(Cfg.global_font_size))
         self.config_datafiles_csv_seperator.setText(Cfg.csv_seperator)
+        self.config_stop_words_dict.setText(Cfg.stopwords_abs_path)
+        self.config_combine_words_dict.setText(Cfg.combinewords_abs_path)
+        self.config_controlled_words_dict.setText(Cfg.controlledwords_abs_path)
 
     def master_show_info(self, val) -> None:
         """
@@ -238,11 +247,50 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.popupDatafilesParse = PopupDatafilesParse(self, abs_datafiles, sep)
         self.popupDatafilesParse.show()
 
+    def master_action_datafiles_stop_words_dict(self):
+
+        filePath, _ = QFileDialog.getOpenFileName(
+            self,  # 父窗口对象
+            "选择停用词典",  # 标题
+            Cfg.dicts,  # 起始目录
+            "词典类型 (*.txt)"
+        )
+
+        if filePath:
+            self.config_stop_words_dict.setText(filePath)
+
+    def master_action_datafiles_combine_words_dict(self):
+
+        filePath, _ = QFileDialog.getOpenFileName(
+            self,  # 父窗口对象
+            "选择合并词典",  # 标题
+            Cfg.dicts,  # 起始目录
+            "词典类型 (*.txt)"
+        )
+
+        if filePath:
+            self.config_combine_words_dict.setText(filePath)
+
+    def master_action_datafiles_controlled_words_dict(self):
+
+        filePath, _ = QFileDialog.getOpenFileName(
+            self,  # 父窗口对象
+            "选择受控词典",  # 标题
+            Cfg.dicts,  # 起始目录
+            "词典类型 (*.txt)"
+        )
+
+        if filePath:
+            self.config_controlled_words_dict.setText(filePath)
+
     def master_action_save_configs(self):
         logger.info("保存配置信息")
 
         Cfg.global_font_size = self.config_global_font_size.text()
         Cfg.csv_seperator = self.config_datafiles_csv_seperator.text().strip()
+        Cfg.stopwords_abs_path = self.config_stop_words_dict.text()
+        Cfg.combinewords_abs_path = self.config_combine_words_dict.text()
+        Cfg.controlledwords_abs_path = self.config_controlled_words_dict.text()
 
         ssignal.info.emit("保存成功")
 
@@ -571,13 +619,14 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
     def clean_do_menu_group_stat(self):
         logger.info("清洗，分组统计")
+        ssignal.error.emit("还没有实现")
 
-        if self.master_clean_no_data():
-            ssignal.error.emit('没有数据')
-            return
+        # if self.master_clean_no_data():
+        #     ssignal.error.emit('没有数据')
+        #     return
 
-        self.popupCleanGroupStat = PopupCleanGroupStat(self)
-        self.popupCleanGroupStat.show()
+        # self.popupCleanGroupStat = PopupCleanGroupStat(self)
+        # self.popupCleanGroupStat.show()
 
     def clean_do_menu_split_words(self):
         logger.info("清洗，分词")

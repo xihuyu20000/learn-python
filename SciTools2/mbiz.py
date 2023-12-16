@@ -614,6 +614,11 @@ class CleanBiz:
         return df
 
     @staticmethod
+    def _jieba_cut(stop_words, line):
+        logger.debug(stop_words)
+        return [w.strip() for w in jieba.cut(line, cut_all=False) if w.strip() and w not in stop_words]
+
+    @staticmethod
     def split_words(df, names: List[str]):
         """
         切分词
@@ -621,10 +626,17 @@ class CleanBiz:
         :param names:
         :return:
         """
+        stop_words = []
+        with open(Cfg.stopwords_abs_path, encoding="utf-8") as f:
+            stop_words = [line.strip() for line in f.readlines() if line.strip()]
+
+        jieba.load_userdict(Cfg.controlledwords_abs_path)
+        jieba.initialize()
+
         new_names = []
         for col in names:
             new_names.append(col + "-切词")
-            df[col + "-切词"] = df[col].astype(str).apply(lambda x: jieba.lcut(x))
+            df[col + "-切词"] = df[col].astype(str).apply(lambda x: CleanBiz._jieba_cut(stop_words, x))
 
         old_names = df.columns.tolist()
         new_names = Utils.resort_columns(old_names, new_names)

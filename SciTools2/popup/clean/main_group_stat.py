@@ -20,13 +20,15 @@ class PopupCleanGroupStat(QWidget, ui_group_stat.Ui_Form):
 
         self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.btn = ClosableButton(txt)
+        self.btn.setMinimumWidth(100)
         self.layout.addWidget(self.btn)
         self.combox = QComboBox(self)
         self.combox.setFixedHeight(30)
         self.combox.addItems(['计数'])
+        self.combox.setMinimumWidth(50)
         self.layout.addWidget(self.combox)
 
-        self.btn.clicked.connect( lambda :self.close())
+        self.btn.clicked.connect(lambda: self.close())
 
     def get_value(self):
         return Cfg.seperator.join([self.btn.get_value(), self.combox.currentText()])
@@ -82,18 +84,17 @@ class WinGroupStat(QDialog, ui_group_stat.Ui_Form):
                 btn.clicked.connect(lambda e: btn.close())
                 target.layout().addWidget(btn)
             if target.objectName() == 'widget_stat':
-                stat_wdt = StatWidget(mimedata.text())
+                stat_wdt = PopupCleanGroupStat(mimedata.text())
                 stat_wdt.btn.clicked.connect(lambda e: stat_wdt.close())
                 target.layout().addWidget(stat_wdt)
 
     def action_ok(self):
         group_children = [item.get_value() for item in self.widget_group.findChildren(ClosableButton)]
-        stat_children = [item.get_value() for item in self.widget_stat.findChildren(StatWidget)]
+        stat_children = [item.get_value() for item in self.widget_stat.findChildren(PopupCleanGroupStat)]
 
 
-
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)  # 创建GUI
-#     ui = WinGroupStat()  # 创建PyQt设计的窗体对象
-#     ui.show()  # 显示窗体
-#     sys.exit(app.exec_())  # 程序关闭时退出进程
+if __name__ == '__main__':
+    app = QApplication(sys.argv)  # 创建GUI
+    ui = WinGroupStat(app)  # 创建PyQt设计的窗体对象
+    ui.show()  # 显示窗体
+    sys.exit(app.exec_())  # 程序关闭时退出进程
