@@ -394,6 +394,10 @@ class Parser:
 
 class CleanBiz:
     @staticmethod
+    def save_excel(df: pd.DataFrame, abs_path: str, sheet_name: str, save_index) -> None:
+        PandasUtil.write_excel(df, abs_path, sheet_name, save_index)
+
+    @staticmethod
     def metadata(df: pd.DataFrame):
         # 判断nulls必须放在这里，不能放到下面
         stat_df = df.copy()
@@ -688,7 +692,7 @@ class CleanBiz:
         if len(names) == 2:
             df2 = PandasUtil.heter_matrix(df, names[0], names[1], threshold=threshold)
 
-        df2 = df2.astype(np.uint8, errors="raise")
+        # df2 = df2.astype(np.uint8, errors="raise")
 
         return df2
 

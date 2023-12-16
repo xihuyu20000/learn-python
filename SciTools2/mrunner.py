@@ -124,7 +124,7 @@ class CleanSaveDatasetThread(QThread):
             if self.fpath.endswith(".csv"):
                 PandasUtil.write_csv(self.df, self.fpath, index=False)
             elif self.fpath.endswith(".xlsx") or self.fpath.endswith(".xls"):
-                PandasUtil.write_excel(self.df, self.fpath, "Sheet0")
+                PandasUtil.write_excel(self.df, self.fpath, "Sheet0", False)
             elif self.fpath.endswith("pkl"):
                 PandasUtil.write_pickle(self.df, self.fpath, compression="gzip")
             elif self.fpath.endswith("pqt"):
@@ -192,7 +192,7 @@ class CleanExportCountStatThread(QThread):
             t1 = time.time()
 
             for i, name in enumerate(self.names):
-                CleanBiz.save_excel(self.df_list[i], self.fpath, self.names[i])
+                CleanBiz.save_excel(self.df_list[i], self.fpath, self.names[i], save_index=False)
 
             t2 = time.time()
             msg = "保存词频统计文件 {0}，耗时{1}秒".format(
@@ -221,7 +221,7 @@ class CleanExportCoconStatThread(QThread):
         try:
             t1 = time.time()
 
-            CleanBiz.save_excel(self.df, self.fpath, "0")
+            CleanBiz.save_excel(self.df, self.fpath, "Sheet1", save_index=True)
 
             t2 = time.time()
             msg = "保存统计文件 {0}，耗时{1}秒".format(
@@ -250,7 +250,7 @@ class CleanReplaceValuesThread(QThread):
         try:
             t1 = time.time()
 
-            CleanBiz.save_excel(self.df, self.fpath, "0")
+            CleanBiz.save_excel(self.df, self.fpath, "0", save_index=False)
 
             t2 = time.time()
             msg = "保存统计文件 {0}，耗时{1}秒".format(

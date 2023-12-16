@@ -76,7 +76,6 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
 
         t2 = time.time()
 
-
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存统计文件",  # 标题
@@ -87,7 +86,6 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
         if filePath:
             self.coconStatThread = CleanExportCoconStatThread(fpath=filePath, df=df2)
             self.coconStatThread.start()
-
 
         msg = '分析{0}条记录，{1}个列，耗时{2}秒'.format(df2.shape[0], len(names), round(t2 - t1, Cfg.precision_point))
         ssignal.info.emit(msg)
@@ -100,7 +98,7 @@ class PopupFreqStat(QDialog, ui_cocon_stat.Ui_Form):
         return self.parent.master_get_clean_df()
 
     def set_df(self, df):
-        self.parent.master_set_clean_df(df, inplace_index=False, drop_index=False, show_color=True)
+        self.parent.master_set_clean_df(df, inplace_index=False, drop_index=False)
 
     def get_table(self):
         return self.parent.master_get_clean_table()

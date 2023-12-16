@@ -699,6 +699,8 @@ class ScrollWidget(QtWidgets.QWidget):
 
         # 创建一个 QScrollArea
         scroll_area = QScrollArea(container)
+        # 隐藏垂直滚动条
+        scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         scroll_area.setWidgetResizable(True)
 
         # 创建一个 QWidget 作为 QScrollArea 的内部容器

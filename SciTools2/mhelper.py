@@ -55,7 +55,7 @@ class ConfigHandler(object):
     def __init__(self):
         self.default = "default"
 
-        self.db = os.path.join(ConfigHandler._abs_path, "sci.db")
+        self.db = os.path.join(ConfigHandler._abs_path, "clean.db")
 
         self.__init_option("table_header_bgcolor", "lightblue")
         # 全局字体大小
@@ -905,23 +905,23 @@ class PandasUtil:
             if diagonal_values
             else itertools.combinations
         )
-        logger.info("{} {}".format(1, time.time()))
+        logger.debug("{} {}".format(1, time.time()))
         df2 = df2.apply(
             lambda x: [Cfg.seperator.join(sorted(item)) for item in sfunc(x, 2)]
         )
-        logger.info("{} {}".format(2, time.time()))
+        logger.debug("{} {}".format(2, time.time()))
         total_pairs = collections.defaultdict(int)
-        logger.info("{} {}".format(3, time.time()))
+        logger.debug("{} {}".format(3, time.time()))
         for row in df2:
             for pair in row:
                 total_pairs[pair] += 1
-        logger.info("{} {}".format(4, time.time()))
+        logger.debug("{} {}".format(4, time.time()))
         total_pairs = {k: v for k, v in total_pairs.items() if v > threhold}
-        logger.info("{} {}".format(5, time.time()))
+        logger.debug("{} {}".format(5, time.time()))
         total_words = set()
         for k, v in total_pairs.items():
             total_words.update(k.split(Cfg.seperator))
-        logger.info("{} {}".format(6, time.time()))
+        logger.debug("{} {}".format(6, time.time()))
         result = pd.DataFrame(
             index=list(total_words), columns=list(total_words), dtype=np.uint8
         )
@@ -930,7 +930,7 @@ class PandasUtil:
             i, j = ss[0], ss[1]
             result.loc[i, j] = v
             result.loc[j, i] = v
-        logger.info("{} {}".format(7, time.time()))
+        logger.debug("{} {}".format(7, time.time()))
         result.fillna(0, inplace=True)
         result.reset_index(inplace=False, drop=False)
 
@@ -1043,17 +1043,17 @@ class PandasUtil:
         return pd.read_excel(fpath, sheet_name=0, engine="openpyxl", dtype=str)
 
     @staticmethod
-    def write_excel(df: pd.DataFrame, fpath: str, name: str):
+    def write_excel(df: pd.DataFrame, fpath: str, name: str, save_index: bool):
         """
 
         :param df: 数据集
         :param fpath: 保存路径
         :param name: sheet名称
-        :param index: 是否写入索引
+        :param save_index: 是否写入索引
         :return:
         """
         with pd.ExcelWriter(fpath) as writer:
-            df.to_excel(writer, sheet_name=name, index=False)
+            df.to_excel(writer, sheet_name=name, index=save_index)
 
     @staticmethod
     def write_excel_many_sheet(fpath: str, sheet_name_and_df: Dict[str, pd.DataFrame]):
