@@ -1,8 +1,0 @@
-[default]
-table_header_bgcolor = lightblue
-global_font_size = 14
-seperator = ;
-csv_seperator = ,
-precision_point = 4
-popup_startup = 
-

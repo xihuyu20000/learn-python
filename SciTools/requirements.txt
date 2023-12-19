@@ -1,6 +1,7 @@
 pytest
 pyside2
 PyQtWebEngine
+pyecharts
 numpy
 pandas
 openpyxl
