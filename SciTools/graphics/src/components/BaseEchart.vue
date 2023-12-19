@@ -1,6 +1,8 @@
 <!-- echarts组件 -->
 <template>
-  <div ref="chart1" style="width: 100%; height: 100%"></div>
+  <div id="outer-chart-box">
+    <div id="inner-chart" ref="chart1" style="width: 1px; height: 1px"></div>
+  </div>
 </template>
 
 <script setup>
@@ -8,6 +10,13 @@ import { ref, onMounted } from "vue";
 import * as echarts from "echarts";
 
 const chart1 = ref(null); // 创建dom引用
+
+const props = defineProps({
+  options: {
+    type: Object,
+    require: true,
+  },
+});
 
 // 防抖
 const throttle = function (fn, wait) {
@@ -26,23 +35,8 @@ const throttle = function (fn, wait) {
 };
 onMounted(() => {
   const myChart = echarts.init(chart1.value); // 初始化echarts实例
-  const option = {
-    xAxis: {
-      type: "category",
-      data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    },
-    yAxis: {
-      type: "value",
-    },
-    series: [
-      {
-        data: [150, 230, 224, 218, 135, 147, 260],
-        type: "line",
-      },
-    ],
-  };
 
-  myChart.setOption(option);
+  myChart.setOption(props.options);
 
   new ResizeObserver((entries) => {
     throttle(() => {
@@ -50,9 +44,13 @@ onMounted(() => {
         width: entries[0].contentRect.width,
         height: entries[0].contentRect.height,
       });
-    }, 500)();
-  }).observe(chart1.value);
+    }, 1000)();
+  }).observe(document.getElementById("outer-chart-box"));
 });
 </script>
 <style lang='scss' scoped>
+#outer-chart-box {
+  width: 100%;
+  height: 100%;
+}
 </style>
