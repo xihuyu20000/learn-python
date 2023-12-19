@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "echarts": "^5.4.3",
     "element-plus": "^2.4.4",
     "unplugin-vue-components": "^0.26.0",
     "vue": "^3.3.11",
