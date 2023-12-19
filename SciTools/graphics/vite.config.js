@@ -6,10 +6,15 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import AutoImport from "unplugin-auto-import/vite";
 
-// https://vitejs.dev/config/
+import Components from "unplugin-vue-components/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+
 export default defineConfig({
   plugins: [
     vue(),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
     AutoImport({
       imports: ["vue", "vue-router"],
     }),
