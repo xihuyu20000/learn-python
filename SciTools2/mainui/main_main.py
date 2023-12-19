@@ -16,7 +16,7 @@ from loguru import logger
 
 from mhelper import Cfg, ssignal, FileFormat
 from mainui.ui_main import Ui_MainWindow
-from popup.clean.main_cocon_stat import PopupFreqStat
+from popup.clean.main_cocon_stat import PopupCoconStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
 from popup.clean.main_copy_column import PopupCopyColumn
@@ -527,8 +527,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit("没有数据")
             return
 
-        self.popupFreqStat = PopupFreqStat(self)
-        self.popupFreqStat.show()
+        self.popupCoconStat = PopupCoconStat(self)
+        self.popupCoconStat.show()
 
     def clean_do_menu_compare_columns(self):
         logger.info("清洗，对比列")

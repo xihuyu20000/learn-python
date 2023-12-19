@@ -1,11 +1,13 @@
 pytest
 pyside2
+PyQtWebEngine
 numpy
 pandas
 openpyxl
 diskcache
 strenum
 jieba
+scikit-learn==1.3.2
 # datasketch==1.5.4
 zhon
 loguru

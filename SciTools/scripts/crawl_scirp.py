@@ -3,11 +3,11 @@
 """
 import re
 
-from core import get_html
+from mutil import Utils
 
 
 def run():
-    html = get_html(r'https://scirp.org/journal/RecentlyPublishedPapers.aspx')
+    html = Utils.get_html(r'https://scirp.org/journal/RecentlyPublishedPapers.aspx')
     root_li_list = html.xpath('//ul[@class="list-unstyled list_link"]/li')
 
     datasets = []

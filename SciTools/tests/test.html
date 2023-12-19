@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QtWebEngine Example</title>
+    <script src="../graphics/src/qwebchannel.js"></script>
+</head>
+<body>
+    <h1>QtWebEngine Example</h1>
+
+    <script>
+        var webChannel = new QWebChannel(qt.webChannelTransport, function (channel) {
+            // 从Python中的pythonObject调用showMessage函数
+            channel.objects.pythonObject.showMessage("Hello from JavaScript!");
+        });
+    </script>
+</body>
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>

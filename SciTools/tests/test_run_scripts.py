@@ -5,8 +5,6 @@ import importlib
 import multiprocessing
 import os
 
-from core import abs_path
-
 
 def test_run_scripts():
     """

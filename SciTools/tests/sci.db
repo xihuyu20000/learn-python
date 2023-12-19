@@ -1,0 +1,7 @@
+[default]
+table_header_bgcolor = lightblue
+seperator = ;
+csv_seperator = ,
+precision_point = 4
+popup_startup = 
+

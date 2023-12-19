@@ -1,0 +1,34 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>1.png</file>
+    <file>biaochaxun.png</file>
+    <file>biaodaochu.png</file>
+    <file>biaoge.png</file>
+    <file>biaomingcheng.png</file>
+    <file>bumenpaixu.png</file>
+    <file>danxuan.png</file>
+    <file>daorujieguo.png</file>
+    <file>gengduo.png</file>
+    <file>jiantou_doubledown.png</file>
+    <file>jiantou_doubleleft.png</file>
+    <file>jiantou_doubleright.png</file>
+    <file>jiantou_doubleup.png</file>
+    <file>lieziduan.png</file>
+    <file>riqi.png</file>
+    <file>shangchuan.png</file>
+    <file>shujufenxi.png</file>
+    <file>shuzi.png</file>
+    <file>tianjia.png</file>
+    <file>tianjia2.png</file>
+    <file>wenben.png</file>
+    <file>wenjianweizhi.png</file>
+    <file>xiangyoutianjia.png</file>
+    <file>xiangzuotianjia.png</file>
+    <file>xianshi.png</file>
+    <file>xiazai.png</file>
+    <file>yichu.png</file>
+    <file>yichu2.png</file>
+    <file>zhanghu.png</file>
+    <file>zhongmingming.png</file>
+  </qresource>
+</RCC>

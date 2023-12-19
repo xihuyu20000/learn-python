@@ -206,33 +206,34 @@ class CleanExportCountStatThread(QThread):
             ssignal.error.emit(msg)
 
 
-class CleanExportCoconStatThread(QThread):
-    """
-    导出共现统计文件
-    """
-
-    def __init__(self, fpath, df):
-        super(CleanExportCoconStatThread, self).__init__()
-        self.fpath = fpath
-        self.df = df
-
-    def run(self) -> None:
-        ssignal.info.emit("开始下载文件，请稍等")
-        try:
-            t1 = time.time()
-
-            CleanBiz.save_excel(self.df, self.fpath, "Sheet1", save_index=True)
-
-            t2 = time.time()
-            msg = "保存统计文件 {0}，耗时{1}秒".format(
-                self.fpath, round(t2 - t1, Cfg.precision_point)
-            )
-            ssignal.info.emit(msg)
-
-        except Exception as e:
-            logger.exception(e)
-            msg = "解析出错:{0}".format(str(e))
-            ssignal.error.emit(msg)
+# class CleanExportCoconStatThread(QThread):
+#     """
+#     导出共现统计文件
+#     """
+#
+#     def __init__(self, fpath, df, threshold):
+#         super(CleanExportCoconStatThread, self).__init__()
+#         self.fpath = fpath
+#         self.df = df
+#         self.threshold = threshold
+#
+#     def run(self) -> None:
+#         ssignal.info.emit("开始下载文件，请稍等")
+#         try:
+#             t1 = time.time()
+#
+#             CleanBiz.save_excel(self.df, self.fpath, "Sheet1", save_index=True)
+#
+#             t2 = time.time()
+#             msg = "保存统计文件 {0}，耗时{1}秒".format(
+#                 self.fpath, round(t2 - t1, Cfg.precision_point)
+#             )
+#             ssignal.info.emit(msg)
+#
+#         except Exception as e:
+#             logger.exception(e)
+#             msg = "解析出错:{0}".format(str(e))
+#             ssignal.error.emit(msg)
 
 
 class CleanReplaceValuesThread(QThread):
@@ -508,9 +509,10 @@ class CleanWordCountExportThread(QThread):
 
 
 class CleanCoconStatThread(QThread):
-    def __init__(self, df: pd.DataFrame, names: List[str], threshold: int):
+    def __init__(self, df: pd.DataFrame, fpath: str, names: List[str], threshold: int):
         super(CleanCoconStatThread, self).__init__()
         self.df = df
+        self.fpath = fpath
         self.names = names
         self.threshold = threshold
 
@@ -519,14 +521,40 @@ class CleanCoconStatThread(QThread):
         try:
             t1 = time.time()
 
-            df = CleanBiz.cocon_stat(self.df, self.names, self.threshold)
+            # 共现矩阵
+            if len(self.names) == 1:
+                df2 = PandasUtil.cocon_matrix(self.df, self.names[0], threhold=self.threshold, diagonal_values=True)
+            if len(self.names) == 2:
+                df2 = PandasUtil.heter_matrix(self.df, self.names[0], self.names[1], threshold=self.threshold)
+            assert isinstance(df2, pd.DataFrame)
+            # 相异矩阵
+            diss_matrix = PandasUtil.dissimilarity_matrix(df2.copy(deep=True))
+            assert isinstance(diss_matrix, pd.DataFrame)
+            # 余弦相似度矩阵
+            cosine_matrix = PandasUtil.cosine_similarity_matrix(df2.copy(deep=True))
+            assert isinstance(cosine_matrix, pd.DataFrame)
+            # 相关系数矩阵
+            corr_matrix = PandasUtil.correlation_matrix(df2.copy(deep=True))
+            assert isinstance(corr_matrix, pd.DataFrame)
+            # 欧式距离矩阵
+            eucli_matrix = PandasUtil.euclidean_distances_matrix(df2.copy(deep=True))
+            assert isinstance(eucli_matrix, pd.DataFrame)
+            # z-score矩阵
+            z_score_matrix = PandasUtil.z_score_matrix(df2.copy(deep=True))
+            assert isinstance(z_score_matrix, pd.DataFrame)
+            
+            PandasUtil.write_excel_many_sheet(self.fpath, {'共现矩阵': df2,
+                                                           '相异矩阵': diss_matrix,
+                                                           '余弦相似度矩阵': cosine_matrix,
+                                                           '相关系数矩阵': corr_matrix,
+                                                           '欧氏距离矩阵': eucli_matrix,
+                                                           'z-score矩阵': z_score_matrix})
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
                 self.df.shape[0], self.df.shape[1], round(t2 - t1, Cfg.precision_point)
             )
             ssignal.info.emit(msg)
-            ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)
             msg = "出错:{0}".format(str(e))

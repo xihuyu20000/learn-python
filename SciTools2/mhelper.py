@@ -14,6 +14,8 @@ from typing import List, Dict, Union, Set
 
 import jieba
 from PySide2 import QtCore
+from scipy.stats import zscore
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from log import logger
 import wmi
@@ -933,7 +935,7 @@ class PandasUtil:
         logger.debug("{} {}".format(7, time.time()))
         result.fillna(0, inplace=True)
         result.reset_index(inplace=False, drop=False)
-
+        result = result.astype(np.uint8)
         return result
 
     @staticmethod
@@ -969,6 +971,87 @@ class PandasUtil:
         result = result.drop(columns=columns_to_remove)
 
         return result
+
+    @staticmethod
+    def dissimilarity_matrix(cooccurrence_matrix):
+        """
+        相异矩阵
+        :param df:
+        :return:
+        """
+        num_rows, num_cols = cooccurrence_matrix.shape
+
+        # 计算每个词的出现次数
+        word_counts = cooccurrence_matrix.sum(axis=1)
+
+        # 计算相异矩阵
+        dissimilarity_matrix = pd.DataFrame(index=cooccurrence_matrix.index, columns=cooccurrence_matrix.columns)
+
+        for i in range(num_rows):
+            for j in range(num_cols):
+                a = cooccurrence_matrix.iloc[i, j]
+                b = word_counts.iloc[i]
+                c = word_counts.iloc[j]
+
+                ochiai_similarity = a / ((b * c) ** 0.5)
+
+                # 计算相异度
+                dissimilarity_matrix.iloc[i, j] = 1 - ochiai_similarity
+
+        dissimilarity_matrix.fillna(0, inplace=True)
+        return dissimilarity_matrix
+
+    @staticmethod
+    def cosine_similarity_matrix(df):
+        """
+        余弦相似度
+        :param df:
+        :return:
+        """
+        # 计算余弦相似度矩阵
+        cosine_sim_matrix = cosine_similarity(df)
+        logger.debug(cosine_sim_matrix)
+        # 转换成 Pandas DataFrame
+        cosine_sim_df = pd.DataFrame(cosine_sim_matrix, index=df.index,
+                                     columns=df.index)
+        # 请注意，余弦相似度的取值范围在 [-1, 1] 之间，而相异度为 [0, 2]，因此标准化的方式可以选择使用 1 - cosine_similarity。如果你希望得到一个相似度矩阵而不是相异矩阵，可以直接使用 cosine_similarity_df。
+        # 使用余弦相似度进行标准化
+        # normalized_df = 1 - cosine_sim_df
+        assert isinstance(cosine_sim_matrix, pd.DataFrame)
+        return cosine_sim_matrix
+
+    @staticmethod
+    def correlation_matrix(df):
+        """
+        相关系数计算矩阵
+        :param df:
+        :return:
+        """
+        # 计算相关系数
+        correlation_matrix = df.corr()
+        correlation_matrix.fillna('', inplace=True)
+        return correlation_matrix
+
+    @staticmethod
+    def euclidean_distances_matrix(df):
+        """
+        欧式距离
+        :param df:
+        :return:
+        """
+        # 计算欧式距离矩阵
+        euclidean_dist_matrix = euclidean_distances(df.T)
+
+        # 转换成 Pandas DataFrame
+        euclidean_dist_df = pd.DataFrame(euclidean_dist_matrix, index=df.columns,
+                                         columns=df.columns)
+        return euclidean_dist_df
+
+    @staticmethod
+    def z_score_matrix(df):
+        # 使用 Z-Score 进行标准化
+        zscore_matrix = df.apply(zscore)
+        return zscore_matrix
 
     @staticmethod
     def calc_similarity(
@@ -1082,3 +1165,14 @@ class PandasUtil:
     @staticmethod
     def write_parquet(df: pd.DataFrame, fpath: str):
         df.to_parquet(fpath)
+
+
+if __name__ == '__main__':
+    df = PandasUtil.read_csv(r'C:\Users\Administrator\Desktop\1.csv', ',')
+    df2 = PandasUtil.cocon_matrix(df, 'A1', 0)
+
+    PandasUtil.dissimilarity_matrix(df2)
+    PandasUtil.cosine_similarity_matrix(df2)
+    PandasUtil.correlation_matrix(df2)
+    PandasUtil.euclidean_distances_matrix(df2)
+    PandasUtil.z_score_matrix(df2)

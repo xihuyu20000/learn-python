@@ -1,27 +1,21 @@
-pyside6
-loguru
 pytest
-coverage
-mypy
-requests
-lxml
+pyside2
+PyQtWebEngine
+numpy
 pandas
 openpyxl
-pyecharts
-flask
-flask-sqlalchemy
-jinja2
-pyecharts
-psutil
-schedule
+diskcache
+strenum
 jieba
+scikit-learn==1.3.2
+# datasketch==1.5.4
 zhon
-annoy
-dask
-modin
-simhash
-uuid
-StrEnum
-nuitka
+loguru
+arrow
+pyinstaller
+wmi
+watchdog
 
-# pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
+requests
+lxml
+black
