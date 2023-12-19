@@ -1,8 +1,11 @@
+<template>
+  <div ref="chart1" style="width: 400px; height: 400px"></div>
+</template>
 <script setup>
 import { ref, onMounted } from "vue";
 import * as echarts from "echarts";
 
-const chart1 = ref(); // 创建dom引用
+const chart1 = ref(null); // 创建dom引用
 
 onMounted(() => {
   const myChart = echarts.init(chart1.value); // 初始化echarts实例
@@ -26,7 +29,6 @@ onMounted(() => {
 });
 </script>
 
-<template>
-   
-  <div ref="chart1" style="width: 400px; height: 400px"></div>
-</template>
+<style lang="scss" scoped>
+</style>
+
