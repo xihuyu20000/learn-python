@@ -345,8 +345,8 @@ class TableKit(QFrame):
             self,
             parent=None,
             single_select=False,
-            column_sortable=False,
-            header_horizontal_movable=False,
+            column_sortable=True,
+            header_horizontal_movable=True,
             vertical_header_hide=False,
             horizontal_header_color="#abfaa6",
     ):
@@ -683,9 +683,9 @@ class PandasStack:
 #     def addWidgets(self, widgets):
 #         for wid in widgets:
 #             self.layout.addWidget(wid)
-class ScrollWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super(ScrollWidget, self).__init__()
+class ScrollWidget(QtWidgets.QFrame):
+    def __init__(self, parent=None):
+        super(ScrollWidget, self).__init__(parent)
 
         # 创建一个 QWidget 作为外部容器
         container = QWidget(self)

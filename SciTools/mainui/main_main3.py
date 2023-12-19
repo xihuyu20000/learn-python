@@ -6,16 +6,17 @@
 方法的logger下面，必须空一行
 """
 import os.path
+import sys
 from typing import List
 
 import pandas as pd
 from PySide2 import QtCore
 from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar, QToolButton
+from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar, QToolButton, QApplication, QLabel, QPushButton
 from loguru import logger
 
 from mutil import Cfg, ssignal, FileFormat
-from mainui.ui_main import Ui_MainWindow
+from mainui.ui_main3 import Ui_MainWindow
 from popup.clean.main_cocon_stat import PopupCoconStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
@@ -38,7 +39,7 @@ from mrunner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
-from mtoolkit import PandasStack, TableKit, ScrollWidget
+from mtoolkit import PandasStack, TableKit
 
 
 class MasterWindows(QMainWindow, Ui_MainWindow):
@@ -65,11 +66,10 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         ## 3、清洗部分初始化 #####################################################
 
-
+        # clean 工具栏
         # clean 数据栈
         self.cleanTableStack = PandasStack(self)
 
-        # clean 数据表
 
         # clean 菜单栏、工具栏
         self.clean_init_menubar()
@@ -99,7 +99,6 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         self.master_action_datafiles_list()
         self.master_show_info("欢迎使用本软件，祝您有愉快的一天")
-
 
 
     def master_init_action(self) -> None:
@@ -286,6 +285,9 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         槽函数，必须是clean_do_menu_开头
         :return:
         """
+        # 解析
+        self.menu_clean_parse.triggered.connect(self.master_action_datafiles_parse)
+        self.clean_toolbar.addAction(self.menu_clean_parse, self.master_action_datafiles_parse)
 
         # 撤回
         self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
@@ -643,3 +645,5 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
     #######################################################################
 
     #######################################################################
+
+

@@ -2,7 +2,7 @@ import sys
 
 from PySide2.QtWidgets import QApplication
 
-from mainui.main_main import MasterWindows
+from mainui.main_main3 import MasterWindows
 from mutil import Cfg
 
 if __name__ == "__main__":
