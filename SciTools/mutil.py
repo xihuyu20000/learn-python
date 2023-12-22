@@ -26,7 +26,11 @@ from zhon.hanzi import punctuation
 
 from log import logger
 
-
+abs_path = (
+    os.path.expanduser("~")
+    if getattr(sys, "frozen", False)
+    else os.path.abspath(os.curdir)
+)
 class MySignal(QtCore.QObject):
     info = QtCore.Signal(str)
     error = QtCore.Signal(str)
@@ -34,6 +38,7 @@ class MySignal(QtCore.QObject):
     datafiles_changing = QtCore.Signal()
     reset_cache = QtCore.Signal()
     push_cache = QtCore.Signal(object)
+
 
 
 ssignal = MySignal()
@@ -52,16 +57,11 @@ class CfgHandler(object):
     combinewords_abs_path = os.path.join(dicts, combinewords_file)
     controlledwords_abs_path = os.path.join(dicts, controlledwords_file)
 
-    _abs_path = (
-        os.path.expanduser("~")
-        if getattr(sys, "frozen", False)
-        else os.path.abspath(os.curdir)
-    )
 
     def __init__(self):
         self.default = "default"
 
-        self.db = os.path.join(CfgHandler._abs_path, "clean.db")
+        self.db = os.path.join(abs_path, "clean.db")
 
         self.__init("table_header_bgcolor", "lightblue")
         # 全局字体大小
@@ -742,13 +742,16 @@ class Utils:
         return "#" + red + green + blue
 
     @staticmethod
-    def replace(line, words_dict):
+    def replace(line, words_dict:Dict[str, str]):
         """
         假设line是'aa;bb;cc;dd'，words_dict是{'aa':1,'cc':2}，返回值是1;bb;2;dd
         :param line:
         :param words_dict:
         :return:
         """
+        assert isinstance(line, str)
+        assert isinstance(words_dict, dict)
+
         keys = words_dict.keys()
         words = [
             str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator)

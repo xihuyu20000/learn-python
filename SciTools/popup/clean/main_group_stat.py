@@ -1,9 +1,8 @@
 import sys
-from log import logger
-from PySide2 import QtCore
+
 from PySide2.QtCore import Qt, QMimeData
-from PySide2.QtGui import QDrag, QIcon, QPixmap
-from PySide2.QtWidgets import QDialog, QApplication, QHBoxLayout, QToolButton, QWidget, QLabel, QComboBox, QSizePolicy, \
+from PySide2.QtGui import QDrag, QIcon
+from PySide2.QtWidgets import QDialog, QApplication, QHBoxLayout, QToolButton, QWidget, QComboBox, QSizePolicy, \
     QSpacerItem
 
 from mutil import Cfg

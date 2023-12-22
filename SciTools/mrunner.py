@@ -8,17 +8,19 @@ import time
 from typing import List, Set
 
 import pandas as pd
-import watchdog
 from PySide2 import QtCore
 
 from PySide2.QtCore import QThread
+from PySide2.QtGui import QDesktopServices
 
 from pandas import DataFrame
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from mbiz import Parser, CleanBiz
-from mutil import FileFormat, ssignal, Utils, Cfg, PandasUtil, DictReader
+from core import CleanBiz
+from core.clean import AnalyzeBiz, Parser
+from mgraph import GraphData, Draw
+from mutil import FileFormat, ssignal, Cfg, PandasUtil, DictReader
 from log import logger
 
 
@@ -66,26 +68,7 @@ class CleanParseFileThread(QThread):
         try:
             t1 = time.time()
 
-            if self.format == FileFormat.CNKI:
-                df = Parser.parse_cnki(self.filenames)
-            elif self.format == FileFormat.CNKI_PATENT:
-                df = Parser.parse_cnki_patent(self.filenames)
-            elif self.format == FileFormat.WEIPU:
-                df = Parser.parse_weipu(self.filenames)
-            elif self.format == FileFormat.WANFANG:
-                df = Parser.parse_wanfang(self.filenames)
-            elif self.format == FileFormat.WOS:
-                df = Parser.parse_wos(self.filenames)
-            elif self.format == FileFormat.CSV:
-                df = Parser.parse_csv(self.filenames, self.sep)
-            elif self.format == FileFormat.EXCEL:
-                df = Parser.parse_excel(self.filenames)
-            elif self.format == FileFormat.PICKLE:
-                df = Parser.parse_pickle(self.filenames)
-            elif self.format == FileFormat.PARQUET:
-                df = Parser.parse_pickle(self.filenames)
-            else:
-                raise Exception("没有处理的数据类型" + self.format)
+            df = Parser.parse(self.format, self.filenames)
 
             t2 = time.time()
 
@@ -192,7 +175,7 @@ class CleanExportCountStatThread(QThread):
             t1 = time.time()
 
             for i, name in enumerate(self.names):
-                CleanBiz.save_excel(self.df_list[i], self.fpath, self.names[i], save_index=False)
+                PandasUtil.write_excel(self.df_list[i], self.fpath, self.names[i], save_index=False)
 
             t2 = time.time()
             msg = "保存词频统计文件 {0}，耗时{1}秒".format(
@@ -251,7 +234,7 @@ class CleanReplaceValuesThread(QThread):
         try:
             t1 = time.time()
 
-            CleanBiz.save_excel(self.df, self.fpath, "0", save_index=False)
+            PandasUtil.write_excel(self.df, self.fpath, "0", save_index=False)
 
             t2 = time.time()
             msg = "保存统计文件 {0}，耗时{1}秒".format(
@@ -637,6 +620,57 @@ class CleanSplitWordsThread(QThread):
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
+
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
+import collections
+class CleanDrawGraphThread(QThread):
+    ConfigTuple = collections.namedtuple('ConfigTuple', ['chart_style','xlabel','ylabel','stat_threshold', 'orderby','canvas_width','canvas_height'])
+    def __init__(self, df: pd.DataFrame, configTuple: ConfigTuple):
+        super(CleanDrawGraphThread, self).__init__()
+        self.df = df
+        self.config = configTuple
+
+    def run(self) -> None:
+        ssignal.info.emit("正在画图，请稍等")
+        try:
+            t1 = time.time()
+
+            data = GraphData()
+            data.chart_style = self.config.chart_style
+            stat_result = None
+
+            if len(self.config.ylabel) == 0:
+                stat_result = AnalyzeBiz.count(self.df, by=self.config.xlabel)
+            else:
+                stat_result = AnalyzeBiz.count_by(self.df, stat_column=self.config.ylabel, by=self.config.xlabel)
+
+            # 过滤阈值
+            stat_result = stat_result[stat_result['Count'] >= self.config.stat_threshold].reset_index(
+                drop=True)
+
+            # 结果排序
+            if '升' in self.config.orderby:
+                stat_result.sort_values('Count', ascending=True, inplace=True)
+            elif '降' in self.config.orderby:
+                stat_result.sort_values('Count', ascending=False, inplace=True)
+
+            data.xaxis = stat_result.loc[:, self.config.xlabel].tolist()
+            data.yaxis = stat_result.loc[:, 'Count'].tolist()
+
+            data.canvas_width = self.config.canvas_width
+            data.canvas_height = self.config.canvas_height
+
+            logger.info(data)
+
+            t2 = time.time()
+            ssignal.info.emit('开始图表数据，耗时{0}秒'.format(round(t2 - t1, Cfg.precision_point)))
+
+            draw = Draw()
+            local_file = draw.draw(data)
+            QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(local_file))
 
         except Exception as e:
             logger.exception(e)

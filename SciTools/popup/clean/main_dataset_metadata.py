@@ -1,12 +1,9 @@
-from collections import Counter
-from typing import Tuple
 
-import pandas as pd
-from PySide2.QtWidgets import QDialog, QLabel, QWidget
+from PySide2.QtWidgets import QDialog
 
-from log import logger
+
 from popup.clean.uipy import ui_dataset_metadata
-from mutil import Cfg, ssignal
+
 from mrunner import CleanMetadataThread
 from mtoolkit import PandasTableModel, TableKit, FrameKit
 

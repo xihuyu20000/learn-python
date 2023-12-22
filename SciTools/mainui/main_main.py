@@ -10,21 +10,21 @@ from typing import List
 
 import pandas as pd
 from PySide2 import QtCore
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar, QToolButton
+from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar
 from loguru import logger
 
+from mgraph import Draw, GraphData
 from mutil import Cfg, ssignal, FileFormat
 from mainui.ui_main import Ui_MainWindow
 from popup.clean.main_cocon_stat import PopupCoconStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
 from popup.clean.main_copy_column import PopupCopyColumn
+from popup.clean.main_graph_config import PopupGraphConfig
 from popup.clean.main_split_words import PopupSplitWords
 from popup.clean.main_vertical_concat import PopupVerticalConcat
 from popup.clean.main_wordcount_stat import PopupWordCountStat
 from popup.clean.main_dataset_metadata import PopupCleanMetadata
-from popup.clean.main_group_stat import WinGroupStat, PopupCleanGroupStat
 from popup.clean.main_modify_values import PopupModifyValues
 from popup.clean.main_parse_datafiles import PopupDatafilesParse
 from popup.clean.main_rename_column import PopupCleanRename
@@ -38,7 +38,7 @@ from mrunner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
-from mtoolkit import PandasStack, TableKit, ScrollWidget
+from mtoolkit import PandasStack, TableKit
 
 
 class MasterWindows(QMainWindow, Ui_MainWindow):
@@ -69,12 +69,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         # clean 数据栈
         self.cleanTableStack = PandasStack(self)
 
-        # clean 数据表
-
         # clean 菜单栏、工具栏
+        self.menuBar().hide()
         self.clean_init_menubar()
 
-        ## 4、 可视化部分初始化 ###################################################
+        ## 4、 数据分析部分初始化 ###################################################
 
         # library 工具栏
         self.library_toolbar = QToolBar()
@@ -93,7 +92,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.library_init_menubar()
         self.library_init_toolbar()
 
-        ## 5、  数据初始化 ######################################################################
+        ## 5、  图表部分初始化 ######################################################################
+        self.graph_data = GraphData()
+
+
+        ## 6、  数据初始化 ######################################################################
         self.watchDataFilesChangingThread = WatchDataFilesChaningThread()
         self.watchDataFilesChangingThread.start()
 
@@ -133,6 +136,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.config_combine_words_dict.setText(Cfg.combinewords_abs_path)
         self.config_controlled_words_dict.setText(Cfg.controlledwords_abs_path)
 
+
+
     def master_show_info(self, val) -> None:
         """
         状态栏，显示信息
@@ -140,11 +145,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         :return:
         """
         self.statusBar().setStyleSheet("color: blue;font-weight: bold;")
-        self.statusBar().showMessage(val, 10000)
+        self.statusBar().showMessage(val, 30000)
 
     def master_show_error(self, val) -> None:
         self.statusBar().setStyleSheet("color: red;font-weight: bold;")
-        self.statusBar().showMessage(val, 10000)
+        self.statusBar().showMessage(val, 30000)
 
     def master_get_clean_df(self) -> pd.DataFrame:
         return self.clean_datatable.get_dataset()
@@ -204,9 +209,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         self.datafiles_list.clear()
         self.datafiles_list.addItems(fnames)
-        self.datafiles_list.setCurrentRow(0)
 
-        # ssignal.info.emit(f'加载{len(fnames)}个数据文件')
+
 
     def master_action_datafiles_parse(self):
         logger.info("数据文件列表按钮，解析数据文件")
@@ -286,6 +290,9 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         槽函数，必须是clean_do_menu_开头
         :return:
         """
+        # 解析
+        self.menu_clean_parse.triggered.connect(self.master_action_datafiles_parse)
+        self.clean_toolbar.addAction(self.menu_clean_parse, self.master_action_datafiles_parse)
 
         # 撤回
         self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
@@ -310,6 +317,10 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         # 元数据
         self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
         self.clean_toolbar.addAction(self.menu_clean_metadata, self.clean_do_menu_metadata)
+
+        # 图表配置
+        self.menu_clean_graph_config.triggered.connect(self.clean_do_menu_graph_config)
+        self.clean_toolbar.addAction(self.menu_clean_graph_config, self.clean_do_menu_graph_config)
 
         # 重命名
         self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
@@ -369,15 +380,15 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         # 分组统计
         self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
-        self.clean_toolbar.addAction(self.menu_group_stat, self.clean_do_menu_group_stat)
+        # self.clean_toolbar.addAction(self.menu_group_stat, self.clean_do_menu_group_stat)
 
         # 过滤值
         self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
-        self.clean_toolbar.addAction(self.menu_clean_filter, self.clean_do_menu_clean_filter)
+        # self.clean_toolbar.addAction(self.menu_clean_filter, self.clean_do_menu_clean_filter)
 
         # 补全值
         self.menu_clean_makeup.triggered.connect(self.clean_do_menu_clean_makeup)
-        self.clean_toolbar.addAction(self.menu_clean_makeup, self.clean_do_menu_clean_makeup)
+        # self.clean_toolbar.addAction(self.menu_clean_makeup, self.clean_do_menu_clean_makeup)
 
     #######################################################################
 
@@ -414,6 +425,16 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         self.popupCleanMetadata = PopupCleanMetadata(self)
         self.popupCleanMetadata.show()
+
+    def clean_do_menu_graph_config(self):
+        logger.info("清洗，图表配置")
+
+        if self.master_clean_no_data():
+            ssignal.error.emit("没有数据")
+            return
+
+        self.popSizeDistance = PopupGraphConfig(self)
+        self.popSizeDistance.show()
 
     def clean_do_menu_save(self):
         logger.info("清洗，保存")
@@ -640,6 +661,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
     #######################################################################
 
+    def graph_set_graphdata(self, data:GraphData):
+        self.graph_data = data
     #######################################################################
 
     #######################################################################

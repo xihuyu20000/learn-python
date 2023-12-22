@@ -1,7 +1,7 @@
 pytest
 pyside2
-PyQtWebEngine
 pyecharts
+d3blocks
 numpy
 pandas
 openpyxl

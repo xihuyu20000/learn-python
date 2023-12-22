@@ -1,12 +1,7 @@
-import sys
-import time
-import traceback
-from log import logger
-import numpy as np
-import pandas as pd
+
 from PySide2.QtWidgets import QDialog, QFileDialog
 
-from mutil import ssignal, PandasUtil, Cfg
+from mutil import ssignal, Cfg
 from popup.clean.uipy import ui_cocon_stat
 from mrunner import CleanCoconStatThread
 

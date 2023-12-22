@@ -1,17 +1,11 @@
-import collections
-import re
-import time
-from typing import List, Set, Dict
 
-import numpy as np
-import pandas as pd
 from PySide2.QtWidgets import QDialog
 from log import logger
 
-from mutil import Utils, ssignal, PandasUtil
+from mutil import ssignal
 from mrunner import CleanRowSimilarityThread
 from popup.clean.uipy import ui_similarity_row
-from mtoolkit import PandasTableModel
+
 
 
 class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):

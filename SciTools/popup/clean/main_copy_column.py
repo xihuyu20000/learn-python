@@ -1,8 +1,8 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-from log import logger
-from mutil import Utils, ssignal
+
+from mutil import ssignal
 from mrunner import CleanCopyColumnThread
 from popup.clean.uipy import ui_copy_column
 

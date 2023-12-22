@@ -1,10 +1,9 @@
 import os.path
-import time
 
 from PySide2.QtWidgets import QDialog, QFileDialog
 from log import logger
 
-from mutil import Cfg, Utils, ssignal
+from mutil import Cfg, ssignal
 from mrunner import CleanStopWordsThread
 from popup.clean.uipy import ui_stop_words
 

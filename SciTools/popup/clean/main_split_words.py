@@ -1,9 +1,8 @@
-import time
 
 from PySide2.QtWidgets import QDialog
-from log import logger
-from mutil import Utils, ssignal
-from mrunner import CleanCopyColumnThread, CleanSplitWordsThread
+
+from mutil import ssignal
+from mrunner import CleanSplitWordsThread
 from popup.clean.uipy import ui_split_words
 
 

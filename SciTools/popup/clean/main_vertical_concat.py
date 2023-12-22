@@ -1,8 +1,7 @@
 from PySide2.QtWidgets import QDialog
 from log import logger
-from mutil import ssignal
 from mrunner import CleanVerticalConcatThread
-from popup.clean.uipy import ui_modify_value, ui_vertical_concat
+from popup.clean.uipy import ui_vertical_concat
 
 
 class PopupVerticalConcat(QDialog, ui_vertical_concat.Ui_Form):

@@ -1,10 +1,8 @@
 import re
-import time
-from typing import List
-from log import logger
+
 from PySide2.QtWidgets import QDialog
 
-from mutil import Utils, ssignal
+from mutil import ssignal
 from mrunner import CleanSplitColumnThread
 from popup.clean.uipy import ui_split_column
 
