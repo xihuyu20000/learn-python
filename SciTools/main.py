@@ -3,8 +3,7 @@ import sys
 
 from PySide2.QtWidgets import QApplication
 
-from mainui.main_main import MasterWindows
-from core.util.mutil import cfg
+from uimain.main_main import MasterWindows
 
 
 @atexit.register
@@ -14,11 +13,6 @@ def exit_app():
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)  # 创建GUI
-
-    font = app.font()
-    font.setPointSize(int(cfg.global_font_size.value))
-    # font.setFamily("Microsoft YaHei")
-    app.setFont(font)
 
     ui = MasterWindows()  # 创建PyQt设计的窗体对象
     ui.show()  # 显示窗体

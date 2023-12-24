@@ -1,0 +1,15 @@
+{
+    "workspace": "",
+    "datafiles": "",
+    "dicts": "",
+    "stop_words": "D:\\workspace\\github\\learn-python\\SciTools\\dicts\\停用词表.txt",
+    "combine_words": "D:\\workspace\\github\\learn-python\\SciTools\\dicts\\合并词表.txt",
+    "controlled_words": "D:\\workspace\\github\\learn-python\\SciTools\\dicts\\受控词表.txt",
+    "group_words": "",
+    "table_header_bgcolor": "",
+    "global_font_size": "10",
+    "seperator": "",
+    "csv_seperator": ",",
+    "precision_point": "",
+    "popup_startup": ""
+}

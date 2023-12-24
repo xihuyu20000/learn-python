@@ -36,20 +36,30 @@ class FieldStyle:
             Field('作者', 'author'),
             Field('出版年', 'pubyear'),
             Field('关键字', 'keywords'),
-            Field('标题', 'title')
+            Field('标题', 'title'),
+            Field('摘要', 'abstract'),
         ]
 
 
 class NormStyle:
+    """
+    归一化的方法
+    """
     ochiia = 'ochiia'
 
 
 class HierachyClusterStyle:
+    """
+    层次聚类的参数
+    """
     average = 'average'
     ward = 'ward'
 
 
 class DistanceStyle:
+    """
+    聚类计算方法
+    """
     correlation = 'correlation'
     euclidean = 'euclidean'
     cosine = 'cosine'

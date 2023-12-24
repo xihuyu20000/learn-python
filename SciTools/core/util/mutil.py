@@ -23,7 +23,7 @@ from scipy.stats import zscore
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from zhon.hanzi import punctuation
 
-from core.const import cfg
+from core.const import Config
 from core.log import logger
 
 
@@ -173,9 +173,9 @@ class Utils:
 
         keys = words_dict.keys()
         words = [
-            str(words_dict[w]) if w in keys else w for w in line.split(cfg.seperator.value)
+            str(words_dict[w]) if w in keys else w for w in line.split(Config.seperator.value)
         ]
-        return cfg.seperator.value.join(words)
+        return Config.seperator.value.join(words)
 
     @staticmethod
     def replace2(line, words_set: Union[List[str], Set[str]]):
@@ -185,7 +185,7 @@ class Utils:
         :param words_set:
         :return:
         """
-        words = [w for w in line.split(cfg.seperator.value) if w not in words_set]
+        words = [w for w in line.split(Config.seperator.value) if w not in words_set]
         return ";".join(words)
 
     @staticmethod
@@ -210,12 +210,12 @@ class Utils:
     @staticmethod
     def reserve_chars(other_char, line: str):
         rr = []
-        for word in line.split(cfg.seperator.value):
+        for word in line.split(Config.seperator.value):
             if other_char in word:
                 rr.append(other_char)
             else:
                 rr.append(word)
-        return cfg.seperator.value.join(rr)
+        return Config.seperator.value.join(rr)
 
     @staticmethod
     def has_Chinese_or_punctuation(ws):
@@ -229,7 +229,7 @@ class Utils:
         :return:
         """
         # 先合并
-        joined = cfg.seperator.value.join([row[col] for col in col_names])
+        joined = Config.seperator.value.join([row[col] for col in col_names])
         # 再分割
         values = [item.strip() for item in re.split(r"\s+|;", joined) if item.strip()]
         return set(values)
@@ -403,7 +403,7 @@ class PandasUtil:
         :param threhold:
         :return:
         """
-        df2 = df[col_name].str.split(cfg.seperator.value)
+        df2 = df[col_name].str.split(Config.seperator.value)
         # 根据对角线是否有值，决定使用哪个函数
         sfunc = (
             itertools.combinations_with_replacement
@@ -412,7 +412,7 @@ class PandasUtil:
         )
         logger.debug("{} {}".format(1, arrow.now()))
         df2 = df2.apply(
-            lambda x: [cfg.seperator.value.join(sorted(item)) for item in sfunc(x, 2)]
+            lambda x: [Config.seperator.value.join(sorted(item)) for item in sfunc(x, 2)]
         )
         logger.debug("{} {}".format(2, arrow.now()))
         total_pairs = collections.defaultdict(int)
@@ -425,13 +425,13 @@ class PandasUtil:
         logger.debug("{} {}".format(5, arrow.now()))
         total_words = set()
         for k, v in total_pairs.items():
-            total_words.update(k.split(cfg.seperator.value))
+            total_words.update(k.split(Config.seperator.value))
         logger.debug("{} {}".format(6, arrow.now()))
         result = pd.DataFrame(
             index=list(total_words), columns=list(total_words), dtype=np.uint8
         )
         for k, v in total_pairs.items():
-            ss = k.split(cfg.seperator.value)
+            ss = k.split(Config.seperator.value)
             i, j = ss[0], ss[1]
             result.loc[i, j] = v
             result.loc[j, i] = v
@@ -444,25 +444,25 @@ class PandasUtil:
     @staticmethod
     def heter_matrix(df, col_name1, col_name2, threshold):
         df.fillna("", inplace=True)
-        df1 = df[col_name1].str.split(cfg.seperator.value)
-        df2 = df[col_name2].str.split(cfg.seperator.value)
+        df1 = df[col_name1].str.split(Config.seperator.value)
+        df2 = df[col_name2].str.split(Config.seperator.value)
 
         pair_dict = collections.defaultdict(int)
         for i in range(len(df1)):
             for arr in itertools.product(df1[i], df2[i]):
-                pair_dict[cfg.seperator.value.join(arr)] += 1
+                pair_dict[Config.seperator.value.join(arr)] += 1
 
         columns = set()
         index = set()
         for item, v in pair_dict.items():
-            arr = str(item).split(cfg.seperator.value)
+            arr = str(item).split(Config.seperator.value)
             index.add(arr[0])
             columns.add(arr[1])
 
         result = pd.DataFrame(columns=list(columns), index=list(index), dtype=np.uint8)
 
         for item, v in pair_dict.items():
-            arr = str(item).split(cfg.seperator.value)
+            arr = str(item).split(Config.seperator.value)
             result.loc[arr[0], arr[1]] = v
         result = result.fillna(0).astype(np.uint8)
 

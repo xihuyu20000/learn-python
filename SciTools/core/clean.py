@@ -13,18 +13,19 @@ import arrow
 import jieba
 import numpy as np
 import pandas as pd
+from jieba.analyse import extract_tags
 
 from core.const import FileFormat
 from core.log import logger
 from core.util.mutil import Utils, PandasUtil
-from core.const import cfg
+from core.const import Config
 
 class Parser:
     """
     专门用于解析文件
     """
     @staticmethod
-    def parse(filestyle: str, filelist: Union[str, List[str]], csv_seperator: str = cfg.csv_seperator):
+    def parse(filestyle: str, filelist: Union[str, List[str]], csv_seperator: str = Config.csv_seperator.value):
         """
         统一对外的接口
         """
@@ -365,7 +366,7 @@ class Parser:
         many_times = ['AU', 'AF', 'SO', 'SP', 'C1', 'C3', 'EM', 'CR']
         for record in ds:
             for k, v in record.items():
-                separator = cfg.seperator.value if k in many_times else ' '
+                separator = Config.seperator.value if k in many_times else ' '
                 record[k] = separator.join(record[k])
 
         df = pd.DataFrame(ds, dtype='object')
@@ -375,12 +376,12 @@ class Parser:
         return df
 
     @staticmethod
-    def parse_csv(filelist: Union[str, List[str]], seperator: str = cfg.csv_seperator.value) -> pd.DataFrame:
+    def parse_csv(filelist: Union[str, List[str]], seperator: str = Config.csv_seperator.value) -> pd.DataFrame:
         ds = []
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        for fname in [os.path.join(cfg.datafiles.value, fname) for fname in filelist]:
+        for fname in [os.path.join(Config.datafiles.value, fname) for fname in filelist]:
             df = PandasUtil.read_csv(fname, sep=seperator)
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
@@ -394,7 +395,7 @@ class Parser:
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        for fname in [os.path.join(cfg.datafiles.value, fname) for fname in filelist]:
+        for fname in [os.path.join(Config.datafiles.value, fname) for fname in filelist]:
             df = PandasUtil.read_excel(fname)
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
@@ -409,7 +410,7 @@ class Parser:
             filelist = [filelist]
 
         for fname in filelist:
-            df = PandasUtil.read_pickle(os.path.join(cfg.datafiles.value, fname))
+            df = PandasUtil.read_pickle(os.path.join(Config.datafiles.value, fname))
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
         df.fillna("", inplace=True)
@@ -443,7 +444,7 @@ class CleanBiz:
         for col_name in df.columns.tolist():
             time1 = time.time()
             logger.debug(arrow.now())
-            tmp = [np.array(val.split(cfg.seperator.value)) for val in df[col_name].tolist()]
+            tmp = [np.array(val.split(Config.seperator.value)) for val in df[col_name].tolist()]
             tmp = np.concatenate(tmp)
             logger.debug(arrow.now())
             # 单词计数
@@ -536,6 +537,34 @@ class CleanBiz:
         df = df[old_names]
 
         return df
+
+    @staticmethod
+    def extract_features(df: pd.DataFrame, names: Union[str, List[str]]):
+        """
+        提取特征词
+        :param df:
+        :param names:
+        """
+        if isinstance(names, str):
+            names = [names]
+
+        df['特征词'] = df.loc[:, names].apply(lambda row:CleanBiz.__concat_extract_features(row, names), axis=1)
+
+        return df
+
+    @staticmethod
+    def __concat_extract_features(row, names):
+        # 多列数据合并到一起
+        s1 = ' '.join([row[col_name] for col_name in names])
+        # 词性标注
+        words = ' '.join(
+            [word for word, flag in jieba.posseg.cut(s1) if flag in ('Ng', 'n', 'nr', 'nt', 'ns', 'nz', 'v')])
+        # 特征提取
+        words = [word for word, weight in extract_tags(words, 5, withWeight=True)]
+        # 合并
+        result =Config.seperator.value.join(words)
+        return  result
+
 
     @staticmethod
     def repalce_values1(df: pd.DataFrame, names: Union[str, List[str]], old_sep: str, new_sep: str, is_new: bool):
@@ -682,10 +711,10 @@ class CleanBiz:
         :return:
         """
         stop_words = []
-        with open(cfg.stopwords.value, encoding="utf-8") as f:
+        with open(Config.stop_words.value, encoding="utf-8") as f:
             stop_words = [line.strip() for line in f.readlines() if line.strip()]
 
-        jieba.load_userdict(cfg.controlledwords.value)
+        jieba.load_userdict(Config.controlled_words.value)
         jieba.initialize()
 
         new_names = []
@@ -708,7 +737,7 @@ class CleanBiz:
         :return:
         """
         # 使用str.split进行拆分，并使用explode展开多列，每个单词是一列
-        df_split = df[col_name].str.split(cfg.seperator.value, expand=True)
+        df_split = df[col_name].str.split(Config.seperator.value, expand=True)
         # 然后使用stack把列转为行
         df_stacked = df_split.stack()
         # 使用value_counts进行统计
@@ -840,14 +869,16 @@ class AnalyzeBiz:
     @staticmethod
     def count(df: pd.DataFrame, by: str) -> Dict[str, int]:
         """
+        针对某一列的值，进行词频统计
         :param df:
         :param by: 一个分组字段
         """
+        assert isinstance(by, str)
 
-        df2 = df[by].str.split(cfg.seperator.value, expand=True).stack().reset_index(drop=True)
-        df2 = df2.rename(by).to_frame()
-        df2 = df2.groupby(by).size().reset_index(name='Count')
-        count_result = df2.drop(df2[df2[by].str.len() == 0].index)
+        tmp = df[by].str.split(Config.seperator.value, expand=True).stack().reset_index(drop=True)
+        tmp = tmp.rename(by).to_frame()
+        tmp = tmp.groupby(by).size().reset_index(name='Count')
+        count_result = tmp.drop(tmp[tmp[by].str.len() == 0].index)
         return count_result
 
     @staticmethod
@@ -859,11 +890,13 @@ class AnalyzeBiz:
         """
         assert isinstance(stat_column, str)
         assert isinstance(by, str)
+
         for i, row in df.iterrows():
             row[by]
+
         df = df.loc[:, [stat_column, by]]
 
-        splited = df[stat_column].str.split(cfg.seperator.value, expand=True)
+        splited = df[stat_column].str.split(Config.seperator.value, expand=True)
         df2 = splited.stack().reset_index(level=1, drop=True)
         df2 = df2.rename(stat_column).to_frame()
         df2 = df2.join(df[by])
@@ -872,7 +905,6 @@ class AnalyzeBiz:
 
         return result
 
-import dask.bag as db
 if __name__ == '__main__':
     # 显示所有列
     pd.set_option('display.max_columns', None)
@@ -892,9 +924,7 @@ if __name__ == '__main__':
 
         # tmp = df[col_name].apply(lambda x: x.split(cfg.seperator))
         # 定义一个函数来对每个元素进行逗号分割
-        final_result = db.from_sequence(df[col_name].tolist()).compute()
-        print(final_result)
-        logger.debug(arrow.now())
+
         # 单词计数
         # counter = collections.Counter(word for arr in final_result for word in arr)
         # # 转成二维数组

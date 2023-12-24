@@ -17,62 +17,76 @@ CfgItem = collections.namedtuple('CfgItem', ['label', 'key', 'value'])
 
 class CfgHandler:
     def __init__(self):
-        self.cfg_save_path = os.path.join(abs_path, "clean.db")
+        # 配置文件路径
+        self.cfg_save_path = os.path.join(abs_path, "cfg.db")
+        # 配置字典
         self.load_dict: Dict[str, str] = collections.defaultdict(str)
         try:
-            with open(self.cfg_save_path, encoding="utf-8") as load_f:
-                dataform = str(load_f.read()).strip("'<>() ").replace('\'', '\"')
-                self.load_dict.update(json.loads(dataform))
-                logger.debug(self.load_dict)
+            # cfg.db文件存在，则读取内容
+            if os.path.exists(self.cfg_save_path):
+                with open(self.cfg_save_path, encoding="utf-8") as load_f:
+                    dataform = str(load_f.read()).strip("'<>() ").replace('\'', '\"')
+                    self.load_dict.update(json.loads(dataform))
+                    logger.debug(self.load_dict)
         except Exception as e:
             logger.exception(e)
 
         # 工作空间文件夹
         self.workspace = CfgItem(label='workspace', key='workspace', value=os.path.abspath(os.curdir))
+        self.__init_value(self.workspace)
 
         # 数据文件文件夹
         self.datafiles = CfgItem(label='datafiles', key='datafiles',
                                  value=os.path.join(self.workspace.value, "datafiles"))
+        self.__init_value(self.datafiles)
 
         # 词典文件夹
         self.dicts = CfgItem(label='dicts', key='dicts', value=os.path.join(self.workspace.value, "dicts"))
+        self.__init_value(self.dicts)
+
         ####################################################################################################
+
         # 停用词表
-        self.stop_words = CfgItem(label="停用词表", key='stopwords',
+        self.stop_words = CfgItem(label="停用词表", key='stop_words',
                                   value=os.path.join(self.dicts.value, "停用词表.txt"))
-        self.stop_words = self.stop_words._replace(value=self.load_dict[self.stop_words.key])
+        self.__init_value(self.stop_words)
+
         # 合并词表
-        self.combine_words = CfgItem(label="合并词表", key='combinewords',
+        self.combine_words = CfgItem(label="合并词表", key='combine_words',
                                      value=os.path.join(self.dicts.value, "合并词表.txt"))
-        self.combine_words = self.combine_words._replace(value=self.load_dict[self.combine_words.key])
+        self.__init_value(self.combine_words)
+
         # 受控词表
-        self.controlled_words = CfgItem(label="受控词表", key='controlledwords',
+        self.controlled_words = CfgItem(label="受控词表", key='controlled_words',
                                         value=os.path.join(self.dicts.value, "受控词表.txt"))
-        self.controlled_words = self.controlled_words._replace(value=self.load_dict[self.controlled_words.key])
+        self.__init_value(self.controlled_words)
+
         # 分组词表
-        self.group_words = CfgItem(label="分组词表", key='stopwords',
+        self.group_words = CfgItem(label="分组词表", key='group_words',
                                    value=os.path.join(self.dicts.value, "分组词表.txt"))
-        self.group_words = self.group_words._replace(value=self.load_dict[self.group_words.key])
+        self.__init_value(self.group_words)
+
         ####################################################################################################
+
         # 表头颜色
         self.table_header_bgcolor = CfgItem(label='table_header_bgcolor', key='table_header_bgcolor', value='lightblue')
-        self.table_header_bgcolor = self.table_header_bgcolor._replace(
-            value=self.load_dict[self.table_header_bgcolor.key])
-        # 全局字体大小
-        self.global_font_size = CfgItem(label='global_font_size', key='global_font_size', value='12')
-        self.global_font_size = self.global_font_size._replace(value=self.load_dict[self.global_font_size.key])
+        self.__init_value(self.table_header_bgcolor)
+
         # 文件默认的分隔符
         self.seperator = CfgItem(label='seperator', key='seperator', value=';')
-        self.seperator = self.seperator._replace(value=self.load_dict[self.seperator.key])
+        self.__init_value(self.seperator)
+
         # 读取csv文件时，的分隔符
         self.csv_seperator = CfgItem(label='csv_seperator', key='csv_seperator', value=',')
-        self.csv_seperator = self.csv_seperator._replace(value=self.load_dict[self.csv_seperator.key])
+        self.__init_value(self.csv_seperator)
+
         # 程序运行的计时器，精确度
         self.precision_point = CfgItem(label='precision_point', key='precision_point', value='4')
-        self.precision_point = self.precision_point._replace(value=self.load_dict[self.precision_point.key])
+        self.__init_value(self.precision_point)
+
         # 打开时，弹出窗口，可以关闭，当天不显示
         self.popup_startup = CfgItem(label='popup_startup', key='popup_startup', value='')
-        self.popup_startup = self.popup_startup._replace(value=self.load_dict[self.popup_startup.key])
+        self.__init_value(self.popup_startup)
 
         logger.debug("初始化执行结束 {}", self.cfg_save_path)
 
@@ -88,5 +102,11 @@ class CfgHandler:
         except Exception as e:
             logger.exception(e)
 
+    def __init_value(self, item: CfgItem):
+        if len(self.load_dict[item.key]) > 0:
+            setattr(self, item.key, item._replace(value=self.load_dict[item.key]))
+        else:
+            setattr(self, item.key, item)
 
-cfg = CfgHandler()
+
+Config = CfgHandler()

@@ -7,9 +7,10 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import linkage, dendrogram
 
-from core import NormStyle, Parser, CleanBiz
+from core import Parser, CleanBiz
+from core.const import NormStyle, FileFormat
 from core.log import logger
-from core.util.mutil import Cfg, FileFormat
+from core.util.mutil import Config
 
 
 class AuthorWordsCouplingAnalysis:
@@ -45,7 +46,7 @@ class AuthorWordsCouplingAnalysis:
         """
         # 对col_name列，拆分，然后计数
         author_count = collections.Counter(
-            author.strip() for row in self.dataset.loc[:, self.author_col_name].tolist() for author in row.split(Cfg.seperator) if
+            author.strip() for row in self.dataset.loc[:, self.author_col_name].tolist() for author in row.split(Config.seperator) if
             author.strip())
         logger.debug('作者发文统计 {}', author_count)
         # 保留高产作者
@@ -57,7 +58,7 @@ class AuthorWordsCouplingAnalysis:
         """
         # 对col_name列，拆分，然后计数
         words_count = collections.Counter(
-            word.strip() for row in self.dataset.loc[:, self.words_col_name].tolist() for word in row.split(Cfg.seperator) if
+            word.strip() for row in self.dataset.loc[:, self.words_col_name].tolist() for word in row.split(Config.seperator) if
             word.strip())
         logger.debug('词频统计 {}', words_count)
         # 保留高频词
@@ -71,7 +72,7 @@ class AuthorWordsCouplingAnalysis:
         tmp = self.dataset.copy()
         logger.debug('\r\n{}', tmp)
         # 形成author:word组合
-        tmp['pairs'] = tmp.apply(lambda df:[author + Cfg.seperator + word for author in df[self.author_col_name].split(Cfg.seperator) if author in self.reserved_author_count_pairs for word in df[self.words_col_name].split(Cfg.seperator) if word in self.reserved_words_count_pairs], axis=1)
+        tmp['pairs'] = tmp.apply(lambda df:[author + Config.seperator + word for author in df[self.author_col_name].split(Config.seperator) if author in self.reserved_author_count_pairs for word in df[self.words_col_name].split(Config.seperator) if word in self.reserved_words_count_pairs], axis=1)
         logger.debug('\r\n{}', tmp)
         # 转成np.Series
         tmp = tmp['pairs']
@@ -86,7 +87,7 @@ class AuthorWordsCouplingAnalysis:
         logger.debug('\r\n{}', author_word_freq)
         # 转数组：拆分成 list嵌套list，作为DataFrame的values
         logger.debug('形成共现数据集')
-        data_list = [[pair.split(Cfg.seperator)[0], pair.split(Cfg.seperator)[1], times] for pair, times in
+        data_list = [[pair.split(Config.seperator)[0], pair.split(Config.seperator)[1], times] for pair, times in
                      author_word_freq.items()]
         self.author_word_thin_matrix = pd.DataFrame(data=data_list, columns=['author', 'word', 'times'])
         logger.debug('作者-主题词频次数据集 {}', self.author_word_thin_matrix.shape)
