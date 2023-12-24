@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -87,7 +87,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>70</height>
+               <height>60</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -149,7 +149,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab2">
+         <widget class="QWidget" name="tab_analyze">
           <attribute name="title">
            <string>分析</string>
           </attribute>
@@ -169,6 +169,16 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QFrame" name="frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tab_graph">

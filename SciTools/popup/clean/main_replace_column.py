@@ -1,8 +1,6 @@
-import time
-
 from PySide2.QtWidgets import QDialog
 
-from mutil import ssignal
+from core.const import ssignal
 from mrunner import CleanReplaceValueThread
 from popup.clean.uipy import ui_replace_column
 

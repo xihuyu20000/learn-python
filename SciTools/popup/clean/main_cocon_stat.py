@@ -1,7 +1,7 @@
 
 from PySide2.QtWidgets import QDialog, QFileDialog
 
-from mutil import ssignal, Cfg
+from core.const import ssignal, cfg
 from popup.clean.uipy import ui_cocon_stat
 from mrunner import CleanCoconStatThread
 
@@ -26,8 +26,8 @@ class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
     def export_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
-        if len(names) == 0 or len(names) > 2:
-            ssignal.error.emit('只能选择1或者2列')
+        if len(names) != 1:
+            ssignal.error.emit('只能选择1')
             return
 
         df = self.get_df()
@@ -35,7 +35,7 @@ class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存统计文件",  # 标题
-            Cfg.datafiles,  # 起始目录
+            cfg.datafiles.value,  # 起始目录
             "Excel (*.xlsx);;"  # 选择类型过滤项，过滤内容在括号中
         )
 

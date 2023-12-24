@@ -69,3 +69,5 @@ class MyLogger:
 
 logger = MyLogger().get_logger()
 
+logger.debug('日志文件夹 {}', _abs_path)
+

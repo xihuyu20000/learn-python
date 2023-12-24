@@ -2,9 +2,9 @@ import time
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QTableWidgetItem
-from log import logger
+from core.log import logger
 
-from mutil import ssignal
+from core.const import ssignal
 from popup.clean.uipy import ui_rename_column
 
 

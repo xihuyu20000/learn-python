@@ -1,6 +1,6 @@
 {
     "table_header_bgcolor": "lightblue",
-    "global_font_size": "14",
+    "global_font_size": "12",
     "seperator": ";",
     "stopwords_file": "D:\\workspace\\github\\learn-python\\SciTools\\dicts\\停用词表.txt",
     "combinewords_file": "D:\\workspace\\github\\learn-python\\SciTools\\dicts\\合并词表.txt",

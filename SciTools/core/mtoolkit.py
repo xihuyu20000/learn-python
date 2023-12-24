@@ -1,5 +1,4 @@
 import os
-import sys
 from typing import List
 from diskcache import Cache
 import shutil
@@ -7,8 +6,8 @@ import pandas
 import pandas as pd
 from PySide2 import QtCore, QtWidgets
 from PySide2 import QtGui
-from PySide2.QtCore import Qt, Signal, QModelIndex, QTimer, QRect
-from PySide2.QtGui import QBrush, QColor, QIcon
+from PySide2.QtCore import Qt, Signal, QModelIndex, QTimer
+from PySide2.QtGui import QBrush, QColor
 from PySide2.QtWidgets import (
     QFrame,
     QPushButton,
@@ -19,10 +18,9 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QWidget,
-    QLCDNumber, QScrollArea, QToolBar, QToolButton, QApplication, QMainWindow,
-)
-from log import logger
-from mutil import ssignal
+    QLCDNumber, QScrollArea, QToolButton, )
+from core.log import logger
+from core.const import ssignal
 
 
 class InfoKit(QWidget):

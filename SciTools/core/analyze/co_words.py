@@ -1,6 +1,5 @@
 import collections
 import itertools
-from typing import Dict
 
 import matplotlib
 import numpy as np
@@ -9,8 +8,8 @@ from matplotlib import pyplot as plt
 from scipy.cluster.hierarchy import linkage, dendrogram
 
 from core import NormStyle, DistanceStyle, Parser, CleanBiz, HierachyClusterStyle
-from log import logger
-from mutil import Cfg, FileFormat, PandasUtil
+from core.log import logger
+from core.util.mutil import Cfg, FileFormat, PandasUtil
 
 
 class CoworsHierarchyCluster:

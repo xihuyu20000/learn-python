@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QDialog
 from popup.clean.uipy import ui_dataset_metadata
 
 from mrunner import CleanMetadataThread
-from mtoolkit import PandasTableModel, TableKit, FrameKit
+from core.mtoolkit import PandasTableModel, TableKit, FrameKit
 
 
 class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):

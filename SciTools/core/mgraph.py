@@ -9,7 +9,7 @@ import pyecharts.options as opts
 from pyecharts.charts import Bar, Line, Pie, WordCloud, Graph, Sankey
 from pyecharts.globals import SymbolType
 
-from mutil import abs_path
+from core.const import abs_path
 
 
 class GraphData:
@@ -166,7 +166,7 @@ class Draw:
                 g.set_global_opts(title_opts=self.title_opts,
                                   legend_opts=self.legend_opts,
                                   toolbox_opts=self.toolbox_opts)
-                result = g.render(os.path.join(abs_path, 'chart.html'))
+                result = g.render(os.path.join(abs_path, '../chart.html'))
                 return result
 
         raise Exception('不识别的图表类型' + info.label)

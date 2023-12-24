@@ -1,7 +1,7 @@
 
 from PySide2.QtWidgets import QDialog
 
-from mutil import ssignal
+from core.const import ssignal
 from mrunner import CleanSplitWordsThread
 from popup.clean.uipy import ui_split_words
 

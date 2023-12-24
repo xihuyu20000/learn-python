@@ -32,7 +32,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>只能选择1或者2列</string>
+         <string>只能选择1列</string>
         </property>
        </widget>
       </item>
@@ -64,14 +64,14 @@
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>选择1列，是1模分析</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>选择2列，是2模分析</string>
+         <string/>
         </property>
        </widget>
       </item>

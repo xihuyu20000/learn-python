@@ -8,6 +8,7 @@ openpyxl
 diskcache
 strenum
 jieba
+nltk
 scikit-learn==1.3.2
 # datasketch==1.5.4
 zhon

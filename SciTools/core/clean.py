@@ -2,44 +2,29 @@
 核心业务逻辑，使用pandas实现，后期可以优化
 必须有完整的测试和详细的说明
 """
+
 import collections
+
 import os
+import time
 from typing import List, Set, Dict, Tuple, Union
 
+import arrow
 import jieba
+import numpy as np
 import pandas as pd
 
-from log import logger
-from mutil import Cfg, Utils, PandasUtil, FileFormat
+from core.const import FileFormat
+from core.log import logger
+from core.util.mutil import Utils, PandasUtil
+from core.const import cfg
 
-Field = collections.namedtuple("Field", ['cn_name', 'en_name'])
-
-class FieldStyle:
-
-    def __init__(self):
-        self.fields = [
-            Field('作者', 'author'),
-            Field('出版年', 'pubyear'),
-            Field('关键字', 'keywords'),
-            Field('标题', 'title')
-        ]
-
-class NormStyle:
-    ochiia = 'ochiia'
-
-class HierachyClusterStyle:
-    average = 'average'
-    ward = 'ward'
-class DistanceStyle:
-    correlation='correlation'
-    euclidean='euclidean'
-    cosine='cosine'
 class Parser:
     """
     专门用于解析文件
     """
     @staticmethod
-    def parse(filestyle: str, filelist: Union[str, List[str]], csv_seperator: str = Cfg.csv_seperator):
+    def parse(filestyle: str, filelist: Union[str, List[str]], csv_seperator: str = cfg.csv_seperator):
         """
         统一对外的接口
         """
@@ -380,7 +365,7 @@ class Parser:
         many_times = ['AU', 'AF', 'SO', 'SP', 'C1', 'C3', 'EM', 'CR']
         for record in ds:
             for k, v in record.items():
-                separator = Cfg.seperator if k in many_times else ' '
+                separator = cfg.seperator.value if k in many_times else ' '
                 record[k] = separator.join(record[k])
 
         df = pd.DataFrame(ds, dtype='object')
@@ -390,12 +375,12 @@ class Parser:
         return df
 
     @staticmethod
-    def parse_csv(filelist: Union[str, List[str]], seperator: str = Cfg.csv_seperator) -> pd.DataFrame:
+    def parse_csv(filelist: Union[str, List[str]], seperator: str = cfg.csv_seperator.value) -> pd.DataFrame:
         ds = []
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        for fname in [os.path.join(Cfg.datafiles, fname) for fname in filelist]:
+        for fname in [os.path.join(cfg.datafiles.value, fname) for fname in filelist]:
             df = PandasUtil.read_csv(fname, sep=seperator)
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
@@ -409,7 +394,7 @@ class Parser:
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        for fname in [os.path.join(Cfg.datafiles, fname) for fname in filelist]:
+        for fname in [os.path.join(cfg.datafiles.value, fname) for fname in filelist]:
             df = PandasUtil.read_excel(fname)
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
@@ -424,7 +409,7 @@ class Parser:
             filelist = [filelist]
 
         for fname in filelist:
-            df = PandasUtil.read_pickle(os.path.join(Cfg.datafiles, fname))
+            df = PandasUtil.read_pickle(os.path.join(cfg.datafiles.value, fname))
             ds.append(df)
         df = pd.concat(ds, axis=0, ignore_index=True, sort=True)
         df.fillna("", inplace=True)
@@ -436,9 +421,9 @@ class CleanBiz:
     @staticmethod
     def metadata(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         # 判断nulls必须放在这里，不能放到下面
-        stat_df = df.copy()
-        nulls = stat_df.isna().sum() + stat_df.eq("").sum()
-        stat_df = stat_df.describe(include=[object])
+        time1 = time.time()
+        nulls = df.isna().sum() + df.eq("").sum()
+        stat_df = df.describe(include=[object])
         # 丢掉行
         stat_df.drop("top", axis=0, inplace=True)
         # 添加新列，空值情况
@@ -448,33 +433,37 @@ class CleanBiz:
             index={"count": "总数", "unique": "唯一", "freq": "众频", "nulls": "空值"},
             inplace=True,
         )
-
+        time2 = time.time()
+        logger.debug('stat_df计算耗时{}秒', round(time2 - time1, 2))
+        assert isinstance(stat_df, pd.DataFrame)
         ##########################################################################
 
-        freq_df = {}
+        freq_stat_pair:Dict[str, Tuple[pd.DataFrame, pd.DataFrame]] = collections.defaultdict(list)
+
         for col_name in df.columns.tolist():
-            # 词频统计
-            datalist = df.loc[:, col_name].tolist()
+            time1 = time.time()
+            logger.debug(arrow.now())
+            tmp = [np.array(val.split(cfg.seperator.value)) for val in df[col_name].tolist()]
+            tmp = np.concatenate(tmp)
+            logger.debug(arrow.now())
+            # 单词计数
+            counter_word = collections.Counter(word for word in tmp)
+            # 排序
+            sorted_counter_word = sorted(counter_word.items(), key=lambda x:x[1], reverse=True)
+            # 转成数据框
+            item_df = pd.DataFrame(sorted_counter_word, columns=["词语", "频次"])
 
-            wordslist = []
-            for row in datalist:
-                for word in str(row).split(Cfg.seperator):
-                    wordslist.append(word)
-            datalist = wordslist
+            #########################################################################
 
-            datalist = collections.Counter(datalist)
-            datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-            item_df = pd.DataFrame(datalist, columns=["词语", "频次"])
+            counter_freq = collections.Counter(item_df['频次'])
+            sorted_counter_freq = sorted(counter_freq.items(), key=lambda x: x[1], reverse=True)
+            # 转成数据框
+            freq_df = pd.DataFrame(sorted_counter_freq, columns=["词语频次", "频次"])
+            freq_stat_pair[col_name] = (item_df, freq_df)
 
-            # 频次统计
-            datalist = [item[1] for item in datalist]
-            datalist = collections.Counter(datalist)
-            datalist = sorted(datalist.items(), key=lambda x: x[1], reverse=True)
-            freq_df = pd.DataFrame(datalist, columns=["词语频次", "次数"])
-
-            freq_df[col_name] = (item_df, freq_df)
-
-        return stat_df, freq_df
+            time2 = time.time()
+            logger.debug('计算{}的freq_df耗时{}秒', col_name, round(time2 - time1, 2))
+        return stat_df, freq_stat_pair
 
     @staticmethod
     def rename_columns(df: pd.DataFrame, new_names_pair: Dict[str, str]) -> pd.DataFrame:
@@ -680,7 +669,7 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def _jieba_cut(stop_words, line):
+    def jieba_cut(stop_words, line):
         logger.debug(stop_words)
         return [w.strip() for w in jieba.cut(line, cut_all=False) if w.strip() and w not in stop_words]
 
@@ -693,16 +682,16 @@ class CleanBiz:
         :return:
         """
         stop_words = []
-        with open(Cfg.stopwords_abs_path, encoding="utf-8") as f:
+        with open(cfg.stopwords.value, encoding="utf-8") as f:
             stop_words = [line.strip() for line in f.readlines() if line.strip()]
 
-        jieba.load_userdict(Cfg.controlledwords_abs_path)
+        jieba.load_userdict(cfg.controlledwords.value)
         jieba.initialize()
 
         new_names = []
         for col in names:
             new_names.append(col + "-切词")
-            df[col + "-切词"] = df[col].astype(str).apply(lambda x: CleanBiz._jieba_cut(stop_words, x))
+            df[col + "-切词"] = df[col].astype(str).apply(lambda x: CleanBiz.jieba_cut(stop_words, x))
 
         old_names = df.columns.tolist()
         new_names = Utils.resort_columns(old_names, new_names)
@@ -719,7 +708,7 @@ class CleanBiz:
         :return:
         """
         # 使用str.split进行拆分，并使用explode展开多列，每个单词是一列
-        df_split = df[col_name].str.split(Cfg.seperator, expand=True)
+        df_split = df[col_name].str.split(cfg.seperator.value, expand=True)
         # 然后使用stack把列转为行
         df_stacked = df_split.stack()
         # 使用value_counts进行统计
@@ -855,7 +844,7 @@ class AnalyzeBiz:
         :param by: 一个分组字段
         """
 
-        df2 = df[by].str.split(Cfg.seperator, expand=True).stack().reset_index(drop=True)
+        df2 = df[by].str.split(cfg.seperator.value, expand=True).stack().reset_index(drop=True)
         df2 = df2.rename(by).to_frame()
         df2 = df2.groupby(by).size().reset_index(name='Count')
         count_result = df2.drop(df2[df2[by].str.len() == 0].index)
@@ -874,7 +863,7 @@ class AnalyzeBiz:
             row[by]
         df = df.loc[:, [stat_column, by]]
 
-        splited = df[stat_column].str.split(Cfg.seperator, expand=True)
+        splited = df[stat_column].str.split(cfg.seperator.value, expand=True)
         df2 = splited.stack().reset_index(level=1, drop=True)
         df2 = df2.rename(stat_column).to_frame()
         df2 = df2.join(df[by])
@@ -883,7 +872,7 @@ class AnalyzeBiz:
 
         return result
 
-
+import dask.bag as db
 if __name__ == '__main__':
     # 显示所有列
     pd.set_option('display.max_columns', None)
@@ -891,6 +880,32 @@ if __name__ == '__main__':
     pd.set_option('display.max_rows', None)
 
     df = Parser.parse_pickle([r'D:\workspace\github\learn-python\SciTools\datafiles\146万记录.pkl'])
-    result = AnalyzeBiz.count(df, by='A1')
-    print(result)
-    # print(AnalyzeBiz.count_by())
+
+    # df = pd.DataFrame({
+    #     'A1':['张三;李四;王五;赵六','张三;李四;王五', '张三;李四','张三'],
+    #     'K1': ['词3;词4;词5;词6', '词4;词3;词5', '词4;词3;', '词3']
+    # })
+
+    for col_name in df.columns.tolist():
+        # 拆分列
+        logger.debug(arrow.now())
+
+        # tmp = df[col_name].apply(lambda x: x.split(cfg.seperator))
+        # 定义一个函数来对每个元素进行逗号分割
+        final_result = db.from_sequence(df[col_name].tolist()).compute()
+        print(final_result)
+        logger.debug(arrow.now())
+        # 单词计数
+        # counter = collections.Counter(word for arr in final_result for word in arr)
+        # # 转成二维数组
+        # datalist = [[word, times] for word, times in counter.items()]
+        # # 转成数据框
+        # item_df = pd.DataFrame(datalist, columns=["词语", "频次"])
+        # #########################################################################
+        # counter = collections.Counter(item_df['频次'])
+        # # 转成二维数组
+        # datalist = [[word, times] for word, times in counter.items()]
+        # # 转成数据框
+        # freq_df = pd.DataFrame(datalist, columns=["词语频次", "频次"])
+
+    # CleanBiz.metadata(df)

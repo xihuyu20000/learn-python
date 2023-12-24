@@ -1,4 +1,4 @@
-from mutil import DictReader
+from core.util.mutil import DictReader
 
 
 def test_combine_words_file():

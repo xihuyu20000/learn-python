@@ -1,9 +1,9 @@
 import os.path
 
 from PySide2.QtWidgets import QDialog, QFileDialog
-from log import logger
+from core.log import logger
 
-from mutil import Cfg, ssignal
+from core.const import cfg, ssignal
 from mrunner import CleanStopWordsThread
 from popup.clean.uipy import ui_stop_words
 
@@ -17,7 +17,7 @@ class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
         self.column_names.addItems(self.get_clean_columns())
         self.column_names.setCurrentRow(0)
 
-        self.le1.setText(os.path.join(Cfg.dicts, Cfg.stopwords_file))
+        self.le1.setText(os.path.join(cfg.dicts.value, cfg.stopwords.value))
 
         self.btn1.clicked.connect(self.btn1_clicked)
         self.btn_ok.clicked.connect(lambda: self.action_ok(self.le1.text(), self.rbt1.isChecked()))
@@ -56,7 +56,7 @@ class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择词典",  # 标题
-            Cfg.dicts,  # 起始目录
+            cfg.dicts.value,  # 起始目录
             "文件类型 (*.csv *.txt *.xls *.xlsx)"  # 选择类型过滤项，过滤内容在括号中
         )
         self.le1.setText(filePath)

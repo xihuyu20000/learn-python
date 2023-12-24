@@ -13,9 +13,10 @@ from PySide2 import QtCore
 from PySide2.QtWidgets import QMainWindow, QFileDialog, QToolBar
 from loguru import logger
 
-from mgraph import Draw, GraphData
-from mutil import Cfg, ssignal, FileFormat
-from mainui.ui_main import Ui_MainWindow
+from core.const import FileFormat
+from core.mgraph import GraphData
+from core.const import cfg, ssignal
+from mainui.uipy.ui_main import Ui_MainWindow
 from popup.clean.main_cocon_stat import PopupCoconStat
 from popup.clean.main_combine_synonym import PopupCombineSynonym
 from popup.clean.main_compare_column import PopupCompareColumns
@@ -38,7 +39,7 @@ from mrunner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
-from mtoolkit import PandasStack, TableKit
+from core.mtoolkit import PandasStack, TableKit
 
 
 class MasterWindows(QMainWindow, Ui_MainWindow):
@@ -130,11 +131,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         初始化配置项中的参数
         :return:
         """
-        self.config_global_font_size.setValue(int(Cfg.global_font_size))
-        self.config_datafiles_csv_seperator.setText(Cfg.csv_seperator)
-        self.config_stop_words_dict.setText(Cfg.stopwords_abs_path)
-        self.config_combine_words_dict.setText(Cfg.combinewords_abs_path)
-        self.config_controlled_words_dict.setText(Cfg.controlledwords_abs_path)
+        self.config_global_font_size.setValue(int(cfg.global_font_size.value))
+        self.config_datafiles_csv_seperator.setText(cfg.csv_seperator.value)
+        self.config_stop_words_dict.setText(cfg.stop_words.value)
+        self.config_combine_words_dict.setText(cfg.combine_words.value)
+        self.config_controlled_words_dict.setText(cfg.controlled_words.value)
 
 
 
@@ -145,11 +146,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         :return:
         """
         self.statusBar().setStyleSheet("color: blue;font-weight: bold;")
-        self.statusBar().showMessage(val, 30000)
+        self.statusBar().showMessage(val)
 
     def master_show_error(self, val) -> None:
         self.statusBar().setStyleSheet("color: red;font-weight: bold;")
-        self.statusBar().showMessage(val, 30000)
+        self.statusBar().showMessage(val)
 
     def master_get_clean_df(self) -> pd.DataFrame:
         return self.clean_datatable.get_dataset()
@@ -180,8 +181,6 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             format = FileFormat.CSV
         elif fname.endswith(".pkl"):
             format = FileFormat.PICKLE
-        elif fname.endswith(".pqt"):
-            format = FileFormat.PARQUET
         else:
             format = "error"
 
@@ -190,21 +189,21 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             return
 
         # 双击，只会选择一个文件，所以包装成list
-        abs_datafiles = os.path.join(Cfg.datafiles, fname)
+        abs_datafiles = os.path.join(cfg.datafiles.value, fname)
         abs_datafiles = [abs_datafiles]
         # csv文件分隔符
-        sep = Cfg.csv_seperator
+        sep = cfg.csv_seperator.value
 
         self.cleanSaveDatasetThread = CleanParseFileThread(abs_datafiles, format, sep)
         self.cleanSaveDatasetThread.start()
 
     def master_action_datafiles_list(self, *args):
-        fnames = [fname for fname in os.listdir(Cfg.datafiles)]
+        fnames = [fname for fname in os.listdir(cfg.datafiles.value)]
         # 过滤文件夹，只保留文件
         fnames = [
             fname
             for fname in fnames
-            if os.path.isfile(os.path.join(Cfg.datafiles, fname))
+            if os.path.isfile(os.path.join(cfg.datafiles.value, fname))
         ]
 
         self.datafiles_list.clear()
@@ -229,7 +228,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             return
 
         abs_datafiles = [
-            os.path.join(Cfg.datafiles, fname) for fname in selected_fnames
+            os.path.join(cfg.datafiles.value, fname) for fname in selected_fnames
         ]
         sep = self.config_datafiles_csv_seperator.text()
 
@@ -241,7 +240,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择停用词典",  # 标题
-            Cfg.dicts,  # 起始目录
+            cfg.dicts,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -253,7 +252,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择合并词典",  # 标题
-            Cfg.dicts,  # 起始目录
+            cfg.dicts.value,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -265,7 +264,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择受控词典",  # 标题
-            Cfg.dicts,  # 起始目录
+            cfg.dicts.value,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -275,11 +274,11 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
     def master_action_save_configs(self):
         logger.info("保存配置信息")
 
-        Cfg.global_font_size = self.config_global_font_size.text()
-        Cfg.csv_seperator = self.config_datafiles_csv_seperator.text().strip()
-        Cfg.stopwords_abs_path = self.config_stop_words_dict.text()
-        Cfg.combinewords_abs_path = self.config_combine_words_dict.text()
-        Cfg.controlledwords_abs_path = self.config_controlled_words_dict.text()
+        cfg.set(cfg.global_font_size.value,self.config_global_font_size.text())
+        cfg.set(cfg.csv_seperator.value, self.config_datafiles_csv_seperator.text().strip())
+        cfg.set(cfg.stopwords_abs_path.value, self.config_stop_words_dict.text())
+        cfg.set(cfg.combinewords_abs_path.value, self.config_combine_words_dict.text())
+        cfg.set(cfg.controlledwords_abs_path.value, self.config_controlled_words_dict.text())
 
         ssignal.info.emit("保存成功")
 
@@ -446,7 +445,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存数据文件",  # 标题
-            Cfg.datafiles,  # 起始目录
+            cfg.datafiles.value,  # 起始目录
             "Excel (*.xlsx);;Csv (*.csv);;Pickle (*.pkl)",  # 选择类型过滤项，过滤内容在括号中
         )
 
@@ -617,7 +616,7 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             return
 
         abs_datafiles = [
-            os.path.join(Cfg.datafiles, fname) for fname in selected_fnames
+            os.path.join(cfg.datafiles.value, fname) for fname in selected_fnames
         ]
 
         self.popupVerticalConcat = PopupVerticalConcat(self, abs_datafiles)

@@ -5,7 +5,7 @@ from PySide2.QtGui import QDrag, QIcon
 from PySide2.QtWidgets import QDialog, QApplication, QHBoxLayout, QToolButton, QWidget, QComboBox, QSizePolicy, \
     QSpacerItem
 
-from mutil import Cfg
+from core.util.mutil import Cfg
 from popup.clean.uipy import ui_group_stat
 
 

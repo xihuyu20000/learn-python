@@ -1,8 +1,8 @@
 
 from PySide2.QtWidgets import QDialog
-from log import logger
+from core.log import logger
 
-from mutil import ssignal
+from core.const import ssignal
 from mrunner import CleanRowSimilarityThread
 from popup.clean.uipy import ui_similarity_row
 

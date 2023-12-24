@@ -1,9 +1,9 @@
 from PySide2.QtWidgets import QDialog
-from log import logger
+from core.log import logger
 
-from mgraph import Draw
+from core.mgraph import Draw
 from mrunner import CleanDrawGraphThread
-from mutil import ssignal
+from core.const import ssignal
 from popup.clean.uipy import ui_graph_config
 
 

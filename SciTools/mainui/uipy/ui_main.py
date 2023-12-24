@@ -12,8 +12,8 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from mtoolkit import ScrollWidget
-from mtoolkit import TableKit
+from core.mtoolkit import ScrollWidget
+from core.mtoolkit import TableKit
 from PySide2.QtWebEngineWidgets import QWebEngineView
 
 
@@ -144,10 +144,10 @@ class Ui_MainWindow(object):
         self.menu_clean_graph_config.setIcon(icon20)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.horizontalLayout = QHBoxLayout(self.centralwidget)
-        self.horizontalLayout.setSpacing(0)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2 = QVBoxLayout(self.centralwidget)
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.frame_2 = QFrame(self.centralwidget)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setFrameShape(QFrame.StyledPanel)
@@ -167,7 +167,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.clean_toolbar = ScrollWidget(self.tab_clean)
         self.clean_toolbar.setObjectName(u"clean_toolbar")
-        self.clean_toolbar.setMinimumSize(QSize(0, 70))
+        self.clean_toolbar.setMinimumSize(QSize(0, 60))
         self.clean_toolbar.setMaximumSize(QSize(16777215, 70))
         self.clean_toolbar.setFrameShape(QFrame.StyledPanel)
         self.clean_toolbar.setFrameShadow(QFrame.Raised)
@@ -198,13 +198,20 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
         self.mainTabWidget.addTab(self.tab_clean, "")
-        self.tab2 = QWidget()
-        self.tab2.setObjectName(u"tab2")
-        self.tab2_layout = QVBoxLayout(self.tab2)
+        self.tab_analyze = QWidget()
+        self.tab_analyze.setObjectName(u"tab_analyze")
+        self.tab2_layout = QVBoxLayout(self.tab_analyze)
         self.tab2_layout.setSpacing(0)
         self.tab2_layout.setObjectName(u"tab2_layout")
         self.tab2_layout.setContentsMargins(0, 0, 0, 0)
-        self.mainTabWidget.addTab(self.tab2, "")
+        self.frame = QFrame(self.tab_analyze)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+
+        self.tab2_layout.addWidget(self.frame)
+
+        self.mainTabWidget.addTab(self.tab_analyze, "")
         self.tab_graph = QWidget()
         self.tab_graph.setObjectName(u"tab_graph")
         self.horizontalLayout_3 = QHBoxLayout(self.tab_graph)
@@ -436,7 +443,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.mainTabWidget)
 
 
-        self.horizontalLayout.addWidget(self.frame_2)
+        self.verticalLayout_2.addWidget(self.frame_2)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -527,7 +534,7 @@ class Ui_MainWindow(object):
         self.menu_clean_parse.setText(QCoreApplication.translate("MainWindow", u"\u89e3\u6790", None))
         self.menu_clean_graph_config.setText(QCoreApplication.translate("MainWindow", u"\u56fe\u8868\u914d\u7f6e", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_clean), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab2), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_analyze), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_graph), QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53\u5927\u5c0f", None))
