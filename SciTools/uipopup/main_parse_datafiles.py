@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QDialog, QPushButton, QSizePolicy
 from core.log import logger
-from uipopup.clean.uipy import ui_datafiles_parse
+from uipopup.uipy import ui_datafiles_parse
 from core.const import FileFormat, ssignal
 from mrunner import CleanParseFileThread
 

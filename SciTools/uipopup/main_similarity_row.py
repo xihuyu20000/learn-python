@@ -4,8 +4,7 @@ from core.log import logger
 
 from core.const import ssignal
 from mrunner import CleanRowSimilarityThread
-from uipopup.clean.uipy import ui_similarity_row
-
+from uipopup.uipy import ui_similarity_row
 
 
 class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):

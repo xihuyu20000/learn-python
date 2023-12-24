@@ -2,7 +2,7 @@
 from PySide2.QtWidgets import QDialog, QFileDialog
 
 from core.const import ssignal, Config
-from uipopup.clean.uipy import ui_cocon_stat
+from uipopup.uipy import ui_cocon_stat
 from mrunner import CleanCoconStatThread
 
 

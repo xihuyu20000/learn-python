@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
 from mrunner import CleanCopyColumnThread
-from uipopup.clean.uipy import ui_copy_column
+from uipopup.uipy import ui_copy_column
 
 
 class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):

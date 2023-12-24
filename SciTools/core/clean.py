@@ -539,26 +539,31 @@ class CleanBiz:
         return df
 
     @staticmethod
-    def extract_features(df: pd.DataFrame, names: Union[str, List[str]]):
+    def extract_features(df: pd.DataFrame, names: Union[str, List[str]], speeches:List[str]):
         """
         提取特征词
         :param df:
         :param names:
+        :param speeches: 结巴分词中的词性，如'Ng', 'n', 'nr', 'nt', 'ns', 'nz', 'v'
         """
         if isinstance(names, str):
             names = [names]
 
-        df['特征词'] = df.loc[:, names].apply(lambda row:CleanBiz.__concat_extract_features(row, names), axis=1)
+        df['特征词'] = df.loc[:, names].apply(lambda row:CleanBiz.__concat_extract_features(row, names, speeches), axis=1)
 
         return df
 
     @staticmethod
-    def __concat_extract_features(row, names):
+    def __concat_extract_features(row, names, speeches):
+        """
+        :param row:
+        :param names:
+        :param speeches: 结巴分词中的词性，如'Ng', 'n', 'nr', 'nt', 'ns', 'nz', 'v'
+        """
         # 多列数据合并到一起
         s1 = ' '.join([row[col_name] for col_name in names])
         # 词性标注
-        words = ' '.join(
-            [word for word, flag in jieba.posseg.cut(s1) if flag in ('Ng', 'n', 'nr', 'nt', 'ns', 'nz', 'v')])
+        words = ' '.join([word for word, flag in jieba.posseg.cut(s1) if flag in (speeches)])
         # 特征提取
         words = [word for word, weight in extract_tags(words, 5, withWeight=True)]
         # 合并

@@ -2,13 +2,13 @@
 from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
-from mrunner import  CleanExtractFeaturesThread
-from uipopup.clean.uipy import ui_extract_feature
+from mrunner import CleanSplitWordsThread
+from uipopup.uipy import ui_split_words
 
 
-class PopupExtractFeatures(QDialog, ui_extract_feature.Ui_Form):
+class PopupSplitWords(QDialog, ui_split_words.Ui_Form):
     def __init__(self, parent):
-        super(PopupExtractFeatures, self).__init__(parent)
+        super(PopupSplitWords, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
@@ -29,8 +29,8 @@ class PopupExtractFeatures(QDialog, ui_extract_feature.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanExtractFeaturesThread = CleanExtractFeaturesThread(df, names)
-        self.cleanExtractFeaturesThread.start()
+        self.cleanSplitWordsThread = CleanSplitWordsThread(df, names)
+        self.cleanSplitWordsThread.start()
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

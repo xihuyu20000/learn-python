@@ -6,7 +6,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QHBoxLayout, QToolButton, Q
     QSpacerItem
 
 from core.util.mutil import Config
-from uipopup.clean.uipy import ui_group_stat
+from uipopup.uipy import ui_group_stat
 
 
 class PopupCleanGroupStat(QWidget, ui_group_stat.Ui_Form):

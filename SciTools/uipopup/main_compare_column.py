@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QDialog
 from core.log import logger
 
 from core.const import ssignal, Config
-from uipopup.clean.uipy import ui_compare_columns
+from uipopup.uipy import ui_compare_columns
 
 
 class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):

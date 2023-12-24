@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QDialog
 from core.log import logger
 from mrunner import CleanVerticalConcatThread
-from uipopup.clean.uipy import ui_vertical_concat
+from uipopup.uipy import ui_vertical_concat
 
 
 class PopupVerticalConcat(QDialog, ui_vertical_concat.Ui_Form):

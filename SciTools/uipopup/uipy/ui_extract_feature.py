@@ -17,7 +17,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(400, 300)
+        Form.resize(658, 597)
         self.horizontalLayout = QHBoxLayout(Form)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.frame = QFrame(Form)
@@ -31,14 +31,36 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addWidget(self.label)
 
-        self.listWidget = QListWidget(self.frame)
-        self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.listWidget_colnames = QListWidget(self.frame)
+        self.listWidget_colnames.setObjectName(u"listWidget_colnames")
+        self.listWidget_colnames.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        self.verticalLayout_2.addWidget(self.listWidget)
+        self.verticalLayout_2.addWidget(self.listWidget_colnames)
 
 
         self.horizontalLayout.addWidget(self.frame)
+
+        self.frame_4 = QFrame(Form)
+        self.frame_4.setObjectName(u"frame_4")
+        self.frame_4.setFrameShape(QFrame.StyledPanel)
+        self.frame_4.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_3 = QVBoxLayout(self.frame_4)
+        self.verticalLayout_3.setSpacing(7)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(11, 11, 11, 11)
+        self.label_4 = QLabel(self.frame_4)
+        self.label_4.setObjectName(u"label_4")
+
+        self.verticalLayout_3.addWidget(self.label_4)
+
+        self.listWidget_speech = QListWidget(self.frame_4)
+        self.listWidget_speech.setObjectName(u"listWidget_speech")
+        self.listWidget_speech.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        self.verticalLayout_3.addWidget(self.listWidget_speech)
+
+
+        self.horizontalLayout.addWidget(self.frame_4)
 
         self.frame_2 = QFrame(Form)
         self.frame_2.setObjectName(u"frame_2")
@@ -89,6 +111,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"\u63d0\u53d6\u7279\u5f81\u8bcd", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ef\u4ee5\u591a\u9009", None))
+        self.label_4.setText(QCoreApplication.translate("Form", u"\u8bcd\u6027\u9009\u62e9\u3010\u53ef\u4ee5\u591a\u9009\u3011", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u7279\u5f81\u8bcd\u6570\u91cf:", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"\u4f1a\u4f7f\u7528\u5230\u505c\u7528\u8bcd\u8868\u548c\u53d7\u63a7\u8bcd\u8868", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"OK", None))

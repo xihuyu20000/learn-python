@@ -3,7 +3,7 @@ import time
 from PySide2.QtWidgets import QDialog
 from core.log import logger
 from core.const import ssignal
-from uipopup.clean.uipy import ui_distinct_row
+from uipopup.uipy import ui_distinct_row
 
 
 class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):

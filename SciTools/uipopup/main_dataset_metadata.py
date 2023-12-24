@@ -1,8 +1,7 @@
 
 from PySide2.QtWidgets import QDialog
 
-
-from uipopup.clean.uipy import ui_dataset_metadata
+from uipopup.uipy import ui_dataset_metadata
 
 from mrunner import CleanMetadataThread
 from core.toolkit.mtoolkit import PandasTableModel, TableKit, FrameKit

@@ -2,7 +2,7 @@ from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
 from mrunner import CleanReplaceValueThread
-from uipopup.clean.uipy import ui_replace_column
+from uipopup.uipy import ui_replace_column
 
 
 class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):

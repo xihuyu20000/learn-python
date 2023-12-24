@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QDialog
 from core.log import logger
 from core.const import ssignal
-from uipopup.clean.uipy import ui_modify_value
+from uipopup.uipy import ui_modify_value
 
 
 class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):

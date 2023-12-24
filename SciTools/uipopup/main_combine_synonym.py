@@ -4,52 +4,43 @@ from PySide2.QtWidgets import QDialog, QFileDialog
 from core.log import logger
 
 from core.const import Config, ssignal
-from mrunner import CleanStopWordsThread
-from uipopup.clean.uipy import ui_stop_words
+from uipopup.uipy import ui_combine_synonym
+from mrunner import CleanCombineSynonymThread
 
 
-class PopupStopWords(QDialog, ui_stop_words.Ui_Form):
+class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
     def __init__(self, parent):
-        super(PopupStopWords, self).__init__(parent)
+        super(PopupCombineSynonym, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent
 
         self.column_names.addItems(self.get_clean_columns())
         self.column_names.setCurrentRow(0)
 
-        self.le1.setText(os.path.join(Config.dicts.value, Config.stop_words.value))
+        self.le1.setText(os.path.join(Config.dicts.value, '合并词表.txt'))
 
         self.btn1.clicked.connect(self.btn1_clicked)
         self.btn_ok.clicked.connect(lambda: self.action_ok(self.le1.text(), self.rbt1.isChecked()))
 
     def action_ok(self, dict_path, is_new: bool):
-        logger.info('停用词表')
+        logger.info('同义词合并')
         names = self.column_names.selectedItems()
-
         if len(names) == 0:
             ssignal.error.emit('请选择列')
             return
 
-        names = [item.text() for item in names ]
+        names = [item.text() for item in names]
 
         if dict_path is None or dict_path.strip() == "":
             ssignal.error.emit('请选择词典')
             return
 
-
-        # key是被替换的词，value是新词【第1个】
-        words_set = set()
-        with open(dict_path, encoding='utf-8') as f:
-            lines = f.readlines()
-            lines = [line.strip() for line in lines if not line.strip().startswith('#')]
-            for line in lines:
-                words_set.update(line.split(';'))
-
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanStopWordsThread = CleanStopWordsThread(df, names, words_set, is_new)
-        self.cleanStopWordsThread.start()
+        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Config.dicts.value, Config.combine_words.value),
+                                                                   names, is_new)
+        self.cleanCombineSynonymThread.start()
         self.close()
 
     def btn1_clicked(self):

@@ -17,24 +17,24 @@ from core.const import FileFormat
 from core.mgraph import GraphData
 from core.const import Config, ssignal
 from uimain.uipy.ui_main import Ui_MainWindow
-from uipopup.clean.main_cocon_stat import PopupCoconStat
-from uipopup.clean.main_combine_synonym import PopupCombineSynonym
-from uipopup.clean.main_compare_column import PopupCompareColumns
-from uipopup.clean.main_copy_column import PopupCopyColumn
-from uipopup.clean.main_extract_features import PopupExtractFeatures
-from uipopup.clean.main_graph_config import PopupGraphConfig
-from uipopup.clean.main_split_words import PopupSplitWords
-from uipopup.clean.main_vertical_concat import PopupVerticalConcat
-from uipopup.clean.main_wordcount_stat import PopupWordCountStat
-from uipopup.clean.main_dataset_metadata import PopupCleanMetadata
-from uipopup.clean.main_modify_values import PopupModifyValues
-from uipopup.clean.main_parse_datafiles import PopupDatafilesParse
-from uipopup.clean.main_rename_column import PopupCleanRename
-from uipopup.clean.main_replace_column import PopupReplaceColumn
-from uipopup.clean.main_row_distinct import PopupRowDistinct
-from uipopup.clean.main_similarity_row import PopupSimilarityRows
-from uipopup.clean.main_split_column import PopupSplitColumn
-from uipopup.clean.main_stop_words import PopupStopWords
+from uipopup.main_cocon_stat import PopupCoconStat
+from uipopup.main_combine_synonym import PopupCombineSynonym
+from uipopup.main_compare_column import PopupCompareColumns
+from uipopup.main_copy_column import PopupCopyColumn
+from uipopup.main_extract_features import PopupExtractFeatures
+from uipopup.main_graph_config import PopupGraphConfig
+from uipopup.main_split_words import PopupSplitWords
+from uipopup.main_vertical_concat import PopupVerticalConcat
+from uipopup.main_wordcount_stat import PopupWordCountStat
+from uipopup.main_dataset_metadata import PopupCleanMetadata
+from uipopup.main_modify_values import PopupModifyValues
+from uipopup.main_parse_datafiles import PopupDatafilesParse
+from uipopup.main_rename_column import PopupCleanRename
+from uipopup.main_replace_column import PopupReplaceColumn
+from uipopup.main_row_distinct import PopupRowDistinct
+from uipopup.main_similarity_row import PopupSimilarityRows
+from uipopup.main_split_column import PopupSplitColumn
+from uipopup.main_stop_words import PopupStopWords
 from mrunner import (
     CleanSaveDatasetThread,
     CleanParseFileThread,

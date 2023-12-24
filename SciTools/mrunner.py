@@ -636,17 +636,18 @@ class CleanSplitWordsThread(QThread):
 
 
 class CleanExtractFeaturesThread(QThread):
-    def __init__(self, df: pd.DataFrame, names: List[str]):
+    def __init__(self, df: pd.DataFrame, names: List[str], speeches: List[str]):
         super(CleanExtractFeaturesThread, self).__init__()
         self.df = df
         self.names = names
+        self.speeches = speeches
 
     def run(self) -> None:
         ssignal.info.emit("正在提取特征词，请稍等")
         try:
             t1 = time.time()
 
-            df = CleanBiz.extract_features(self.df, self.names)
+            df = CleanBiz.extract_features(self.df, self.names, self.speeches)
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(

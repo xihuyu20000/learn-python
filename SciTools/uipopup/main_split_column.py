@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
 from mrunner import CleanSplitColumnThread
-from uipopup.clean.uipy import ui_split_column
+from uipopup.uipy import ui_split_column
 
 
 class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):

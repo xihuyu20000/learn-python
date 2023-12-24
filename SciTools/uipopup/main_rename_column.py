@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QDialog, QTableWidgetItem
 from core.log import logger
 
 from core.const import ssignal
-from uipopup.clean.uipy import ui_rename_column
+from uipopup.uipy import ui_rename_column
 
 
 class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):

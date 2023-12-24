@@ -4,7 +4,7 @@ from core.log import logger
 from core.mgraph import Draw
 from mrunner import CleanDrawGraphThread
 from core.const import ssignal
-from uipopup.clean.uipy import ui_graph_config
+from uipopup.uipy import ui_graph_config
 
 
 class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
