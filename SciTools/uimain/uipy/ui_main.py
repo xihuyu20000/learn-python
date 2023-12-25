@@ -12,9 +12,7 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from core.toolkit import ScrollWidget
 from core.toolkit import TableKit
-from PySide2.QtWebEngineWidgets import QWebEngineView
 
 
 class Ui_MainWindow(object):
@@ -153,331 +151,126 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.frame_2 = QFrame(self.centralwidget)
-        self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_4 = QHBoxLayout(self.frame_2)
-        self.horizontalLayout_4.setSpacing(0)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.mainTabWidget = QTabWidget(self.frame_2)
-        self.mainTabWidget.setObjectName(u"mainTabWidget")
-        self.mainTabWidget.setTabPosition(QTabWidget.North)
-        self.tab_clean = QWidget()
-        self.tab_clean.setObjectName(u"tab_clean")
-        self.verticalLayout = QVBoxLayout(self.tab_clean)
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.clean_toolbar = ScrollWidget(self.tab_clean)
-        self.clean_toolbar.setObjectName(u"clean_toolbar")
-        self.clean_toolbar.setMinimumSize(QSize(0, 60))
-        self.clean_toolbar.setMaximumSize(QSize(16777215, 70))
-        self.clean_toolbar.setFrameShape(QFrame.StyledPanel)
-        self.clean_toolbar.setFrameShadow(QFrame.Raised)
-        self.toolbar_layout = QHBoxLayout(self.clean_toolbar)
-        self.toolbar_layout.setSpacing(0)
-        self.toolbar_layout.setObjectName(u"toolbar_layout")
-        self.toolbar_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.verticalLayout.addWidget(self.clean_toolbar)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setSpacing(0)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.datafiles_list = QListWidget(self.tab_clean)
-        self.datafiles_list.setObjectName(u"datafiles_list")
-        self.datafiles_list.setMaximumSize(QSize(250, 16777215))
-        self.datafiles_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.datafiles_list.setSpacing(4)
-
-        self.horizontalLayout_2.addWidget(self.datafiles_list)
-
-        self.clean_datatable = TableKit(self.tab_clean)
-        self.clean_datatable.setObjectName(u"clean_datatable")
-
-        self.horizontalLayout_2.addWidget(self.clean_datatable)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-
-        self.mainTabWidget.addTab(self.tab_clean, "")
-        self.tab_analyze = QWidget()
-        self.tab_analyze.setObjectName(u"tab_analyze")
-        self.tab2_layout = QVBoxLayout(self.tab_analyze)
-        self.tab2_layout.setSpacing(0)
-        self.tab2_layout.setObjectName(u"tab2_layout")
-        self.tab2_layout.setContentsMargins(0, 0, 0, 0)
-        self.frame = QFrame(self.tab_analyze)
-        self.frame.setObjectName(u"frame")
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
-
-        self.tab2_layout.addWidget(self.frame)
-
-        self.mainTabWidget.addTab(self.tab_analyze, "")
-        self.tab_graph = QWidget()
-        self.tab_graph.setObjectName(u"tab_graph")
-        self.horizontalLayout_3 = QHBoxLayout(self.tab_graph)
-        self.horizontalLayout_3.setSpacing(0)
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.right_widget = QFrame(self.tab_graph)
-        self.right_widget.setObjectName(u"right_widget")
-        self.right_widget.setFrameShape(QFrame.StyledPanel)
-        self.right_widget.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_10 = QVBoxLayout(self.right_widget)
-        self.verticalLayout_10.setSpacing(0)
-        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
-        self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
-        self.browser = QWebEngineView(self.right_widget)
-        self.browser.setObjectName(u"browser")
-
-        self.verticalLayout_10.addWidget(self.browser)
-
-
-        self.horizontalLayout_3.addWidget(self.right_widget)
-
-        self.mainTabWidget.addTab(self.tab_graph, "")
-        self.tab_config = QWidget()
-        self.tab_config.setObjectName(u"tab_config")
-        self.horizontalLayout_17 = QHBoxLayout(self.tab_config)
-        self.horizontalLayout_17.setSpacing(0)
-        self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
-        self.horizontalLayout_17.setContentsMargins(0, 0, 0, 0)
-        self.frame_11 = QFrame(self.tab_config)
-        self.frame_11.setObjectName(u"frame_11")
-        self.frame_11.setFrameShape(QFrame.StyledPanel)
-        self.frame_11.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_8 = QVBoxLayout(self.frame_11)
-        self.verticalLayout_8.setSpacing(0)
-        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.verticalLayout_8.setContentsMargins(-1, 0, 0, 0)
-        self.groupBox = QGroupBox(self.frame_11)
-        self.groupBox.setObjectName(u"groupBox")
-        self.verticalLayout_4 = QVBoxLayout(self.groupBox)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.frame_7 = QFrame(self.groupBox)
-        self.frame_7.setObjectName(u"frame_7")
-        self.frame_7.setFrameShape(QFrame.StyledPanel)
-        self.frame_7.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_7 = QVBoxLayout(self.frame_7)
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-
-        self.verticalLayout_4.addWidget(self.frame_7)
-
-        self.frame_8 = QFrame(self.groupBox)
-        self.frame_8.setObjectName(u"frame_8")
-        self.frame_8.setFrameShape(QFrame.StyledPanel)
-        self.frame_8.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_6 = QHBoxLayout(self.frame_8)
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.label_2 = QLabel(self.frame_8)
-        self.label_2.setObjectName(u"label_2")
-
-        self.horizontalLayout_6.addWidget(self.label_2)
-
-        self.lineEdit_2 = QLineEdit(self.frame_8)
-        self.lineEdit_2.setObjectName(u"lineEdit_2")
-
-        self.horizontalLayout_6.addWidget(self.lineEdit_2)
-
-
-        self.verticalLayout_4.addWidget(self.frame_8)
-
-
-        self.verticalLayout_8.addWidget(self.groupBox)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_8.addItem(self.verticalSpacer)
-
-
-        self.horizontalLayout_17.addWidget(self.frame_11)
-
-        self.frame_12 = QFrame(self.tab_config)
-        self.frame_12.setObjectName(u"frame_12")
-        self.frame_12.setFrameShape(QFrame.StyledPanel)
-        self.frame_12.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_3 = QVBoxLayout(self.frame_12)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.groupBox_6 = QGroupBox(self.frame_12)
-        self.groupBox_6.setObjectName(u"groupBox_6")
-        self.verticalLayout_12 = QVBoxLayout(self.groupBox_6)
-        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
-        self.frame_19 = QFrame(self.groupBox_6)
-        self.frame_19.setObjectName(u"frame_19")
-        self.frame_19.setFrameShape(QFrame.StyledPanel)
-        self.frame_19.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_13 = QVBoxLayout(self.frame_19)
-        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
-        self.label_11 = QLabel(self.frame_19)
-        self.label_11.setObjectName(u"label_11")
-
-        self.verticalLayout_13.addWidget(self.label_11)
-
-        self.config_datafiles_csv_seperator = QLineEdit(self.frame_19)
-        self.config_datafiles_csv_seperator.setObjectName(u"config_datafiles_csv_seperator")
-
-        self.verticalLayout_13.addWidget(self.config_datafiles_csv_seperator)
-
-
-        self.verticalLayout_12.addWidget(self.frame_19)
-
-
-        self.verticalLayout_3.addWidget(self.groupBox_6)
-
-        self.groupBox_2 = QGroupBox(self.frame_12)
-        self.groupBox_2.setObjectName(u"groupBox_2")
-        self.verticalLayout_5 = QVBoxLayout(self.groupBox_2)
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.frame_9 = QFrame(self.groupBox_2)
-        self.frame_9.setObjectName(u"frame_9")
-        self.frame_9.setFrameShape(QFrame.StyledPanel)
-        self.frame_9.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_7 = QHBoxLayout(self.frame_9)
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.label_3 = QLabel(self.frame_9)
-        self.label_3.setObjectName(u"label_3")
-
-        self.horizontalLayout_7.addWidget(self.label_3)
-
-        self.config_stop_words_dict = QLineEdit(self.frame_9)
-        self.config_stop_words_dict.setObjectName(u"config_stop_words_dict")
-        self.config_stop_words_dict.setReadOnly(True)
-
-        self.horizontalLayout_7.addWidget(self.config_stop_words_dict)
-
-        self.btn_stop_words_dict = QPushButton(self.frame_9)
-        self.btn_stop_words_dict.setObjectName(u"btn_stop_words_dict")
-        self.btn_stop_words_dict.setMaximumSize(QSize(20, 16777215))
-
-        self.horizontalLayout_7.addWidget(self.btn_stop_words_dict)
-
-
-        self.verticalLayout_5.addWidget(self.frame_9)
-
-        self.frame_10 = QFrame(self.groupBox_2)
-        self.frame_10.setObjectName(u"frame_10")
-        self.frame_10.setFrameShape(QFrame.StyledPanel)
-        self.frame_10.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_8 = QHBoxLayout(self.frame_10)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_4 = QLabel(self.frame_10)
-        self.label_4.setObjectName(u"label_4")
-
-        self.horizontalLayout_8.addWidget(self.label_4)
-
-        self.config_combine_words_dict = QLineEdit(self.frame_10)
-        self.config_combine_words_dict.setObjectName(u"config_combine_words_dict")
-        self.config_combine_words_dict.setReadOnly(True)
-
-        self.horizontalLayout_8.addWidget(self.config_combine_words_dict)
-
-        self.btn_combine_words_dict = QPushButton(self.frame_10)
-        self.btn_combine_words_dict.setObjectName(u"btn_combine_words_dict")
-        self.btn_combine_words_dict.setMaximumSize(QSize(20, 16777215))
-
-        self.horizontalLayout_8.addWidget(self.btn_combine_words_dict)
-
-
-        self.verticalLayout_5.addWidget(self.frame_10)
-
-        self.frame_13 = QFrame(self.groupBox_2)
-        self.frame_13.setObjectName(u"frame_13")
-        self.frame_13.setFrameShape(QFrame.StyledPanel)
-        self.frame_13.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_9 = QHBoxLayout(self.frame_13)
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.label_6 = QLabel(self.frame_13)
-        self.label_6.setObjectName(u"label_6")
-
-        self.horizontalLayout_9.addWidget(self.label_6)
-
-        self.config_controlled_words_dict = QLineEdit(self.frame_13)
-        self.config_controlled_words_dict.setObjectName(u"config_controlled_words_dict")
-        self.config_controlled_words_dict.setReadOnly(True)
-
-        self.horizontalLayout_9.addWidget(self.config_controlled_words_dict)
-
-        self.btn_controlled_words_dict = QPushButton(self.frame_13)
-        self.btn_controlled_words_dict.setObjectName(u"btn_controlled_words_dict")
-        self.btn_controlled_words_dict.setMaximumSize(QSize(20, 16777215))
-
-        self.horizontalLayout_9.addWidget(self.btn_controlled_words_dict)
-
-
-        self.verticalLayout_5.addWidget(self.frame_13)
-
-
-        self.verticalLayout_3.addWidget(self.groupBox_2)
-
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_3.addItem(self.verticalSpacer_2)
-
-        self.btn_save_config = QPushButton(self.frame_12)
-        self.btn_save_config.setObjectName(u"btn_save_config")
-
-        self.verticalLayout_3.addWidget(self.btn_save_config)
-
-
-        self.horizontalLayout_17.addWidget(self.frame_12)
-
-        self.mainTabWidget.addTab(self.tab_config, "")
-
-        self.horizontalLayout_4.addWidget(self.mainTabWidget)
-
-
-        self.verticalLayout_2.addWidget(self.frame_2)
-
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
         self.menubar.setGeometry(QRect(0, 0, 1179, 26))
+        self.menu_file = QMenu(self.menubar)
+        self.menu_file.setObjectName(u"menu_file")
+        self.menu_edit = QMenu(self.menubar)
+        self.menu_edit.setObjectName(u"menu_edit")
         self.menu_clean = QMenu(self.menubar)
         self.menu_clean.setObjectName(u"menu_clean")
-        self.menu_library = QMenu(self.menubar)
-        self.menu_library.setObjectName(u"menu_library")
+        self.menu_analyze = QMenu(self.menubar)
+        self.menu_analyze.setObjectName(u"menu_analyze")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.dockWidget_datafiles = QDockWidget(MainWindow)
+        self.dockWidget_datafiles.setObjectName(u"dockWidget_datafiles")
+        self.dockWidget_datafiles.setMaximumSize(QSize(300, 524287))
+        self.dockWidgetContents = QWidget()
+        self.dockWidgetContents.setObjectName(u"dockWidgetContents")
+        self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.datafiles_list = QListWidget(self.dockWidgetContents)
+        self.datafiles_list.setObjectName(u"datafiles_list")
 
+        self.verticalLayout.addWidget(self.datafiles_list)
+
+        self.dockWidget_datafiles.setWidget(self.dockWidgetContents)
+        MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget_datafiles)
+        self.dockWidget_config = QDockWidget(MainWindow)
+        self.dockWidget_config.setObjectName(u"dockWidget_config")
+        self.dockWidgetContents_2 = QWidget()
+        self.dockWidgetContents_2.setObjectName(u"dockWidgetContents_2")
+        self.dockWidget_config.setWidget(self.dockWidgetContents_2)
+        MainWindow.addDockWidget(Qt.RightDockWidgetArea, self.dockWidget_config)
+        self.dockWidget_history = QDockWidget(MainWindow)
+        self.dockWidget_history.setObjectName(u"dockWidget_history")
+        self.dockWidget_history.setMaximumSize(QSize(300, 524287))
+        self.dockWidgetContents_3 = QWidget()
+        self.dockWidgetContents_3.setObjectName(u"dockWidgetContents_3")
+        self.dockWidget_history.setWidget(self.dockWidgetContents_3)
+        MainWindow.addDockWidget(Qt.RightDockWidgetArea, self.dockWidget_history)
+        self.dockWidget_stack = QDockWidget(MainWindow)
+        self.dockWidget_stack.setObjectName(u"dockWidget_stack")
+        self.dockWidgetContents_4 = QWidget()
+        self.dockWidgetContents_4.setObjectName(u"dockWidgetContents_4")
+        self.verticalLayout_3 = QVBoxLayout(self.dockWidgetContents_4)
+        self.verticalLayout_3.setSpacing(0)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.listWidget_stack = QListWidget(self.dockWidgetContents_4)
+        self.listWidget_stack.setObjectName(u"listWidget_stack")
+
+        self.verticalLayout_3.addWidget(self.listWidget_stack)
+
+        self.dockWidget_stack.setWidget(self.dockWidgetContents_4)
+        MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget_stack)
+        self.dockWidget_table = QDockWidget(MainWindow)
+        self.dockWidget_table.setObjectName(u"dockWidget_table")
+        self.dockWidget_table.setStyleSheet(u"")
+        self.dockWidget_table.setAllowedAreas(Qt.NoDockWidgetArea)
+        self.dockWidgetContents_5 = QWidget()
+        self.dockWidgetContents_5.setObjectName(u"dockWidgetContents_5")
+        self.horizontalLayout = QHBoxLayout(self.dockWidgetContents_5)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.clean_datatable = TableKit(self.dockWidgetContents_5)
+        self.clean_datatable.setObjectName(u"clean_datatable")
+
+        self.horizontalLayout.addWidget(self.clean_datatable)
+
+        self.dockWidget_table.setWidget(self.dockWidgetContents_5)
+        MainWindow.addDockWidget(Qt.TopDockWidgetArea, self.dockWidget_table)
+        self.dockWidget_graph = QDockWidget(MainWindow)
+        self.dockWidget_graph.setObjectName(u"dockWidget_graph")
+        self.dockWidgetContents_6 = QWidget()
+        self.dockWidgetContents_6.setObjectName(u"dockWidgetContents_6")
+        self.dockWidget_graph.setWidget(self.dockWidgetContents_6)
+        MainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.dockWidget_graph)
+        self.clean_toolbar = QToolBar(MainWindow)
+        self.clean_toolbar.setObjectName(u"clean_toolbar")
+        self.clean_toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        MainWindow.addToolBar(Qt.TopToolBarArea, self.clean_toolbar)
+
+        self.menubar.addAction(self.menu_file.menuAction())
+        self.menubar.addAction(self.menu_edit.menuAction())
         self.menubar.addAction(self.menu_clean.menuAction())
-        self.menubar.addAction(self.menu_library.menuAction())
-        self.menu_clean.addAction(self.menu_clean_parse)
-        self.menu_clean.addAction(self.menu_clean_undo)
-        self.menu_clean.addAction(self.menu_clean_redo)
-        self.menu_clean.addAction(self.menu_clean_save)
+        self.menubar.addAction(self.menu_analyze.menuAction())
+        self.menu_file.addAction(self.menu_clean_parse)
+        self.menu_file.addAction(self.menu_clean_save)
+        self.menu_edit.addAction(self.menu_clean_undo)
+        self.menu_edit.addAction(self.menu_clean_redo)
+        self.menu_edit.addAction(self.menu_row_delete)
+        self.menu_edit.addAction(self.menu_column_delete)
         self.menu_clean.addAction(self.menu_clean_metadata)
         self.menu_clean.addAction(self.menu_clean_rename)
         self.menu_clean.addAction(self.menu_copy_column)
         self.menu_clean.addAction(self.menu_split_column)
         self.menu_clean.addAction(self.menu_replace_column)
-        self.menu_clean.addAction(self.menu_combine_synonym)
-        self.menu_clean.addAction(self.menu_stop_words)
-        self.menu_clean.addAction(self.menu_count_stat)
-        self.menu_clean.addAction(self.menu_cocon_stat)
         self.menu_clean.addAction(self.menu_compare_columns)
         self.menu_clean.addAction(self.menu_modify_value)
-        self.menu_clean.addAction(self.menu_row_distinct)
-        self.menu_clean.addAction(self.menu_row_similarity)
-        self.menu_clean.addAction(self.menu_row_delete)
-        self.menu_clean.addAction(self.menu_column_delete)
         self.menu_clean.addAction(self.menu_vertical_concat)
-        self.menu_clean.addAction(self.menu_split_words)
-        self.menu_clean.addAction(self.menu_group_stat)
-        self.menu_clean.addAction(self.menu_clean_filter)
         self.menu_clean.addAction(self.menu_clean_makeup)
-        self.menu_clean.addAction(self.menu_clean_graph_config)
-        self.menu_clean.addAction(self.menu_clean_extract_feature)
+        self.menu_clean.addAction(self.menu_combine_synonym)
+        self.menu_clean.addAction(self.menu_row_distinct)
+        self.menu_clean.addAction(self.menu_stop_words)
+        self.menu_clean.addAction(self.menu_split_words)
+        self.menu_analyze.addAction(self.menu_count_stat)
+        self.menu_analyze.addAction(self.menu_cocon_stat)
+        self.menu_analyze.addAction(self.menu_row_similarity)
+        self.menu_analyze.addAction(self.menu_group_stat)
+        self.menu_analyze.addAction(self.menu_clean_filter)
+        self.menu_analyze.addAction(self.menu_clean_graph_config)
+        self.menu_analyze.addAction(self.menu_clean_extract_feature)
 
         self.retranslateUi(MainWindow)
-
-        self.mainTabWidget.setCurrentIndex(0)
-
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -522,24 +315,16 @@ class Ui_MainWindow(object):
         self.menu_clean_parse.setText(QCoreApplication.translate("MainWindow", u"\u89e3\u6790", None))
         self.menu_clean_graph_config.setText(QCoreApplication.translate("MainWindow", u"\u56fe\u8868\u914d\u7f6e", None))
         self.menu_clean_extract_feature.setText(QCoreApplication.translate("MainWindow", u"\u7279\u5f81\u63d0\u53d6", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_clean), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_analyze), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_graph), QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))
-        self.label_11.setText(QCoreApplication.translate("MainWindow", u"csv\u6587\u4ef6\u5206\u9694\u7b26", None))
-        self.config_datafiles_csv_seperator.setText("")
-        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"\u8bcd\u5178", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"\u505c\u7528\u8bcd\u5178", None))
-        self.btn_stop_words_dict.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"\u5408\u5e76\u8bcd\u5178", None))
-        self.btn_combine_words_dict.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"\u53d7\u63a7\u8bcd\u5178", None))
-        self.btn_controlled_words_dict.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.btn_save_config.setText(QCoreApplication.translate("MainWindow", u"\u4fdd\u5b58", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_config), QCoreApplication.translate("MainWindow", u"\u914d\u7f6e", None))
+        self.menu_file.setTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
+        self.menu_edit.setTitle(QCoreApplication.translate("MainWindow", u"\u7f16\u8f91", None))
         self.menu_clean.setTitle(QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
-        self.menu_library.setTitle(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
+        self.menu_analyze.setTitle(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
+        self.dockWidget_datafiles.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
+        self.dockWidget_config.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u53c2\u6570\u914d\u7f6e", None))
+        self.dockWidget_history.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u64cd\u4f5c\u65e5\u5fd7", None))
+        self.dockWidget_stack.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u6808", None))
+        self.dockWidget_table.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u8868\u683c", None))
+        self.dockWidget_graph.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u56fe\u50cf", None))
+        self.clean_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

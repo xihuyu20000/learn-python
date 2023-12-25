@@ -53,7 +53,8 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         super(MasterWindows, self).__init__()
         self.setupUi(self)
 
-        ## 1、初始化本窗口的内容 ##################################################
+        self.init_dock()
+        # 1、初始化本窗口的内容 ##################################################
 
         self.master_init_action()
         self.master_init_config()
@@ -67,37 +68,35 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
 
         ## 3、清洗部分初始化 #####################################################
 
-
         # clean 数据栈
         self.cleanTableStack = PandasStack(self)
 
         # clean 菜单栏、工具栏
-        self.menuBar().hide()
         self.clean_init_menubar()
 
-        ## 4、 数据分析部分初始化 ###################################################
-
-        # library 工具栏
-        self.library_toolbar = QToolBar()
-        self.library_toolbar.setToolButtonStyle(
-            QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon
-        )
-        # library 数据表
-        self.library_datatable = TableKit(
-            column_sortable=True, header_horizontal_movable=True
-        )
-        # library 布局管理器
-        self.tab2_layout.addWidget(self.library_toolbar)
-        self.tab2_layout.addWidget(self.library_datatable)
-
-        # library 菜单栏、工具栏
-        self.library_init_menubar()
-        self.library_init_toolbar()
-
-        ## 5、  图表部分初始化 ######################################################################
-        self.graph_data = GraphData()
-
-
+        # ## 4、 数据分析部分初始化 ###################################################
+        #
+        # # library 工具栏
+        # self.library_toolbar = QToolBar()
+        # self.library_toolbar.setToolButtonStyle(
+        #     QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon
+        # )
+        # # library 数据表
+        # self.library_datatable = TableKit(
+        #     column_sortable=True, header_horizontal_movable=True
+        # )
+        # # library 布局管理器
+        # self.tab2_layout.addWidget(self.library_toolbar)
+        # self.tab2_layout.addWidget(self.library_datatable)
+        #
+        # # library 菜单栏、工具栏
+        # self.library_init_menubar()
+        # self.library_init_toolbar()
+        #
+        # ## 5、  图表部分初始化 ######################################################################
+        # self.graph_data = GraphData()
+        #
+        #
         ## 6、  数据初始化 ######################################################################
         self.watchDataFilesChangingThread = WatchDataFilesChaningThread()
         self.watchDataFilesChangingThread.start()
@@ -105,8 +104,25 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         self.master_action_datafiles_list()
         self.master_show_info("欢迎使用本软件，祝您有愉快的一天")
 
-
-
+    def init_dock(self):
+        # 移除中间部件
+        self.takeCentralWidget()
+        # 启用嵌套布局
+        self.setDockNestingEnabled(True);
+        # 先左右布局
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockWidget_datafiles)
+        self.splitDockWidget(self.dockWidget_datafiles, self.dockWidget_table, QtCore.Qt.Orientation.Horizontal)
+        self.splitDockWidget(self.dockWidget_table, self.dockWidget_config, QtCore.Qt.Orientation.Horizontal)
+        # 然后左侧，上下布局
+        self.splitDockWidget(self.dockWidget_datafiles, self.dockWidget_stack, QtCore.Qt.Orientation.Vertical)
+        # 然后中间，上下布局
+        self.splitDockWidget(self.dockWidget_table, self.dockWidget_graph, QtCore.Qt.Orientation.Vertical)
+        self.tabifyDockWidget(self.dockWidget_table, self.dockWidget_graph)
+        self.dockWidget_table.raise_()
+        # 然后右侧，上下布局
+        self.splitDockWidget(self.dockWidget_config, self.dockWidget_history, QtCore.Qt.Orientation.Vertical)
+        # 大小设置
+        self.resizeDocks([self.dockWidget_datafiles, self.dockWidget_table, self.dockWidget_config], [2,5,1], QtCore.Qt.Orientation.Horizontal)
     def master_init_action(self) -> None:
         """
         main.ui所有的事件槽函数，都在这里
@@ -118,24 +134,24 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
             self.master_action_dblclick_datafiles_list
         )
 
-        # 配置项，停用词
-        self.btn_stop_words_dict.clicked.connect(self.master_action_datafiles_stop_words_dict)
-        # 配置项，合并词
-        self.btn_combine_words_dict.clicked.connect(self.master_action_datafiles_combine_words_dict)
-        # 配置项，受控词
-        self.btn_controlled_words_dict.clicked.connect(self.master_action_datafiles_controlled_words_dict)
-        # 配置项，保存
-        self.btn_save_config.clicked.connect(self.master_action_save_configs)
+        # # 配置项，停用词
+        # self.btn_stop_words_dict.clicked.connect(self.master_action_datafiles_stop_words_dict)
+        # # 配置项，合并词
+        # self.btn_combine_words_dict.clicked.connect(self.master_action_datafiles_combine_words_dict)
+        # # 配置项，受控词
+        # self.btn_controlled_words_dict.clicked.connect(self.master_action_datafiles_controlled_words_dict)
+        # # 配置项，保存
+        # self.btn_save_config.clicked.connect(self.master_action_save_configs)
 
     def master_init_config(self) -> None:
         """
         初始化配置项中的参数
         :return:
         """
-        self.config_datafiles_csv_seperator.setText(Config.csv_seperator.value)
-        self.config_stop_words_dict.setText(Config.stop_words.value)
-        self.config_combine_words_dict.setText(Config.combine_words.value)
-        self.config_controlled_words_dict.setText(Config.controlled_words.value)
+        # self.config_datafiles_csv_seperator.setText(Config.csv_seperator.value)
+        # self.config_stop_words_dict.setText(Config.stop_words.value)
+        # self.config_combine_words_dict.setText(Config.combine_words.value)
+        # self.config_controlled_words_dict.setText(Config.controlled_words.value)
 
 
 
@@ -288,108 +304,118 @@ class MasterWindows(QMainWindow, Ui_MainWindow):
         槽函数，必须是clean_do_menu_开头
         :return:
         """
+
         # 解析
         self.menu_clean_parse.triggered.connect(self.master_action_datafiles_parse)
-        self.clean_toolbar.addAction(self.menu_clean_parse, self.master_action_datafiles_parse)
-
-        # 撤回
-        self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
-        self.clean_toolbar.addAction(self.menu_clean_undo, self.clean_do_menu_undo)
-
-        # 恢复
-        self.menu_clean_redo.triggered.connect(self.clean_do_menu_redo)
-        self.clean_toolbar.addAction(self.menu_clean_redo, self.clean_do_menu_redo)
-
-        # 删除行
-        self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
-        self.clean_toolbar.addAction(self.menu_row_delete, self.clean_do_menu_row_delete)
-
-        # 删除列
-        self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
-        self.clean_toolbar.addAction(self.menu_column_delete, self.clean_do_menu_column_delete)
+        self.clean_toolbar.addAction(self.menu_clean_parse)
 
         # 保存
         self.menu_clean_save.triggered.connect(self.clean_do_menu_save)
-        self.clean_toolbar.addAction(self.menu_clean_save, self.clean_do_menu_save)
+        self.clean_toolbar.addAction(self.menu_clean_save)
+
+        self.clean_toolbar.addSeparator()
+        # 撤回
+        self.menu_clean_undo.triggered.connect(self.clean_do_menu_undo)
+        self.clean_toolbar.addAction(self.menu_clean_undo)
+
+        # 恢复
+        self.menu_clean_redo.triggered.connect(self.clean_do_menu_redo)
+        self.clean_toolbar.addAction(self.menu_clean_redo)
+
+        # 删除行
+        self.menu_row_delete.triggered.connect(self.clean_do_menu_row_delete)
+        self.clean_toolbar.addAction(self.menu_row_delete)
+
+        # 删除列
+        self.menu_column_delete.triggered.connect(self.clean_do_menu_column_delete)
+        self.clean_toolbar.addAction(self.menu_column_delete)
+        self.clean_toolbar.addSeparator()
+        #############################################################################
 
         # 元数据
         self.menu_clean_metadata.triggered.connect(self.clean_do_menu_metadata)
-        self.clean_toolbar.addAction(self.menu_clean_metadata, self.clean_do_menu_metadata)
-
-        # 图表配置
-        self.menu_clean_graph_config.triggered.connect(self.clean_do_menu_graph_config)
-        self.clean_toolbar.addAction(self.menu_clean_graph_config, self.clean_do_menu_graph_config)
+        self.clean_toolbar.addAction(self.menu_clean_metadata)
 
         # 重命名
         self.menu_clean_rename.triggered.connect(self.clean_do_menu_rename)
-        self.clean_toolbar.addAction(self.menu_clean_rename, self.clean_do_menu_rename)
+        self.clean_toolbar.addAction(self.menu_clean_rename)
 
         # 复制列
         self.menu_copy_column.triggered.connect(self.clean_do_menu_copy_column)
-        self.clean_toolbar.addAction(self.menu_copy_column, self.clean_do_menu_copy_column)
+        self.clean_toolbar.addAction(self.menu_copy_column)
 
         # 拆分列
         self.menu_split_column.triggered.connect(self.clean_do_menu_split_column)
-        self.clean_toolbar.addAction(self.menu_split_column, self.clean_do_menu_split_column)
+        self.clean_toolbar.addAction(self.menu_split_column)
 
         # 替换值
         self.menu_replace_column.triggered.connect(self.clean_do_menu_replace_column)
-        self.clean_toolbar.addAction(self.menu_replace_column, self.clean_do_menu_replace_column)
-
-        # 合并词
-        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
-        self.clean_toolbar.addAction(self.menu_combine_synonym, self.clean_do_menu_combine_synonym)
-
-        # 停用词
-        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
-        self.clean_toolbar.addAction(self.menu_stop_words, self.clean_do_menu_stop_words)
-
-        # 词频统计
-        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
-        self.clean_toolbar.addAction(self.menu_count_stat, self.clean_do_menu_wordcount_stat)
-
-        # 共现分析
-        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
-        self.clean_toolbar.addAction(self.menu_cocon_stat, self.clean_do_menu_cocon_stat)
+        self.clean_toolbar.addAction(self.menu_replace_column)
 
         # 列比较
         self.menu_compare_columns.triggered.connect(self.clean_do_menu_compare_columns)
-        self.clean_toolbar.addAction(self.menu_compare_columns, self.clean_do_menu_compare_columns)
+        self.clean_toolbar.addAction(self.menu_compare_columns)
 
         # 修改值
         self.menu_modify_value.triggered.connect(self.clean_do_menu_modify_value)
-        self.clean_toolbar.addAction(self.menu_modify_value, self.clean_do_menu_modify_value)
-
-        # 分词
-        self.menu_split_words.triggered.connect(self.clean_do_menu_split_words)
-        self.clean_toolbar.addAction(self.menu_split_words, self.clean_do_menu_split_words)
-
-        # 特征提取
-        self.menu_clean_extract_feature.triggered.connect(self.clean_do_menu_extract_features)
-        self.clean_toolbar.addAction(self.menu_clean_extract_feature, self.clean_do_menu_extract_features)
-        # 行去重
-        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
-        self.clean_toolbar.addAction(self.menu_row_distinct, self.clean_do_menu_row_distinct)
-
-        # 相似度
-        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
-        self.clean_toolbar.addAction(self.menu_row_similarity, self.clean_do_menu_row_similarity)
+        self.clean_toolbar.addAction(self.menu_modify_value)
 
         # 数据合并
         self.menu_vertical_concat.triggered.connect(self.clean_do_menu_vertical_concat)
-        self.clean_toolbar.addAction(self.menu_vertical_concat, self.clean_do_menu_vertical_concat)
-
-        # 分组统计
-        self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
-        # self.clean_toolbar.addAction(self.menu_group_stat, self.clean_do_menu_group_stat)
-
-        # 过滤值
-        self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
-        # self.clean_toolbar.addAction(self.menu_clean_filter, self.clean_do_menu_clean_filter)
+        self.clean_toolbar.addAction(self.menu_vertical_concat)
 
         # 补全值
         self.menu_clean_makeup.triggered.connect(self.clean_do_menu_clean_makeup)
-        # self.clean_toolbar.addAction(self.menu_clean_makeup, self.clean_do_menu_clean_makeup)
+        self.clean_toolbar.addAction(self.menu_clean_makeup)
+
+        # 合并词
+        self.menu_combine_synonym.triggered.connect(self.clean_do_menu_combine_synonym)
+        self.clean_toolbar.addAction(self.menu_combine_synonym)
+
+        # 行去重
+        self.menu_row_distinct.triggered.connect(self.clean_do_menu_row_distinct)
+        self.clean_toolbar.addAction(self.menu_row_distinct)
+
+        # 停用词
+        self.menu_stop_words.triggered.connect(self.clean_do_menu_stop_words)
+        self.clean_toolbar.addAction(self.menu_stop_words)
+
+        # 切分词
+        self.menu_split_words.triggered.connect(self.clean_do_menu_split_words)
+        self.clean_toolbar.addAction(self.menu_split_words)
+
+        self.clean_toolbar.addSeparator()
+        #############################################################################
+
+        # 词频统计
+        self.menu_count_stat.triggered.connect(self.clean_do_menu_wordcount_stat)
+        self.clean_toolbar.addAction(self.menu_count_stat)
+
+        # 共现分析
+        self.menu_cocon_stat.triggered.connect(self.clean_do_menu_cocon_stat)
+        self.clean_toolbar.addAction(self.menu_cocon_stat)
+
+        # 相似度
+        self.menu_row_similarity.triggered.connect(self.clean_do_menu_row_similarity)
+        self.clean_toolbar.addAction(self.menu_row_similarity)
+
+        # 分组统计
+        self.menu_group_stat.triggered.connect(self.clean_do_menu_group_stat)
+        # self.clean_toolbar.addAction(self.menu_group_stat)
+
+        # 过滤值
+        self.menu_clean_filter.triggered.connect(self.clean_do_menu_clean_filter)
+        # self.clean_toolbar.addAction(self.menu_clean_filter)
+
+        # 特征提取
+        self.menu_clean_extract_feature.triggered.connect(self.clean_do_menu_extract_features)
+        self.clean_toolbar.addAction(self.menu_clean_extract_feature)
+
+        # 图表配置
+        self.menu_clean_graph_config.triggered.connect(self.clean_do_menu_graph_config)
+        self.clean_toolbar.addAction(self.menu_clean_graph_config)
+
+
 
     #######################################################################
 

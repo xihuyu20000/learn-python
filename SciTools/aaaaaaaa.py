@@ -1,21 +1,34 @@
-import jieba
-import pandas as pd
-from jieba.analyse import extract_tags
+from PySide2.QtWidgets import QApplication, QMainWindow, QDockWidget, QTextEdit, QVBoxLayout, QWidget
+import sys
 
-from core import Parser, CleanBiz
-from core.const import Config
+class MyMainWindow(QMainWindow):
+    def __init__(self):
+        super(MyMainWindow, self).__init__()
 
-if __name__ == '__main__':
-    # df = Parser.parse_pickle([r'D:\workspace\github\learn-python\SciTools\datafiles\146万记录.pkl'])
+        # 创建两个 QDockWidget
+        dock_widget1 = QDockWidget('Dock 1', self)
+        dock_widget2 = QDockWidget('Dock 2', self)
 
-    df = pd.DataFrame({
-        'A1':['张三;李四;王五;赵六','张三;李四;王五', '张三;李四','张三'],
-        'K1': ['词3;词4;词5;词6', '词4;词3;词5', '词4;词3;', '词3']
-    })
+        # 在 QDockWidget 中添加一些内容（这里使用 QTextEdit 作为示例）
+        text_edit1 = QTextEdit()
+        text_edit2 = QTextEdit()
 
-    CleanBiz.extract_features(df, ['A1','K1'])
+        dock_widget1.setWidget(text_edit1)
+        dock_widget2.setWidget(text_edit2)
 
-    s1 = '在网络上收集了到了2个资料，对比了它们对Pooling的翻译，其中来自机器之心翻译为汇聚，似乎更能体会在CNN中的物理含义，更好理解。'
-    words = ' '.join([word for word, flag in jieba.posseg.cut(s1) if flag in ('Ng', 'n','nr','nt','ns','nz','v')])
+        # 创建一个 QWidget 作为中央部件
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
 
-    [word for word, weight in extract_tags(words, 5, withWeight=True)]
+        # 创建水平布局管理器
+        layout = QVBoxLayout(central_widget)
+
+        # 将 QDockWidget 添加到布局中
+        layout.addWidget(dock_widget1)
+        layout.addWidget(dock_widget2)
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    main_window = MyMainWindow()
+    main_window.show()
+    sys.exit(app.exec_())
