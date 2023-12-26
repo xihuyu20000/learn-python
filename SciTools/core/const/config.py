@@ -65,15 +65,3 @@ class DistanceStyle:
     cosine = 'cosine'
 
 
-class MySignal(QtCore.QObject):
-    info = QtCore.Signal(str)
-    error = QtCore.Signal(str)
-    set_clean_dataset = QtCore.Signal(object)
-    datafiles_changing = QtCore.Signal()
-    reset_cache = QtCore.Signal()
-    push_cache = QtCore.Signal(object)
-    update_cache = QtCore.Signal()
-
-
-ssignal = MySignal()
-

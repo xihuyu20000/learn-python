@@ -11,7 +11,7 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
     def __init__(self, parent):
         super(PopupCompareColumns, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.column_names.addItems(self.get_clean_columns())
         self.column_names.setCurrentRow(0)

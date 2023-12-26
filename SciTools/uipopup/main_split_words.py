@@ -10,7 +10,7 @@ class PopupSplitWords(QDialog, ui_split_words.Ui_Form):
     def __init__(self, parent):
         super(PopupSplitWords, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_data()
 

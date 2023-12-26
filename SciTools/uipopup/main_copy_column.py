@@ -9,7 +9,7 @@ class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):
     def __init__(self, parent):
         super(PopupCopyColumn, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_data()
 

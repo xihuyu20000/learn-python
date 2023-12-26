@@ -8,7 +8,7 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
     def __init__(self, parent):
         super(PopupWordCountStat, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_data()
 

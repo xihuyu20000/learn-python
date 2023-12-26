@@ -8,7 +8,7 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
     def __init__(self, parent):
         super(PopupModifyValues, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.btn_start.clicked.connect(self.action_start)
         self.btn_save.clicked.connect(self.action_save)

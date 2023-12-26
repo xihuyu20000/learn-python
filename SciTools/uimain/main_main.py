@@ -17,6 +17,7 @@ from core.const import FileFormat
 from core.mgraph import GraphData
 from core.const import Config, ssignal
 from core.util import PandasCache, PandasUtil
+from uimain.ctx import MasterMainContext
 from uimain.uipy.ui_main import Ui_MainWindow
 from uipopup.main_cocon_stat import PopupCoconStat
 from uipopup.main_combine_synonym import PopupCombineSynonym
@@ -43,9 +44,10 @@ from mrunner import (
 )
 from core.toolkit.mtoolkit import TableKit
 
+ActionCallback = collections.namedtuple("ActionCallback", ["source", 'callback'])
 MenuTool = collections.namedtuple('MenuTool', ['id' , 'label', 'icon', 'menubar', 'show_in_menubar', 'show_in_toolbar', 'callback'])
-MenubarSeperator = collections.namedtuple('MenubarSeperator', ['menubar'])
-ToolbarSeperator = collections.namedtuple('ToolbarSeperator', [])
+
+
 class MasterMainWindows(QMainWindow, Ui_MainWindow):
     """
     本窗口的代码，使用master开头。放在最前面。
@@ -56,6 +58,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         super(MasterMainWindows, self).__init__()
         self.setupUi(self)
 
+        self.context = MasterMainContext(self)
         # 1、初始化本窗口的内容 ##################################################
         if Config.get('geometry'):
             self.restoreGeometry(Config.get('geometry'))
@@ -63,7 +66,8 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         else:
             self.master_init_dock()
 
-        self.master_init_action()
+        self.action_callback_list = []
+        self.master_init_action_callback()
 
 
         ## 2、绑定信息处理器 #####################################################
@@ -83,6 +87,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.menutool_list = []
         self.master_init_menubar_list()
         self.init_menutool()
+
         # ## 4、 数据分析部分初始化 ###################################################
 
 
@@ -94,7 +99,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.watchDataFilesChangingThread = WatchDataFilesChaningThread()
         self.watchDataFilesChangingThread.start()
 
-        self.master_action_datafiles_list()
+        ssignal.datafiles_changing.emit()
         self.master_show_permanent("欢迎使用本软件，祝您有愉快的一天")
 
     def master_init_dock(self):
@@ -117,27 +122,38 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.splitDockWidget(self.dockWidget_config, self.dockWidget_history, QtCore.Qt.Orientation.Vertical)
         # 大小设置
         self.resizeDocks([self.dockWidget_datafiles, self.dockWidget_table, self.dockWidget_config], [2,5,1], QtCore.Qt.Orientation.Horizontal)
-    def master_init_action(self) -> None:
+
+    def master_init_action_callback(self) -> None:
         """
         main.ui所有的事件槽函数，都在这里
         :return:
         """
-        # 监听datafiles目录的文件变化
         # 数据文件列表，双击
-        self.datafiles_list.itemDoubleClicked.connect(
-            self.master_action_dblclick_datafiles_list
-        )
-
-
+        self.datafiles_list.itemDoubleClicked.connect(self.master_action_dblclick_datafiles_list)
+        # self.action_callback_list.append(ActionCallback(source=self.datafiles_list, callback=self.master_action_dblclick_datafiles_list))
         # # 配置项，停用词
         self.btn_stop_words_dict.clicked.connect(self.master_action_datafiles_stop_words_dict)
+        # self.action_callback_list.append(ActionCallback(source=self.btn_stop_words_dict, callback=self.master_action_datafiles_stop_words_dict))
         # # 配置项，合并词
         self.btn_combine_words_dict.clicked.connect(self.master_action_datafiles_combine_words_dict)
+        # self.action_callback_list.append(ActionCallback(source=self.btn_combine_words_dict, callback=self.master_action_datafiles_combine_words_dict))
         # # 配置项，受控词
         self.btn_controlled_words_dict.clicked.connect(self.master_action_datafiles_controlled_words_dict)
+        # self.action_callback_list.append(ActionCallback(source=self.btn_controlled_words_dict, callback=self.master_action_datafiles_controlled_words_dict))
         # # 配置项，保存
         self.btn_save_config.clicked.connect(self.master_action_save_configs)
+        # self.action_callback_list.append(ActionCallback(source=self.btn_save_config, callback=self.master_action_save_configs))
 
+
+    # def action_callback(self):
+    #     obj: QtWidgets.QWidget = self.sender()
+    #
+    #     for action in self.action_callback_list:
+    #         if obj.objectName() == action.source:
+    #             action.callback()
+    #             print('aaaa')
+    #
+    #     logger.debug(obj.objectName(), )
     def master_init_config(self) -> None:
         """
         初始化配置项中的参数
@@ -151,11 +167,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     ###############################################################################################
 
     def master_init_menubar_list(self):
-        """
-        槽函数，必须是clean_do_menu_开头
-        :return:
-        """
-
         ## 文件 ############################################################
         # 解析
         self.menutool_list.append(
@@ -363,8 +374,18 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         ## 窗口 ############################################################
-        self.menu_window_savestore.triggered.connect(self.clean_do_menu_window_savestore)
-        self.menu_window_restore.triggered.connect(self.master_init_dock)
+        self.menutool_list.append(
+            MenuTool(id='window_savestore', label='保存布局', icon='app.png', menubar='menu_window',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_window_savestore)
+        )
+        self.menutool_list.append(
+            MenuTool(id='window_restore', label='恢复布局', icon='app.png', menubar='menu_window',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.master_init_dock)
+        )
 
 
 
@@ -421,11 +442,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_get_clean_df(self) -> pd.DataFrame:
         return self.clean_datatable.get_dataset()
 
-    def master_set_clean_df(self, df, inplace_index=True, drop_index=True) -> None:
-        self.clean_datatable.set_dataset(
-            df, inplace_index=inplace_index, drop_index=drop_index
-        )
-
     def master_get_clean_columns(self) -> List[str]:
         return self.master_get_clean_df().columns
 
@@ -435,6 +451,11 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_clean_no_data(self) -> bool:
         return not self.clean_datatable.has_dataset()
 
+    def master_set_clean_df(self, df, inplace_index=True, drop_index=True) -> None:
+        self.clean_datatable.set_dataset(
+            df, inplace_index=inplace_index, drop_index=drop_index
+        )
+    #################################################
     def master_action_dblclick_datafiles_list(self, item):
         logger.info("双击数据文件列表，解析数据文件")
 

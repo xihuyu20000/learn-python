@@ -11,7 +11,7 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
     def __init__(self, parent):
         super(PopupSplitColumn, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.listWidget.addItems(self.get_clean_columns())
 

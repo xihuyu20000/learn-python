@@ -38,7 +38,7 @@ class PopupExtractFeatures(QDialog, ui_extract_feature.Ui_Form):
     def __init__(self, parent):
         super(PopupExtractFeatures, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_data()
 

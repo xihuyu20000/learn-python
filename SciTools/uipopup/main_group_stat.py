@@ -48,7 +48,7 @@ class WinGroupStat(QDialog, ui_group_stat.Ui_Form):
     def __init__(self, parent):
         super(WinGroupStat, self).__init__()
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.listWidget.setDragEnabled(True)
         self.listWidget.mousePressEvent = lambda e: self.soure_drag_start(self.listWidget, e)

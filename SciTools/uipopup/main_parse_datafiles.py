@@ -8,11 +8,12 @@ from mrunner import CleanParseFileThread
 class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
     def __init__(self, parent, abs_datafiles, sep):
         super(PopupDatafilesParse, self).__init__(parent)
+        self.setupUi(self)
+        self.parent = parent.context
 
         self.abs_datafiles = abs_datafiles
         self.sep = sep
 
-        self.setupUi(self)
 
         btns_arr = [[FileFormat.CNKI, FileFormat.WEIPU, FileFormat.WANFANG],
                     [FileFormat.CSV, FileFormat.EXCEL, FileFormat.PICKLE],

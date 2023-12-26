@@ -1,6 +1,7 @@
 
 from PySide2.QtWidgets import QDialog
 
+from uimain.ctx import MasterMainContext
 from uipopup.uipy import ui_dataset_metadata
 
 from mrunner import CleanMetadataThread
@@ -9,10 +10,10 @@ from core.toolkit.mtoolkit import PandasTableModel, TableKit, FrameKit
 
 class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super(PopupCleanMetadata, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.context = parent.context
 
         self.tableView.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:#abfaa6;}}");
         # 数据统计
@@ -41,4 +42,4 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
             self.tabWidget.addTab(widget.show(), col_name)
 
     def get_dataset(self):
-        return self.parent.master_get_clean_df()
+        return self.context.master_get_clean_df()

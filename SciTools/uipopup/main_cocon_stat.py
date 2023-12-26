@@ -14,7 +14,7 @@ class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
     def __init__(self, parent):
         super(PopupCoconStat, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_data()
 

@@ -13,7 +13,7 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
     def __init__(self, parent=None):
         super(PopupCleanRename, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
         self.init_table()
 

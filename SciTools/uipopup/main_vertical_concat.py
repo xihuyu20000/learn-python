@@ -8,7 +8,8 @@ class PopupVerticalConcat(QDialog, ui_vertical_concat.Ui_Form):
     def __init__(self, parent, abs_paths):
         super(PopupVerticalConcat, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
+
         self.abs_paths = abs_paths
 
         self.btn_start.clicked.connect(self.action_start)

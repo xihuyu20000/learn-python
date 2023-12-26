@@ -11,7 +11,7 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
     def __init__(self, parent):
         super(PopupGraphConfig, self).__init__(parent)
         self.setupUi(self)
-        self.parent = parent
+        self.parent = parent.context
 
 
         for info in Draw.infos:
