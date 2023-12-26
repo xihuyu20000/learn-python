@@ -12,8 +12,7 @@ format_error = '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <
             '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
 
 # 使用 getattr 检查 sys.frozen 属性,判断脚本是否运行在一个EXE文件中
-_abs_path = os.path.expanduser('~') if getattr(sys, 'frozen', False) else os.path.abspath(os.curdir)
-
+_abs_path = os.path.expanduser("~")
 class MyLogger:
     def __init__(self):
         self.__logger = loguru.logger

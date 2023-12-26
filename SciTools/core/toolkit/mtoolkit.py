@@ -400,23 +400,25 @@ class TableKit(QFrame):
             ds.drop(columns=ds.columns[columns], inplace=True)
             self.set_dataset(ds)
 
-    def remove_selected_columns(self):
-        """
-        删除选中列
-        """
-        col_indexes = [index[1] for index in self._table.pub_selected_indexes()]
-        self.remove_columns(col_indexes)
-
-    def remove_selected_rows(self):
-        """
-        删除选中行
-        """
-        row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
-        self.remove_rows(row_indexes)
+    # def remove_selected_columns(self):
+    #     """
+    #     删除选中列
+    #     """
+    #     col_indexes = [index[1] for index in self._table.pub_selected_indexes()]
+    #     self.remove_columns(col_indexes)
+    #
+    # def remove_selected_rows(self):
+    #     """
+    #     删除选中行
+    #     """
+    #     row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
+    #     self.remove_rows(row_indexes)
 
     def get_selected_rows(self):
         return [index[0] for index in self._table.pub_selected_indexes()]
 
+    def get_selected_cols(self):
+        return [index[1] for index in self._table.pub_selected_indexes()]
     def set_dataset(self, df: pd.DataFrame, inplace_index=True, drop_index=True):
         if not isinstance(df.index, pandas.RangeIndex):
             inplace_index = False
@@ -583,104 +585,6 @@ class TableKit(QFrame):
         def sortByColumn(self, column, order):
             print("视图排序")
 
-
-class PandasStack:
-    cache_dir = os.path.join(os.path.expanduser("~"), ".clean-cache")
-
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-
-        self.cache = Cache(PandasStack.cache_dir)
-        self.index = 0
-        self.highest = 0
-        self.current = None
-
-        ssignal.reset_cache.connect(self.reset_cache)
-        ssignal.push_cache.connect(self.push_cache)
-
-        self.reset_cache()
-
-    def reset_cache(self, *args):
-        """
-        当加载新的数据文件时，或者保存之后，就需要重置
-        :return:
-        """
-        self.cache.clear()
-        self.index = 0
-        self.highest = 0
-        self.current = None
-        try:
-            shutil.rmtree(PandasStack.cache_dir)
-        except OSError:  # Windows wonkiness
-            pass
-
-    def push_cache(self, df):
-        """
-        如果是多次undo后push的流程如下：
-        假设原始数据是[1,2,3,4] undo三次后，当前是[1]；再次push，结果是[1,2]
-
-        :param df:
-        :return:
-        """
-        self.current = df
-        self.index += 1
-        self.cache.set(self.index, df)
-        for i in range(self.index + 1, self.highest + 1):
-            del self.cache[i]
-        self.highest = self.index
-
-        self.show()
-
-    def undo(self) -> pd.DataFrame:
-        val = None
-        if self.index > 1:
-            self.index -= 1
-            self.current = self.cache.get(self.index)
-            val = self.current
-
-        self.show()
-        return val
-
-    def redo(self) -> pd.DataFrame:
-        """
-        redo会影响当前的index，从而index+1;但是不会影响highest的值
-        :return:
-        """
-        val = None
-        if self.index < self.highest:
-            self.index += 1
-            self.current = self.cache.get(self.index)
-            val = self.current
-        self.show()
-        return val
-
-    def show(self):
-        logger.debug(
-            "当前位置{}  最高水位线{}  缓存内容{}",
-            f"{self.index}",
-            f"{self.highest}",
-            str([i for i in self.cache.iterkeys()]),
-        )
-
-
-# class ScrollableToolBar(QWidget):
-#     def __init__(self):
-#         super(ScrollableToolBar, self).__init__()
-#
-#         self.scrollArea = QScrollArea(self)
-#         self.scrollArea.setContentsMargins(0, 0, 0, 0)
-#         self.scrollArea.setWidgetResizable(True)
-#         self.innerWgt = QWidget()
-#         self.layout = QHBoxLayout(self.innerWgt)
-#         self.layout.setContentsMargins(0, 0, 0, 0)
-#         self.layout.setSpacing(0)
-#
-#         self.scrollArea.setWidget(self.innerWgt)
-#
-#     def addWidgets(self, widgets):
-#         for wid in widgets:
-#             self.layout.addWidget(wid)
 class ScrollWidget(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super(ScrollWidget, self).__init__(parent)

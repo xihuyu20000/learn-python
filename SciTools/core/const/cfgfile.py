@@ -4,13 +4,12 @@ import os
 import sys
 from typing import Dict
 
+from PySide2.QtCore import QSettings
+
 from core.log import logger
 
-abs_path = (
-    os.path.expanduser("~")
-    if getattr(sys, "frozen", False)
-    else os.path.abspath(os.curdir)
-)
+abs_path = os.path.expanduser("~")
+
 
 CfgItem = collections.namedtuple('CfgItem', ['label', 'key', 'value'])
 
@@ -18,18 +17,18 @@ CfgItem = collections.namedtuple('CfgItem', ['label', 'key', 'value'])
 class CfgHandler:
     def __init__(self):
         # 配置文件路径
-        self.cfg_save_path = os.path.join(abs_path, "cfg.db")
+        self.cfg_save_path = os.path.join(abs_path, ".clean-cfg.db")
         # 配置字典
         self.load_dict: Dict[str, str] = collections.defaultdict(str)
-        try:
-            # cfg.db文件存在，则读取内容
-            if os.path.exists(self.cfg_save_path):
-                with open(self.cfg_save_path, encoding="utf-8") as load_f:
-                    dataform = str(load_f.read()).strip("'<>() ").replace('\'', '\"')
-                    self.load_dict.update(json.loads(dataform))
-                    logger.debug(self.load_dict)
-        except Exception as e:
-            logger.exception(e)
+
+        # cfg.db文件存在，则读取内容
+        if os.path.exists(self.cfg_save_path):
+            setting = QSettings(self.cfg_save_path, QSettings.IniFormat)
+            for key in setting.allKeys():
+                if len(setting.value(key))>0:
+                    self.load_dict[key] = setting.value(key)
+
+
 
         # 工作空间文件夹
         self.workspace = CfgItem(label='workspace', key='workspace', value=os.path.abspath(os.curdir))
@@ -88,19 +87,17 @@ class CfgHandler:
         self.popup_startup = CfgItem(label='popup_startup', key='popup_startup', value='')
         self.__init_value(self.popup_startup)
 
-        logger.debug("初始化执行结束 {}", self.cfg_save_path)
+        logger.debug('配置信息 {}', self.load_dict)
 
     def get(self, key):
         return self.load_dict[key]
 
     def set(self, key, value):
+        logger.debug('保存配置信息{}={}', key, value)
         self.load_dict[key] = value
 
-        try:
-            with open(self.cfg_save_path, 'w', encoding="utf-8") as write_f:
-                json.dump(self.load_dict, write_f, indent=4, ensure_ascii=False)
-        except Exception as e:
-            logger.exception(e)
+        setting = QSettings(self.cfg_save_path, QSettings.IniFormat)
+        setting.setValue(key, value)
 
     def __init_value(self, item: CfgItem):
         if len(self.load_dict[item.key]) > 0:

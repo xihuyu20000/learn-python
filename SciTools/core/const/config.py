@@ -72,6 +72,7 @@ class MySignal(QtCore.QObject):
     datafiles_changing = QtCore.Signal()
     reset_cache = QtCore.Signal()
     push_cache = QtCore.Signal(object)
+    update_cache = QtCore.Signal()
 
 
 ssignal = MySignal()

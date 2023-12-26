@@ -17,7 +17,8 @@ from jieba.analyse import extract_tags
 
 from core.const import FileFormat
 from core.log import logger
-from core.util.mutil import Utils, PandasUtil
+from core.util import PandasUtil
+from core.util.mutil import Utils
 from core.const import Config
 
 class Parser:
