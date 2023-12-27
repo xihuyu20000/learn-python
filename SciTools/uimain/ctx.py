@@ -1,4 +1,4 @@
-from typing import List
+import typing
 
 import pandas as pd
 
@@ -12,7 +12,7 @@ class MasterMainContext:
     def master_get_clean_df(self) -> pd.DataFrame:
         return self.parent.clean_datatable.get_dataset()
 
-    def master_get_clean_columns(self) -> List[str]:
+    def master_get_clean_columns(self) -> typing.List[str]:
         return self.parent.master_get_clean_df().columns
 
     def master_get_clean_table(self) -> TableKit:

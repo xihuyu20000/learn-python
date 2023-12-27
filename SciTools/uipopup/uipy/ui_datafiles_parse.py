@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -24,9 +23,10 @@ class Ui_Form(object):
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"\u9009\u62e9\u6570\u636e\u6587\u4ef6\u7c7b\u578b", None))
+        Form.setWindowTitle(
+            QCoreApplication.translate("Form", u"\u9009\u62e9\u6570\u636e\u6587\u4ef6\u7c7b\u578b", None))
     # retranslateUi
-

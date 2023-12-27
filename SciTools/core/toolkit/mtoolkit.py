@@ -1,7 +1,5 @@
-import os
 from typing import List
-from diskcache import Cache
-import shutil
+
 import pandas
 import pandas as pd
 from PySide2 import QtCore, QtWidgets
@@ -19,8 +17,6 @@ from PySide2.QtWidgets import (
     QLabel,
     QWidget,
     QLCDNumber, QScrollArea, QToolButton, )
-from core.log import logger
-from core.const import ssignal
 
 
 class InfoKit(QWidget):
@@ -419,6 +415,7 @@ class TableKit(QFrame):
 
     def get_selected_cols(self):
         return [index[1] for index in self._table.pub_selected_indexes()]
+
     def set_dataset(self, df: pd.DataFrame, inplace_index=True, drop_index=True):
         if not isinstance(df.index, pandas.RangeIndex):
             inplace_index = False
@@ -584,6 +581,7 @@ class TableKit(QFrame):
 
         def sortByColumn(self, column, order):
             print("视图排序")
+
 
 class ScrollWidget(QtWidgets.QFrame):
     def __init__(self, parent=None):

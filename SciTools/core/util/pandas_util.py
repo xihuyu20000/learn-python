@@ -3,21 +3,20 @@ import itertools
 import time
 from typing import Dict, List, Set, Tuple
 
-import arrow
 import numpy as np
 import pandas as pd
+import pendulum
 from scipy import stats
 from sklearn import metrics
 
-
-from core.const import Config
+from core.const import Cfg
 from core.log import logger
 from core.util import Utils
 
 
 class PandasUtil:
     @staticmethod
-    def delete_rows(df: pd.DataFrame, indexes:List[int]):
+    def delete_rows(df: pd.DataFrame, indexes: List[int]):
         """
         删除行
         """
@@ -25,14 +24,16 @@ class PandasUtil:
         for i in indexes:
             df2.drop(index=i, axis=1, inplace=True)
         return df2
+
     @staticmethod
-    def delete_columns(df: pd.DataFrame, col_names:List[str]):
+    def delete_columns(df: pd.DataFrame, col_names: List[str]):
         """
         删除列
         """
         df2 = df.copy(True)
-        df2.drop(columns=col_names, inplace=True)
+        df2.drop(labels=col_names, axis=0, inplace=True)
         return df2
+
     @staticmethod
     def cocon_matrix(df, col_name, threhold, diagonal_values=False):
         """
@@ -42,39 +43,39 @@ class PandasUtil:
         :param threhold:
         :return:
         """
-        df2 = df[col_name].str.split(Config.seperator.value)
+        df2 = df[col_name].str.split(Cfg.seperator.value)
         # 根据对角线是否有值，决定使用哪个函数
         sfunc = (
             itertools.combinations_with_replacement
             if diagonal_values
             else itertools.combinations
         )
-        logger.debug("{} {}".format(1, arrow.now()))
+        logger.debug("{} {}".format(1, pendulum.now()))
         df2 = df2.apply(
-            lambda x: [Config.seperator.value.join(sorted(item)) for item in sfunc(x, 2)]
+            lambda x: [Cfg.seperator.value.join(sorted(item)) for item in sfunc(x, 2)]
         )
-        logger.debug("{} {}".format(2, arrow.now()))
+        logger.debug("{} {}".format(2, pendulum.now()))
         total_pairs = collections.defaultdict(int)
-        logger.debug("{} {}".format(3, arrow.now()))
+        logger.debug("{} {}".format(3, pendulum.now()))
         for row in df2:
             for pair in row:
                 total_pairs[pair] += 1
-        logger.debug("{} {}".format(4, arrow.now()))
+        logger.debug("{} {}".format(4, pendulum.now()))
         total_pairs = {k: v for k, v in total_pairs.items() if v > threhold}
-        logger.debug("{} {}".format(5, arrow.now()))
+        logger.debug("{} {}".format(5, pendulum.now()))
         total_words = set()
         for k, v in total_pairs.items():
-            total_words.update(k.split(Config.seperator.value))
-        logger.debug("{} {}".format(6, arrow.now()))
+            total_words.update(k.split(Cfg.seperator.value))
+        logger.debug("{} {}".format(6, pendulum.now()))
         result = pd.DataFrame(
             index=list(total_words), columns=list(total_words), dtype=np.uint8
         )
         for k, v in total_pairs.items():
-            ss = k.split(Config.seperator.value)
+            ss = k.split(Cfg.seperator.value)
             i, j = ss[0], ss[1]
             result.loc[i, j] = v
             result.loc[j, i] = v
-        logger.debug("{} {}".format(7, arrow.now()))
+        logger.debug("{} {}".format(7, pendulum.now()))
         result.fillna(0, inplace=True)
         result.reset_index(inplace=False, drop=False)
         result = result.astype(np.uint8)
@@ -83,25 +84,25 @@ class PandasUtil:
     @staticmethod
     def heter_matrix(df, col_name1, col_name2, threshold):
         df.fillna("", inplace=True)
-        df1 = df[col_name1].str.split(Config.seperator.value)
-        df2 = df[col_name2].str.split(Config.seperator.value)
+        df1 = df[col_name1].str.split(Cfg.seperator.value)
+        df2 = df[col_name2].str.split(Cfg.seperator.value)
 
         pair_dict = collections.defaultdict(int)
         for i in range(len(df1)):
             for arr in itertools.product(df1[i], df2[i]):
-                pair_dict[Config.seperator.value.join(arr)] += 1
+                pair_dict[Cfg.seperator.value.join(arr)] += 1
 
         columns = set()
         index = set()
         for item, v in pair_dict.items():
-            arr = str(item).split(Config.seperator.value)
+            arr = str(item).split(Cfg.seperator.value)
             index.add(arr[0])
             columns.add(arr[1])
 
         result = pd.DataFrame(columns=list(columns), index=list(index), dtype=np.uint8)
 
         for item, v in pair_dict.items():
-            arr = str(item).split(Config.seperator.value)
+            arr = str(item).split(Cfg.seperator.value)
             result.loc[arr[0], arr[1]] = v
         result = result.fillna(0).astype(np.uint8)
 

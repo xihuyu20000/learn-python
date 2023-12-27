@@ -1,11 +1,11 @@
 import os.path
 
 from PySide2.QtWidgets import QDialog, QFileDialog
-from core.log import logger
 
-from core.const import Config, ssignal
+from core.const import Cfg, ssignal
+from core.log import logger
+from core.runner import CleanCombineSynonymThread
 from uipopup.uipy import ui_combine_synonym
-from mrunner import CleanCombineSynonymThread
 
 
 class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
@@ -17,7 +17,7 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         self.column_names.addItems(self.get_clean_columns())
         self.column_names.setCurrentRow(0)
 
-        self.le1.setText(os.path.join(Config.dicts.value, '合并词表.txt'))
+        self.le1.setText(os.path.join(Cfg.dicts.value, '合并词表.txt'))
 
         self.btn1.clicked.connect(self.btn1_clicked)
         self.btn_ok.clicked.connect(lambda: self.action_ok(self.le1.text(), self.rbt1.isChecked()))
@@ -38,7 +38,8 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Config.dicts.value, Config.combine_words.value),
+        self.cleanCombineSynonymThread = CleanCombineSynonymThread(df, os.path.join(Cfg.dicts.value,
+                                                                                    Cfg.combine_words.value),
                                                                    names, is_new)
         self.cleanCombineSynonymThread.start()
         self.close()
@@ -47,7 +48,7 @@ class PopupCombineSynonym(QDialog, ui_combine_synonym.Ui_Form):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择词典",  # 标题
-            Config.dicts.value,  # 起始目录
+            Cfg.dicts.value,  # 起始目录
             "文件类型 (*.csv *.txt *.xls *.xlsx)"  # 选择类型过滤项，过滤内容在括号中
         )
         self.le1.setText(filePath)

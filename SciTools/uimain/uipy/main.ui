@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>1174</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -54,8 +54,6 @@
     <addaction name="menu_window_config"/>
     <addaction name="menu_window_history"/>
     <addaction name="separator"/>
-    <addaction name="menu_window_savestore"/>
-    <addaction name="menu_window_restore"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">

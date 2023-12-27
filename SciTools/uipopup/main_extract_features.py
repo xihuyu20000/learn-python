@@ -3,7 +3,7 @@ import collections
 from PySide2.QtWidgets import QDialog, QListWidgetItem
 
 from core.const import ssignal
-from mrunner import CleanExtractFeaturesThread
+from core.runner import CleanExtractFeaturesThread
 from uipopup.uipy import ui_extract_feature
 
 SpeechItem = collections.namedtuple('SpeechItem', ['en', 'cn', 'checked'])
@@ -51,7 +51,6 @@ class PopupExtractFeatures(QDialog, ui_extract_feature.Ui_Form):
             item = QListWidgetItem(speech_item.cn)
             self.listWidget_speech.addItem(item)
             self.listWidget_speech.setItemSelected(item, speech_item.checked)
-
 
     def on_clicked(self):
         colnames = [line.text() for line in self.listWidget_colnames.selectedItems()]

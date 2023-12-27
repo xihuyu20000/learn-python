@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -37,7 +36,6 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addWidget(self.listWidget_colnames)
 
-
         self.horizontalLayout.addWidget(self.frame)
 
         self.frame_4 = QFrame(Form)
@@ -58,7 +56,6 @@ class Ui_Form(object):
         self.listWidget_speech.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.verticalLayout_3.addWidget(self.listWidget_speech)
-
 
         self.horizontalLayout.addWidget(self.frame_4)
 
@@ -85,7 +82,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addWidget(self.spinBox_threshold)
 
-
         self.verticalLayout.addWidget(self.frame_3)
 
         self.label_3 = QLabel(self.frame_2)
@@ -99,21 +95,22 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.pushButton)
 
-
         self.horizontalLayout.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"\u63d0\u53d6\u7279\u5f81\u8bcd", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ef\u4ee5\u591a\u9009", None))
-        self.label_4.setText(QCoreApplication.translate("Form", u"\u8bcd\u6027\u9009\u62e9\u3010\u53ef\u4ee5\u591a\u9009\u3011", None))
+        self.label_4.setText(
+            QCoreApplication.translate("Form", u"\u8bcd\u6027\u9009\u62e9\u3010\u53ef\u4ee5\u591a\u9009\u3011", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u7279\u5f81\u8bcd\u6570\u91cf:", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"\u4f1a\u4f7f\u7528\u5230\u505c\u7528\u8bcd\u8868\u548c\u53d7\u63a7\u8bcd\u8868", None))
+        self.label_3.setText(QCoreApplication.translate("Form",
+                                                        u"\u4f1a\u4f7f\u7528\u5230\u505c\u7528\u8bcd\u8868\u548c\u53d7\u63a7\u8bcd\u8868",
+                                                        None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

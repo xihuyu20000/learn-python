@@ -2,16 +2,18 @@ import collections
 import itertools
 
 import matplotlib
+import networkx as nx
 import pandas as pd
 from matplotlib import pyplot as plt
 
 from core import Parser, CleanBiz
 from core.const import FileFormat
 from core.log import logger
-from core.util.mutil import Config, PandasUtil
-import networkx as nx
+from core.util import PandasUtil
+from core.util.mutil import Cfg
 
-class CoworsHierarchyCluster:
+
+class CoauthorHierarchyCluster:
     """
     作者共著聚类
 
@@ -19,7 +21,9 @@ class CoworsHierarchyCluster:
 
     参考文献：专题文献高频主题词的共词聚类分析，崔雷，情报理论与实践，1996-07-30	期刊
     """
-    def __init__(self, dataset: pd.DataFrame, col_name: str, freq_threshold: int = 0, cocon_threshold: int = 0, norm_method: str = None,
+
+    def __init__(self, dataset: pd.DataFrame, col_name: str, freq_threshold: int = 0, cocon_threshold: int = 0,
+                 norm_method: str = None,
                  cluster_method: str = None, dist_method: str = None):
         """
         :param dataset:
@@ -46,14 +50,10 @@ class CoworsHierarchyCluster:
         # 合著数据集矩阵  Nx3
         self.cocon_thin_matrix = None
 
-
-
     def run(self):
         self.stat_coauthor_freqco()
         self.stat_cocon_freq()
         self.show_graph_networkx()
-
-
 
     def stat_coauthor_freqco(self):
         """
@@ -62,7 +62,7 @@ class CoworsHierarchyCluster:
 
         # 对col_name列，拆分，然后计数
         words_count = collections.Counter(
-            word.strip() for row in self.dataset.loc[:, self.col_name].tolist() for word in row.split(Config.seperator) if
+            word.strip() for row in self.dataset.loc[:, self.col_name].tolist() for word in row.split(Cfg.seperator) if
             word.strip())
         logger.debug('词频统计 {}', words_count)
         # 保留高频词
@@ -76,7 +76,7 @@ class CoworsHierarchyCluster:
         # 保留高频词
         logger.debug('保留高频词')
         tmp = self.dataset[self.col_name].apply(
-            lambda col: [word for word in col.split(Config.seperator) if word in self.reserved_count_pairs])
+            lambda col: [word for word in col.split(Cfg.seperator) if word in self.reserved_count_pairs])
         assert isinstance(tmp, pd.Series)
         # 两两组合，如果只有1个作者，也会出现在里面
         logger.debug('两两组合')
@@ -84,7 +84,7 @@ class CoworsHierarchyCluster:
         assert isinstance(tmp, pd.Series)
         # 共现词计数
         logger.debug('共现词计数')
-        pair_counter = collections.Counter(Config.seperator.join(pair) for row in tmp for pair in row)
+        pair_counter = collections.Counter(Cfg.seperator.join(pair) for row in tmp for pair in row)
         assert isinstance(pair_counter, collections.Counter)
         # 保留高频共现词
         logger.debug('保留高频共现词')
@@ -94,7 +94,7 @@ class CoworsHierarchyCluster:
 
         # 形成共现数据集：拆分成 list嵌套list，作为DataFrame的values
         logger.debug('形成共现数据集')
-        self.data_list_list = [[pair.split(Config.seperator)[0], pair.split(Config.seperator)[1], times] for pair, times in
+        self.data_list_list = [[pair.split(Cfg.seperator)[0], pair.split(Cfg.seperator)[1], times] for pair, times in
                                pair_counter.items()]
         self.cocon_thin_matrix = pd.DataFrame(data=self.data_list_list, columns=['field1', 'field2', 'times'])
         logger.debug('共词数据集 {}', self.cocon_thin_matrix.shape)
@@ -111,7 +111,6 @@ class CoworsHierarchyCluster:
         logger.debug('\r\n{}', self.cocon_matrix)
         PandasUtil.write_excel(self.cocon_matrix, '1.xlsx', 'aaa', True)
 
-
     def show_graph_networkx(self):
         """
 
@@ -120,11 +119,11 @@ class CoworsHierarchyCluster:
         # 设置显示中文字体
         matplotlib.rcParams["font.sans-serif"] = ["SimHei"]
 
-
         G = nx.Graph()
         G.add_weighted_edges_from(self.data_list_list)
         nx.draw(G, with_labels=True)
         plt.show()
+
 
 if __name__ == '__main__':
     filestyle = FileFormat.PICKLE
@@ -144,5 +143,5 @@ if __name__ == '__main__':
     #     'K1': ['词3;词4;词5;词6', '词4;词3;词5', '词4;词3;', '词3']
     # })
 
-    cc = CoworsHierarchyCluster(df, col_name='A1', freq_threshold=1, cocon_threshold=3)
+    cc = CoauthorHierarchyCluster(df, col_name='A1', freq_threshold=1, cocon_threshold=3)
     cc.run()

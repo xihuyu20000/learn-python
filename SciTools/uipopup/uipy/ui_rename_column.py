@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -40,10 +39,10 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.pushButton)
 
-
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
@@ -54,4 +53,3 @@ class Ui_Form(object):
         ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"\u65b0\u7684\u5217\u540d", None));
         self.pushButton.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

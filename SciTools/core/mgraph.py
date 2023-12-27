@@ -112,7 +112,7 @@ class Draw:
             renderer='svg',
             bg_color=data.canvas_bg_color,
             page_title='',
-            theme = "white",
+            theme="white",
         )
         self.render_opts = opts.RenderOpts(True)
         self.title_opts = opts.TitleOpts(title="我是标题")

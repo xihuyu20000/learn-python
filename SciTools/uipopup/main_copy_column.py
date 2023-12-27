@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
-from mrunner import CleanCopyColumnThread
+from core.runner import CleanCopyColumnThread
 from uipopup.uipy import ui_copy_column
 
 

@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -37,7 +36,6 @@ class Ui_Form(object):
         self.listWidget.setObjectName(u"listWidget")
 
         self.verticalLayout.addWidget(self.listWidget)
-
 
         self.horizontalLayout_3.addWidget(self.frame)
 
@@ -82,14 +80,12 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.le1)
 
-
         self.verticalLayout_2.addWidget(self.frame_3)
 
         self.label_4 = QLabel(self.frame_5)
         self.label_4.setObjectName(u"label_4")
 
         self.verticalLayout_2.addWidget(self.label_4)
-
 
         self.verticalLayout_3.addWidget(self.frame_5)
 
@@ -118,7 +114,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addWidget(self.le2)
 
-
         self.verticalLayout_3.addWidget(self.frame_4)
 
         self.pushButton = QPushButton(self.frame_2)
@@ -126,13 +121,12 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addWidget(self.pushButton)
 
-
         self.horizontalLayout_3.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
@@ -142,11 +136,12 @@ class Ui_Form(object):
         self.cb1.setItemText(0, QCoreApplication.translate("Form", u"\u6309\u5206\u9694\u7b26", None))
         self.cb1.setItemText(1, QCoreApplication.translate("Form", u"\u6309\u5b57\u7b26\u6570", None))
 
-        self.label_4.setText(QCoreApplication.translate("Form", u"\u6309\u5206\u9694\u7b26\uff0c\u540e\u9762\u586b\u5199\u5b57\u7b26\uff1b\u6309\u5b57\u7b26\u6570\uff0c\u540e\u9762\u586b\u5199\u6570\u5b57", None))
+        self.label_4.setText(QCoreApplication.translate("Form",
+                                                        u"\u6309\u5206\u9694\u7b26\uff0c\u540e\u9762\u586b\u5199\u5b57\u7b26\uff1b\u6309\u5b57\u7b26\u6570\uff0c\u540e\u9762\u586b\u5199\u6570\u5b57",
+                                                        None))
         self.label_3.setText(QCoreApplication.translate("Form", u"\u62c6\u5206\u7ed3\u679c", None))
         self.cb2.setItemText(0, QCoreApplication.translate("Form", u"\u524dN\u4e2a\u5217", None))
         self.cb2.setItemText(1, QCoreApplication.translate("Form", u"\u7b2cN\u5217", None))
 
         self.pushButton.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

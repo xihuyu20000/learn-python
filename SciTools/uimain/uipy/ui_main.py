@@ -166,7 +166,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1174, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1174, 26))
         self.menu_file = QMenu(self.menubar)
         self.menu_file.setObjectName(u"menu_file")
         self.menu_edit = QMenu(self.menubar)
@@ -404,8 +404,6 @@ class Ui_MainWindow(object):
         self.menu_window.addAction(self.menu_window_config)
         self.menu_window.addAction(self.menu_window_history)
         self.menu_window.addSeparator()
-        self.menu_window.addAction(self.menu_window_savestore)
-        self.menu_window.addAction(self.menu_window_restore)
 
         self.retranslateUi(MainWindow)
 

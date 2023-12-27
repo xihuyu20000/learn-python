@@ -1,9 +1,9 @@
 from PySide2.QtWidgets import QDialog
-from core.log import logger
 
-from core.mgraph import Draw
-from mrunner import CleanDrawGraphThread
 from core.const import ssignal
+from core.log import logger
+from core.mgraph import Draw
+from core.runner import CleanDrawGraphThread
 from uipopup.uipy import ui_graph_config
 
 
@@ -12,7 +12,6 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
         super(PopupGraphConfig, self).__init__(parent)
         self.setupUi(self)
         self.parent = parent.context
-
 
         for info in Draw.infos:
             self.graph_styles_widget.addItem(info.label)
@@ -28,7 +27,6 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
     def action_ok(self):
         logger.info('图表配置')
 
-
         #########################################################################
         selectedItems = self.graph_styles_widget.selectedItems()
         if len(selectedItems) == 0:
@@ -36,7 +34,7 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
             return
 
         #########################################################################
-        if len(self.comboBox_graph_x_axis.currentText())==0:
+        if len(self.comboBox_graph_x_axis.currentText()) == 0:
             ssignal.error.emit('必须选择横轴')
             return
 
@@ -44,15 +42,14 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
         ylabel = self.comboBox_graph_y_axis.currentText()
         logger.debug('{0} {1}', xlabel, ylabel)
 
-
         configTuple = CleanDrawGraphThread.ConfigTuple(
-            chart_style = selectedItems[0].text()
-            ,xlabel=xlabel
-            ,ylabel=ylabel
-            ,stat_threshold=self.spinBox_graph_stat_threshold.value()
-            ,orderby=self.comboBox_graph_orderby.currentText()
-            ,canvas_width=self.slider_canvas_width.value()
-            ,canvas_height=self.slider_canvas_height.value()
+            chart_style=selectedItems[0].text()
+            , xlabel=xlabel
+            , ylabel=ylabel
+            , stat_threshold=self.spinBox_graph_stat_threshold.value()
+            , orderby=self.comboBox_graph_orderby.currentText()
+            , canvas_width=self.slider_canvas_width.value()
+            , canvas_height=self.slider_canvas_height.value()
         )
 
         self.cleanDrawGraphThread = CleanDrawGraphThread(self.get_df(), configTuple)

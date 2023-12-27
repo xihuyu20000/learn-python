@@ -16,6 +16,7 @@ conn = sqlite3.connect(_abs_path)
 
 class PandasCache:
     _instance = None
+
     def __new__(cls, *args, **kw):
         if cls._instance is None:
             cls._instance = object.__new__(cls, *args, **kw)
@@ -28,6 +29,7 @@ class PandasCache:
 
         ssignal.reset_cache.connect(PandasCache.init_cache)
         ssignal.push_cache.connect(self.push)
+
     def push(self, value: pd.DataFrame):
         """
         pickle.dumps(df)
@@ -97,7 +99,6 @@ class PandasCache:
         cur.close()
         PandasCache.allinfo()
         return pickle.loads(value)
-
 
     @staticmethod
     def allinfo():

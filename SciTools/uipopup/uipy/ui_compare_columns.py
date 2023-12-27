@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -37,7 +36,6 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.column_names)
 
-
         self.horizontalLayout.addWidget(self.frame)
 
         self.frame_2 = QFrame(Form)
@@ -62,20 +60,20 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addWidget(self.btn_ok)
 
-
         self.horizontalLayout.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"\u5bf9\u6bd4\u5217", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ea\u80fd\u9009\u62e9\u4e24\u5217", None))
         self.btn_reset.setText(QCoreApplication.translate("Form", u"\u6062\u590d\u989c\u8272", None))
-        self.label_2.setText(QCoreApplication.translate("Form", u"\u53ea\u80fd\u5bf9\u4e24\u4e2a\u5217\u8fdb\u884c\u5bf9\u6bd4\uff0c\u4e0d\u540c\u503c\u4f7f\u7528\u989c\u8272\u6807\u6ce8", None))
+        self.label_2.setText(QCoreApplication.translate("Form",
+                                                        u"\u53ea\u80fd\u5bf9\u4e24\u4e2a\u5217\u8fdb\u884c\u5bf9\u6bd4\uff0c\u4e0d\u540c\u503c\u4f7f\u7528\u989c\u8272\u6807\u6ce8",
+                                                        None))
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

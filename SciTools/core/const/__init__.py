@@ -1,9 +1,8 @@
+__all__ = ['abs_path', 'FileFormat', 'FieldStyle', 'fpoint', 'NormStyle', 'HierachyClusterStyle', 'DistanceStyle', 'ssignal',
+           'Cfg']
 
-
-__all__ = ['abs_path', 'FileFormat', 'FieldStyle','NormStyle', 'HierachyClusterStyle','DistanceStyle','ssignal',
-           'Config']
-
-from core.const.cfgfile import Config
-from core.const.config import  abs_path, FileFormat, FieldStyle, NormStyle, HierachyClusterStyle, \
-    DistanceStyle
+from core.const.cfgfile import Cfg
+from core.const.func_point import fpoint
 from core.const.qtsignal import ssignal
+from core.const.types import abs_path, FileFormat, FieldStyle, NormStyle, HierachyClusterStyle, \
+    DistanceStyle

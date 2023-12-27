@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -41,7 +40,6 @@ class Ui_Form(object):
         self.listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.verticalLayout_2.addWidget(self.listWidget)
-
 
         self.horizontalLayout.addWidget(self.frame)
 
@@ -83,7 +81,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
-
         self.verticalLayout.addWidget(self.frame_3)
 
         self.frame_4 = QFrame(self.frame_2)
@@ -105,25 +102,25 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addWidget(self.btn_export)
 
-
         self.verticalLayout.addWidget(self.frame_4)
 
-
         self.horizontalLayout.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"\u8bcd\u9891\u7edf\u8ba1", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ef\u4ee5\u591a\u9009", None))
-        self.label_2.setText(QCoreApplication.translate("Form", u"\u9009\u62e9\u4e00\u9879\uff0c\u663e\u793a\u5728\u8868\u683c\u4e2d", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"\u9009\u62e9\u591a\u9879\uff0c\u53ea\u80fd\u5bfc\u51faExcel", None))
+        self.label_2.setText(
+            QCoreApplication.translate("Form", u"\u9009\u62e9\u4e00\u9879\uff0c\u663e\u793a\u5728\u8868\u683c\u4e2d",
+                                       None))
+        self.label_3.setText(
+            QCoreApplication.translate("Form", u"\u9009\u62e9\u591a\u9879\uff0c\u53ea\u80fd\u5bfc\u51faExcel", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"\u7edf\u8ba1\u9608\u503c>=", None))
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
         self.btn_export.setText(QCoreApplication.translate("Form", u"\u5bfc\u51fa", None))
     # retranslateUi
-

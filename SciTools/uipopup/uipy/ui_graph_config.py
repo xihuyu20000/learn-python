@@ -59,7 +59,6 @@ class Ui_widget(object):
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer_3)
 
-
         self.horizontalLayout_4.addWidget(self.frame_5)
 
         self.frame_6 = QFrame(self.frame_4)
@@ -83,7 +82,6 @@ class Ui_widget(object):
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_6.addItem(self.horizontalSpacer_4)
-
 
         self.horizontalLayout_4.addWidget(self.frame_6)
 
@@ -119,7 +117,6 @@ class Ui_widget(object):
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_7)
 
-
         self.horizontalLayout_7.addWidget(self.frame_10)
 
         self.frame_11 = QFrame(self.frame_8)
@@ -144,7 +141,6 @@ class Ui_widget(object):
         self.horizontalSpacer_8 = QSpacerItem(76, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_9.addItem(self.horizontalSpacer_8)
-
 
         self.horizontalLayout_7.addWidget(self.frame_11)
 
@@ -192,7 +188,6 @@ class Ui_widget(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-
         self.horizontalLayout_3.addWidget(self.frame)
 
         self.frame_2 = QFrame(self.frame_3)
@@ -227,7 +222,6 @@ class Ui_widget(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer_2)
 
-
         self.horizontalLayout_3.addWidget(self.frame_2)
 
         self.tabWidget.addTab(self.tab, "")
@@ -239,20 +233,20 @@ class Ui_widget(object):
 
         self.verticalLayout.addWidget(self.btn_ok)
 
-
         self.retranslateUi(widget)
         self.slider_canvas_width.valueChanged.connect(self.label_canvas_width.setNum)
         self.slider_canvas_height.valueChanged.connect(self.label_canvas_height.setNum)
 
         self.tabWidget.setCurrentIndex(0)
 
-
         QMetaObject.connectSlotsByName(widget)
+
     # setupUi
 
     def retranslateUi(self, widget):
         widget.setWindowTitle(QCoreApplication.translate("widget", u"\u56fe\u8868\u914d\u7f6e", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("widget", u"\u56fe\u8868\u7c7b\u578b", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3),
+                                  QCoreApplication.translate("widget", u"\u56fe\u8868\u7c7b\u578b", None))
         self.label_3.setText(QCoreApplication.translate("widget", u"\u6a2a\u8f74", None))
         self.label_4.setText(QCoreApplication.translate("widget", u"\u7eb5\u8f74", None))
         self.label_7.setText(QCoreApplication.translate("widget", u"\u7edf\u8ba1\u503c\u6392\u5e8f", None))
@@ -261,12 +255,13 @@ class Ui_widget(object):
         self.comboBox_graph_orderby.setItemText(2, QCoreApplication.translate("widget", u"\u964d\u5e8f", None))
 
         self.label_8.setText(QCoreApplication.translate("widget", u"\u7edf\u8ba1\u9608\u503c>=", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("widget", u"\u5750\u6807\u8f74", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2),
+                                  QCoreApplication.translate("widget", u"\u5750\u6807\u8f74", None))
         self.label.setText(QCoreApplication.translate("widget", u"\u753b\u5e03\u5bbd\u5ea6", None))
         self.label_canvas_width.setText(QCoreApplication.translate("widget", u"900", None))
         self.label_2.setText(QCoreApplication.translate("widget", u"\u753b\u5e03\u9ad8\u5ea6", None))
         self.label_canvas_height.setText(QCoreApplication.translate("widget", u"600", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("widget", u"\u5c3a\u5bf8\u548c\u8ddd\u79bb", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab),
+                                  QCoreApplication.translate("widget", u"\u5c3a\u5bf8\u548c\u8ddd\u79bb", None))
         self.btn_ok.setText(QCoreApplication.translate("widget", u"OK", None))
     # retranslateUi
-

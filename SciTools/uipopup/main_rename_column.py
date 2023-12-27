@@ -2,9 +2,9 @@ import time
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QTableWidgetItem
-from core.log import logger
 
 from core.const import ssignal
+from core.log import logger
 from uipopup.uipy import ui_rename_column
 
 
@@ -50,8 +50,7 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
 
         # 重命名
         for old_name, new_name in name_pairs.items():
-            df.rename(columns={old_name : new_name}, inplace=True)
-
+            df.rename(columns={old_name: new_name}, inplace=True)
 
         self.set_df(df)
         t2 = time.time()

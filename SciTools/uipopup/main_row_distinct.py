@@ -1,8 +1,9 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-from core.log import logger
+
 from core.const import ssignal
+from core.log import logger
 from uipopup.uipy import ui_distinct_row
 
 
@@ -16,7 +17,6 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
         self.column_names.setCurrentRow(0)
 
         self.btn_ok.clicked.connect(self.action_ok)
-
 
     def action_ok(self):
         logger.info('列对比')

@@ -1,67 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>修改值</string>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>默认情况下，值不能修改。</string>
-     </property>
+    <class>Form</class>
+    <widget class="QWidget" name="Form">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>400</width>
+                <height>300</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>修改值</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+                <widget class="QLabel" name="label">
+                    <property name="text">
+                        <string>默认情况下，值不能修改。</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QLabel" name="label_2">
+                    <property name="text">
+                        <string>修改结束，请保存修改结果。</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QFrame" name="frame">
+                    <property name="frameShape">
+                        <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                        <item>
+                            <widget class="QPushButton" name="btn_start">
+                                <property name="styleSheet">
+                                    <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177,
+                                        245);
+                                    </string>
+                                </property>
+                                <property name="text">
+                                    <string>开始修改</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item>
+                            <widget class="QPushButton" name="btn_save">
+                                <property name="styleSheet">
+                                    <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177,
+                                        245);
+                                    </string>
+                                </property>
+                                <property name="text">
+                                    <string>保存修改</string>
+                                </property>
+                            </widget>
+                        </item>
+                    </layout>
+                </widget>
+            </item>
+        </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>修改结束，请保存修改结果。</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QPushButton" name="btn_start">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);</string>
-        </property>
-        <property name="text">
-         <string>开始修改</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btn_save">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(255, 255, 255); background-color: rgb(28, 177, 245);</string>
-        </property>
-        <property name="text">
-         <string>保存修改</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-  </layout>
- </widget>
- <resources/>
- <connections/>
+    <resources/>
+    <connections/>
 </ui>

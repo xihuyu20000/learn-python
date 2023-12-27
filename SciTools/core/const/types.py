@@ -1,11 +1,8 @@
 import collections
-import json
 import os
 import sys
 
-from PySide2 import QtCore
-
-from core.log import logger
+import strenum
 
 abs_path = (
     os.path.expanduser("~")
@@ -14,7 +11,7 @@ abs_path = (
 )
 
 
-class FileFormat:
+class FileFormat(strenum.StrEnum):
     CNKI = "知网"
     WEIPU = "维普"
     WANFANG = "万方"
@@ -41,14 +38,14 @@ class FieldStyle:
         ]
 
 
-class NormStyle:
+class NormStyle(strenum.StrEnum):
     """
     归一化的方法
     """
     ochiia = 'ochiia'
 
 
-class HierachyClusterStyle:
+class HierachyClusterStyle(strenum.StrEnum):
     """
     层次聚类的参数
     """
@@ -56,12 +53,10 @@ class HierachyClusterStyle:
     ward = 'ward'
 
 
-class DistanceStyle:
+class DistanceStyle(strenum.StrEnum):
     """
     聚类计算方法
     """
     correlation = 'correlation'
     euclidean = 'euclidean'
     cosine = 'cosine'
-
-

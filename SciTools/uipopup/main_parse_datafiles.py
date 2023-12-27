@@ -1,8 +1,9 @@
 from PySide2.QtWidgets import QDialog, QPushButton, QSizePolicy
-from core.log import logger
-from uipopup.uipy import ui_datafiles_parse
+
 from core.const import FileFormat, ssignal
-from mrunner import CleanParseFileThread
+from core.log import logger
+from core.runner import CleanParseFileThread
+from uipopup.uipy import ui_datafiles_parse
 
 
 class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
@@ -13,7 +14,6 @@ class PopupDatafilesParse(QDialog, ui_datafiles_parse.Ui_Form):
 
         self.abs_datafiles = abs_datafiles
         self.sep = sep
-
 
         btns_arr = [[FileFormat.CNKI, FileFormat.WEIPU, FileFormat.WANFANG],
                     [FileFormat.CSV, FileFormat.EXCEL, FileFormat.PICKLE],

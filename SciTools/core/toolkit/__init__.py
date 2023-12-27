@@ -1,5 +1,3 @@
+__all__ = ['FrameKit', 'PandasTableModel', 'ScrollWidget', 'TableKit']
 
-
-__all__ = ['ScrollWidget','TableKit']
-
-from core.toolkit.mtoolkit import TableKit, ScrollWidget
+from core.toolkit.mtoolkit import TableKit, ScrollWidget, FrameKit, PandasTableModel

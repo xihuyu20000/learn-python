@@ -7,15 +7,19 @@
 """
 import collections
 import os.path
-from typing import List
-import pandas as pd
+
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QMainWindow, QFileDialog, QLabel
-from loguru import logger
 
+from core.const import Cfg, ssignal
 from core.const import FileFormat
+from core.log import logger
 from core.mgraph import GraphData
-from core.const import Config, ssignal
+from core.runner import (
+    CleanSaveDatasetThread,
+    CleanParseFileThread,
+    WatchDataFilesChaningThread,
+)
 from core.util import PandasCache, PandasUtil
 from uimain.ctx import MasterMainContext
 from uimain.uipy.ui_main import Ui_MainWindow
@@ -23,12 +27,9 @@ from uipopup.main_cocon_stat import PopupCoconStat
 from uipopup.main_combine_synonym import PopupCombineSynonym
 from uipopup.main_compare_column import PopupCompareColumns
 from uipopup.main_copy_column import PopupCopyColumn
+from uipopup.main_dataset_metadata import PopupCleanMetadata
 from uipopup.main_extract_features import PopupExtractFeatures
 from uipopup.main_graph_config import PopupGraphConfig
-from uipopup.main_split_words import PopupSplitWords
-from uipopup.main_vertical_concat import PopupVerticalConcat
-from uipopup.main_wordcount_stat import PopupWordCountStat
-from uipopup.main_dataset_metadata import PopupCleanMetadata
 from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
 from uipopup.main_rename_column import PopupCleanRename
@@ -36,16 +37,14 @@ from uipopup.main_replace_column import PopupReplaceColumn
 from uipopup.main_row_distinct import PopupRowDistinct
 from uipopup.main_similarity_row import PopupSimilarityRows
 from uipopup.main_split_column import PopupSplitColumn
+from uipopup.main_split_words import PopupSplitWords
 from uipopup.main_stop_words import PopupStopWords
-from mrunner import (
-    CleanSaveDatasetThread,
-    CleanParseFileThread,
-    WatchDataFilesChaningThread,
-)
-from core.toolkit.mtoolkit import TableKit
+from uipopup.main_vertical_concat import PopupVerticalConcat
+from uipopup.main_wordcount_stat import PopupWordCountStat
 
-ActionCallback = collections.namedtuple("ActionCallback", ["source", 'callback'])
-MenuTool = collections.namedtuple('MenuTool', ['id' , 'label', 'icon', 'menubar', 'show_in_menubar', 'show_in_toolbar', 'callback'])
+ActionCallback = collections.namedtuple("ActionCallback", ["id", "source", "event", 'callback'])
+MenuTool = collections.namedtuple('MenuTool',
+                                  ['id', 'label', 'icon', 'menubar', 'show_in_menubar', 'show_in_toolbar', 'callback'])
 
 
 class MasterMainWindows(QMainWindow, Ui_MainWindow):
@@ -56,50 +55,41 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
     def __init__(self):
         super(MasterMainWindows, self).__init__()
+
+        # 1、初始化本窗口的内容 ##################################################
+
         self.setupUi(self)
 
-        self.context = MasterMainContext(self)
-        # 1、初始化本窗口的内容 ##################################################
-        if Config.get('geometry'):
-            self.restoreGeometry(Config.get('geometry'))
-            self.restoreState(Config.get('windowState'))
+        if Cfg.get('geometry'):
+            self.restoreGeometry(Cfg.get('geometry'))
+            self.restoreState(Cfg.get('windowState'))
         else:
             self.master_init_dock()
 
-        self.action_callback_list = []
-        self.master_init_action_callback()
-
-
         ## 2、绑定信息处理器 #####################################################
 
-        ssignal.info.connect(self.master_show_info)
-        ssignal.error.connect(self.master_show_error)
-        ssignal.set_clean_dataset.connect(self.master_set_clean_df)
-        ssignal.datafiles_changing.connect(self.master_action_datafiles_list)
-        ssignal.update_cache.connect(self.master_show_in_stack)
+        self.master_init_actions()
 
-        ## 3、清洗部分初始化 #####################################################
+        self.master_init_menubar()
 
-        # clean 数据缓存
-        self.pandasCache = PandasCache()
-
-        # clean 菜单栏、工具栏
-        self.menutool_list = []
-        self.master_init_menubar_list()
-        self.init_menutool()
+        self.master_init_signal()
 
         # ## 4、 数据分析部分初始化 ###################################################
-
 
         ## 5、  图表部分初始化 ######################################################################
         self.graph_data = GraphData()
 
-
         ## 6、  数据初始化 ######################################################################
+        self.master_init_config()
+
+        self.context = MasterMainContext(self)
+        self.pandasCache = PandasCache()
+
         self.watchDataFilesChangingThread = WatchDataFilesChaningThread()
         self.watchDataFilesChangingThread.start()
 
         ssignal.datafiles_changing.emit()
+
         self.master_show_permanent("欢迎使用本软件，祝您有愉快的一天")
 
     def master_init_dock(self):
@@ -121,91 +111,90 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         # 然后右侧，上下布局
         self.splitDockWidget(self.dockWidget_config, self.dockWidget_history, QtCore.Qt.Orientation.Vertical)
         # 大小设置
-        self.resizeDocks([self.dockWidget_datafiles, self.dockWidget_table, self.dockWidget_config], [2,5,1], QtCore.Qt.Orientation.Horizontal)
+        self.resizeDocks([self.dockWidget_datafiles, self.dockWidget_table, self.dockWidget_config], [2, 5, 1],
+                         QtCore.Qt.Orientation.Horizontal)
 
-    def master_init_action_callback(self) -> None:
+    def master_init_actions(self) -> None:
         """
         main.ui所有的事件槽函数，都在这里
         :return:
         """
+        action_callback_list = []
+
         # 数据文件列表，双击
-        self.datafiles_list.itemDoubleClicked.connect(self.master_action_dblclick_datafiles_list)
-        # self.action_callback_list.append(ActionCallback(source=self.datafiles_list, callback=self.master_action_dblclick_datafiles_list))
-        # # 配置项，停用词
-        self.btn_stop_words_dict.clicked.connect(self.master_action_datafiles_stop_words_dict)
-        # self.action_callback_list.append(ActionCallback(source=self.btn_stop_words_dict, callback=self.master_action_datafiles_stop_words_dict))
-        # # 配置项，合并词
-        self.btn_combine_words_dict.clicked.connect(self.master_action_datafiles_combine_words_dict)
-        # self.action_callback_list.append(ActionCallback(source=self.btn_combine_words_dict, callback=self.master_action_datafiles_combine_words_dict))
-        # # 配置项，受控词
-        self.btn_controlled_words_dict.clicked.connect(self.master_action_datafiles_controlled_words_dict)
-        # self.action_callback_list.append(ActionCallback(source=self.btn_controlled_words_dict, callback=self.master_action_datafiles_controlled_words_dict))
-        # # 配置项，保存
-        self.btn_save_config.clicked.connect(self.master_action_save_configs)
-        # self.action_callback_list.append(ActionCallback(source=self.btn_save_config, callback=self.master_action_save_configs))
+        action_callback_list.append(
+            ActionCallback(id='dbclick_parsefile', source=self.datafiles_list, event='itemDoubleClicked',
+                           callback=self.master_action_dblclick_datafiles_list))
 
+        # 配置项，停用词
+        action_callback_list.append(
+            ActionCallback(id='choose_stop_words', source=self.btn_stop_words_dict, event='clicked',
+                           callback=self.master_action_datafiles_stop_words_dict))
 
-    # def action_callback(self):
-    #     obj: QtWidgets.QWidget = self.sender()
-    #
-    #     for action in self.action_callback_list:
-    #         if obj.objectName() == action.source:
-    #             action.callback()
-    #             print('aaaa')
-    #
-    #     logger.debug(obj.objectName(), )
+        # 配置项，合并词
+        action_callback_list.append(
+            ActionCallback(id='choose_combine_words', source=self.btn_combine_words_dict, event='clicked',
+                           callback=self.master_action_datafiles_combine_words_dict))
+
+        # 配置项，受控词
+        action_callback_list.append(
+            ActionCallback(id='choose_controlled_words', source=self.btn_controlled_words_dict, event='clicked',
+                           callback=self.master_action_datafiles_controlled_words_dict))
+
+        # 配置项，保存
+        action_callback_list.append(ActionCallback(id='save_config', source=self.btn_save_config, event='clicked',
+                                                   callback=self.master_action_save_configs))
+
+        ##########################################################################################################################
+
+        for action in action_callback_list:
+            getattr(action.source, action.event).connect(action.callback)
+
     def master_init_config(self) -> None:
         """
         初始化配置项中的参数
         :return:
         """
-        self.config_datafiles_csv_seperator.setText(Config.csv_seperator.value)
-        self.config_stop_words_dict.setText(Config.stop_words.value)
-        self.config_combine_words_dict.setText(Config.combine_words.value)
-        self.config_controlled_words_dict.setText(Config.controlled_words.value)
+        self.config_datafiles_csv_seperator.setText(Cfg.csv_seperator.value)
+        self.config_stop_words_dict.setText(Cfg.stop_words.value)
+        self.config_combine_words_dict.setText(Cfg.combine_words.value)
+        self.config_controlled_words_dict.setText(Cfg.controlled_words.value)
 
     ###############################################################################################
 
-    def master_init_menubar_list(self):
-        ## 文件 ############################################################
-        # 解析
-        self.menutool_list.append(
-            MenuTool(id='parse_file', label='解析', icon='aislogo.png', menubar='menu_file', show_in_menubar=True, show_in_toolbar=True, callback=self.master_action_datafiles_parse)
-                    )
+    def master_init_menubar(self):
+        self.menutool_list = []
 
-        # 保存
+        self.menutool_list.append(
+            MenuTool(id='parse_file', label='解析', icon='aislogo.png', menubar='menu_file', show_in_menubar=True,
+                     show_in_toolbar=True, callback=self.master_action_datafiles_parse)
+        )
+
         self.menutool_list.append(
             MenuTool(id='save_file', label='保存', icon='xiazai.png', menubar='menu_file', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_save)
         )
 
-        ## 编辑 ############################################################
-        # 撤回
         self.menutool_list.append(
             MenuTool(id='undo', label='撤回', icon='chexiao.png', menubar='menu_edit', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_undo)
         )
 
-        # 恢复
         self.menutool_list.append(
             MenuTool(id='redo', label='恢复', icon='huifu.png', menubar='menu_edit', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_redo)
         )
 
-        # 删除行
         self.menutool_list.append(
             MenuTool(id='delete_row', label='删除行', icon='yichu.png', menubar='menu_edit', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_row_delete)
         )
 
-        # 删除列
         self.menutool_list.append(
             MenuTool(id='delete_column', label='删除列', icon='yichu2.png', menubar='menu_edit', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_column_delete)
         )
 
-
-        # 重命名
         self.menutool_list.append(
             MenuTool(id='rename_column', label='重命名', icon='gengduo.png', menubar='menu_edit',
                      show_in_menubar=True,
@@ -213,7 +202,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_rename)
         )
 
-        # 复制列
         self.menutool_list.append(
             MenuTool(id='copy_column', label='复制列', icon='lieziduan.png', menubar='menu_edit',
                      show_in_menubar=True,
@@ -221,7 +209,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_copy_column)
         )
 
-        # 拆分列
         self.menutool_list.append(
             MenuTool(id='split_column', label='拆分列', icon='zhongmingming.png', menubar='menu_edit',
                      show_in_menubar=True,
@@ -229,7 +216,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_split_column)
         )
 
-        # 替换值
         self.menutool_list.append(
             MenuTool(id='replace_column', label='替换值', icon='bumenpaixu.png', menubar='menu_edit',
                      show_in_menubar=True,
@@ -237,11 +223,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_replace_column)
         )
 
-        # self.clean_toolbar.addSeparator()
-
-        ## 清洗 ############################################################
-
-        # 元数据
         self.menutool_list.append(
             MenuTool(id='metadata', label='元数据', icon='biaoge.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -249,7 +230,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_metadata)
         )
 
-        # 列比较
         self.menutool_list.append(
             MenuTool(id='compare_column', label='比较列', icon='lieziduan.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -257,7 +237,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_compare_columns)
         )
 
-        # 修改值
         self.menutool_list.append(
             MenuTool(id='modify_value', label='修改值', icon='riqi.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -265,7 +244,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_modify_value)
         )
 
-        # 数据合并
         self.menutool_list.append(
             MenuTool(id='vertical_concat', label='合并列', icon='vertical_concat.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -273,7 +251,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_vertical_concat)
         )
 
-        # 补全值
         self.menutool_list.append(
             MenuTool(id='fill_value', label='补全值', icon='jiekoupeizhi.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -281,7 +258,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_clean_fill_value)
         )
 
-        # 合并词
         self.menutool_list.append(
             MenuTool(id='combine_synonym', label='合并词', icon='shujufenxi.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -289,7 +265,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_combine_synonym)
         )
 
-        # 行去重
         self.menutool_list.append(
             MenuTool(id='distinct_row', label='去重行', icon='shuzi.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -297,7 +272,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_row_distinct)
         )
 
-        # 停用词
         self.menutool_list.append(
             MenuTool(id='stop_words', label='停用词', icon='wenben.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -305,19 +279,13 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_stop_words)
         )
 
-        # 切分词
         self.menutool_list.append(
             MenuTool(id='split_words', label='切分词', icon='xianshi.png', menubar='menu_clean',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_split_words)
         )
-        #
-        # self.clean_toolbar.addSeparator()
 
-        ## 分析 ############################################################
-
-        # 词频统计
         self.menutool_list.append(
             MenuTool(id='count_stat', label='词频统计', icon='yingyongchangjing.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -325,7 +293,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_wordcount_stat)
         )
 
-        # 共现分析
         self.menutool_list.append(
             MenuTool(id='cocon_stat', label='共现统计', icon='yingyongzhongxin.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -333,7 +300,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_cocon_stat)
         )
 
-        # 相似度
         self.menutool_list.append(
             MenuTool(id='similarity_row', label='相似比较', icon='biaochaxun.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -341,7 +307,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_row_similarity)
         )
 
-        # 分组统计
         self.menutool_list.append(
             MenuTool(id='group_stat', label='分组统计', icon='biaochaxun.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -349,7 +314,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_group_stat)
         )
 
-        # 过滤值
         self.menutool_list.append(
             MenuTool(id='filter_row', label='过滤行', icon='biaochaxun.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -357,7 +321,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_clean_filter)
         )
 
-        # 特征提取
         self.menutool_list.append(
             MenuTool(id='extract_feature', label='特征提取', icon='zhenshikexin.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -365,7 +328,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_extract_features)
         )
 
-        # 图表配置
         self.menutool_list.append(
             MenuTool(id='graph_config', label='图表配置', icon='app.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -373,13 +335,13 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_graph_config)
         )
 
-        ## 窗口 ############################################################
         self.menutool_list.append(
             MenuTool(id='window_savestore', label='保存布局', icon='app.png', menubar='menu_window',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_window_savestore)
         )
+
         self.menutool_list.append(
             MenuTool(id='window_restore', label='恢复布局', icon='app.png', menubar='menu_window',
                      show_in_menubar=True,
@@ -387,24 +349,21 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.master_init_dock)
         )
 
+        ######################################################################################################
 
-
-
-
-    def init_menutool(self):
         idset = set([menutool.id for menutool in self.menutool_list])
         iconset = set([menutool.icon for menutool in self.menutool_list])
         assert len(self.menutool_list) == len(idset)
         # assert len(self.menutool_list) == len(iconset)
 
         for menutool in self.menutool_list:
-            icon = QtGui.QIcon(os.path.join('icons', menutool.icon),color='blue')
+            icon = QtGui.QIcon(os.path.join('icons', menutool.icon), color='blue')
 
             if menutool.show_in_menubar:
                 action = QtWidgets.QAction(icon, menutool.label, self)
                 action.setProperty('id', menutool.id)
                 getattr(self, menutool.menubar).addAction(action)
-                action.triggered.connect(self.menutool_callback)
+                action.triggered.connect(self.__menutool_callback)
 
             if menutool.show_in_toolbar:
                 button = QtWidgets.QToolButton(self)
@@ -413,9 +372,9 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                 button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
                 button.setProperty('id', menutool.id)
                 self.clean_toolbar.addWidget(button)
-                button.clicked.connect(self.menutool_callback)
+                button.clicked.connect(self.__menutool_callback)
 
-    def menutool_callback(self):
+    def __menutool_callback(self):
         id = self.sender().property('id')
         logger.info('使用功能  {}', id)
         for menutool in self.menutool_list:
@@ -424,12 +383,15 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                 return
         raise ValueError(f'不识别的操作id={id}')
 
+    def master_init_signal(self):
+        ssignal.info.connect(self.master_show_info)
+        ssignal.error.connect(self.master_show_error)
+        ssignal.set_clean_dataset.connect(self.master_set_clean_df)
+        ssignal.datafiles_changing.connect(self.master_action_datafiles_list)
+        ssignal.update_cache.connect(self.master_show_in_stack)
+
+    #################################################################################################33
     def master_show_info(self, val) -> None:
-        """
-        状态栏，显示信息
-        :param val:
-        :return:
-        """
         self.statusBar().setStyleSheet("color: blue;font-weight: bold;")
         self.statusBar().showMessage(val)
 
@@ -437,17 +399,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.statusBar().setStyleSheet("color: red;font-weight: bold;")
         self.statusBar().showMessage(val)
 
-    def master_show_permanent(self, msg)->None:
+    def master_show_permanent(self, msg) -> None:
         self.statusBar().addPermanentWidget(QLabel(msg), stretch=0)
-    def master_get_clean_df(self) -> pd.DataFrame:
-        return self.clean_datatable.get_dataset()
 
-    def master_get_clean_columns(self) -> List[str]:
-        return self.master_get_clean_df().columns
+    ####################################################################################33
 
-    def master_get_clean_table(self) -> TableKit:
-        return self.clean_datatable
-
+    #######################################################################################33
     def master_clean_no_data(self) -> bool:
         return not self.clean_datatable.has_dataset()
 
@@ -455,6 +412,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.clean_datatable.set_dataset(
             df, inplace_index=inplace_index, drop_index=drop_index
         )
+
     #################################################
     def master_action_dblclick_datafiles_list(self, item):
         logger.info("双击数据文件列表，解析数据文件")
@@ -475,21 +433,21 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             return
 
         # 双击，只会选择一个文件，所以包装成list
-        abs_datafiles = os.path.join(Config.datafiles.value, fname)
+        abs_datafiles = os.path.join(Cfg.datafiles.value, fname)
         abs_datafiles = [abs_datafiles]
         # csv文件分隔符
-        sep = Config.csv_seperator.value
+        sep = Cfg.csv_seperator.value
 
         self.cleanSaveDatasetThread = CleanParseFileThread(abs_datafiles, format, sep)
         self.cleanSaveDatasetThread.start()
 
     def master_action_datafiles_list(self, *args):
-        fnames = [fname for fname in os.listdir(Config.datafiles.value)]
+        fnames = [fname for fname in os.listdir(Cfg.datafiles.value)]
         # 过滤文件夹，只保留文件
         fnames = [
             fname
             for fname in fnames
-            if os.path.isfile(os.path.join(Config.datafiles.value, fname))
+            if os.path.isfile(os.path.join(Cfg.datafiles.value, fname))
         ]
 
         self.datafiles_list.clear()
@@ -498,7 +456,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_show_in_stack(self):
         self.listWidget_stack.clear()
         logger.debug('数据栈显示缓存')
-        for id in PandasCache.allinfo():
+        for id, value in PandasCache.allinfo():
             self.listWidget_stack.addItem(str(id))
 
     def master_action_datafiles_parse(self):
@@ -518,7 +476,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             return
 
         abs_datafiles = [
-            os.path.join(Config.datafiles.value, fname) for fname in selected_fnames
+            os.path.join(Cfg.datafiles.value, fname) for fname in selected_fnames
         ]
         sep = self.config_datafiles_csv_seperator.text()
 
@@ -530,7 +488,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择停用词典",  # 标题
-            Config.dicts,  # 起始目录
+            Cfg.dicts.value,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -542,7 +500,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择合并词典",  # 标题
-            Config.dicts.value,  # 起始目录
+            Cfg.dicts.value,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -554,7 +512,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getOpenFileName(
             self,  # 父窗口对象
             "选择受控词典",  # 标题
-            Config.dicts.value,  # 起始目录
+            Cfg.dicts.value,  # 起始目录
             "词典类型 (*.txt)"
         )
 
@@ -564,15 +522,14 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_action_save_configs(self):
         logger.info("保存配置信息")
 
-        Config.set(Config.csv_seperator.key, self.config_datafiles_csv_seperator.text().strip())
-        Config.set(Config.stop_words.key, self.config_stop_words_dict.text())
-        Config.set(Config.combine_words.key, self.config_combine_words_dict.text())
-        Config.set(Config.controlled_words.key, self.config_controlled_words_dict.text())
+        Cfg.set(Cfg.csv_seperator.key, self.config_datafiles_csv_seperator.text().strip())
+        Cfg.set(Cfg.stop_words.key, self.config_stop_words_dict.text())
+        Cfg.set(Cfg.combine_words.key, self.config_combine_words_dict.text())
+        Cfg.set(Cfg.controlled_words.key, self.config_controlled_words_dict.text())
 
         ssignal.info.emit("保存成功")
 
     ########################################################################
-
 
     #######################################################################
 
@@ -629,7 +586,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存数据文件",  # 标题
-            Config.datafiles.value,  # 起始目录
+            Cfg.datafiles.value,  # 起始目录
             "Excel (*.xlsx);;Csv (*.csv);;Pickle (*.pkl)",  # 选择类型过滤项，过滤内容在括号中
         )
 
@@ -802,7 +759,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             return
 
         abs_datafiles = [
-            os.path.join(Config.datafiles.value, fname) for fname in selected_fnames
+            os.path.join(Cfg.datafiles.value, fname) for fname in selected_fnames
         ]
 
         self.popupVerticalConcat = PopupVerticalConcat(self, abs_datafiles)
@@ -851,13 +808,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_window_savestore(self):
         logger.info('保存布局')
 
-        Config.set('geometry', self.saveGeometry())
-        Config.set('windowState', self.saveState())
-
+        Cfg.set('geometry', self.saveGeometry())
+        Cfg.set('windowState', self.saveState())
 
     #######################################################################
 
-    def graph_set_graphdata(self, data:GraphData):
+    def graph_set_graphdata(self, data: GraphData):
         self.graph_data = data
     #######################################################################
 

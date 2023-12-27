@@ -3,7 +3,7 @@ import re
 from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
-from mrunner import CleanSplitColumnThread
+from core.runner import CleanSplitColumnThread
 from uipopup.uipy import ui_split_column
 
 
@@ -16,7 +16,6 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
         self.listWidget.addItems(self.get_clean_columns())
 
         self.pushButton.clicked.connect(self.on_clicked)
-
 
     def on_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
@@ -45,11 +44,10 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanSplitColumnThread = CleanSplitColumnThread(df, name, split_style_text, le1_text, get_style_text, le2_text)
+        self.cleanSplitColumnThread = CleanSplitColumnThread(df, name, split_style_text, le1_text, get_style_text,
+                                                             le2_text)
         self.cleanSplitColumnThread.start()
         self.close()
-
-
 
     def get_clean_columns(self):
         return self.parent.master_get_clean_columns()

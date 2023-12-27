@@ -1,7 +1,5 @@
 import collections
-import json
 import os
-import sys
 from typing import Dict
 
 from PySide2.QtCore import QSettings
@@ -9,7 +7,6 @@ from PySide2.QtCore import QSettings
 from core.log import logger
 
 abs_path = os.path.expanduser("~")
-
 
 CfgItem = collections.namedtuple('CfgItem', ['label', 'key', 'value'])
 
@@ -25,10 +22,8 @@ class CfgHandler:
         if os.path.exists(self.cfg_save_path):
             setting = QSettings(self.cfg_save_path, QSettings.IniFormat)
             for key in setting.allKeys():
-                if len(setting.value(key))>0:
+                if len(setting.value(key)) > 0:
                     self.load_dict[key] = setting.value(key)
-
-
 
         # 工作空间文件夹
         self.workspace = CfgItem(label='workspace', key='workspace', value=os.path.abspath(os.curdir))
@@ -106,4 +101,4 @@ class CfgHandler:
             setattr(self, item.key, item)
 
 
-Config = CfgHandler()
+Cfg = CfgHandler()

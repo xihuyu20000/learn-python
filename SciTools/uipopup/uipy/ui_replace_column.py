@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -36,7 +35,6 @@ class Ui_Form(object):
         self.column_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.verticalLayout.addWidget(self.column_widget)
-
 
         self.horizontalLayout_6.addWidget(self.frame)
 
@@ -68,7 +66,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addWidget(self.old_lineEdit)
 
-
         self.verticalLayout_2.addWidget(self.frame_5)
 
         self.frame_6 = QFrame(self.tab)
@@ -86,7 +83,6 @@ class Ui_Form(object):
         self.new_lineEdit.setObjectName(u"new_lineEdit")
 
         self.horizontalLayout_4.addWidget(self.new_lineEdit)
-
 
         self.verticalLayout_2.addWidget(self.frame_6)
 
@@ -111,7 +107,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addWidget(self.other_linedit)
 
-
         self.verticalLayout_4.addWidget(self.frame_4)
 
         self.frame_7 = QFrame(self.tab_2)
@@ -130,7 +125,6 @@ class Ui_Form(object):
         self.rbt11.setObjectName(u"rbt11")
 
         self.horizontalLayout_5.addWidget(self.rbt11)
-
 
         self.verticalLayout_4.addWidget(self.frame_7)
 
@@ -159,7 +153,6 @@ class Ui_Form(object):
 
         self.horizontalLayout.addWidget(self.rbt1)
 
-
         self.verticalLayout_3.addWidget(self.frame_3)
 
         self.ok_button = QPushButton(self.frame_2)
@@ -168,16 +161,14 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addWidget(self.ok_button)
 
-
         self.horizontalLayout_6.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         self.tabwidget.setCurrentIndex(0)
 
-
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
@@ -187,13 +178,14 @@ class Ui_Form(object):
         self.old_lineEdit.setText(QCoreApplication.translate("Form", u",", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"\u65b0\u503c", None))
         self.new_lineEdit.setText(QCoreApplication.translate("Form", u";", None))
-        self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab), QCoreApplication.translate("Form", u"\u65b9\u5f0f1", None))
+        self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab),
+                                  QCoreApplication.translate("Form", u"\u65b9\u5f0f1", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u5b57\u7b26", None))
         self.rbt00.setText(QCoreApplication.translate("Form", u"\u4fdd\u7559", None))
         self.rbt11.setText(QCoreApplication.translate("Form", u"\u820d\u5f03", None))
-        self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab_2), QCoreApplication.translate("Form", u"\u65b9\u5f0f2", None))
+        self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab_2),
+                                  QCoreApplication.translate("Form", u"\u65b9\u5f0f2", None))
         self.rbt0.setText(QCoreApplication.translate("Form", u"\u66ff\u6362\u5f53\u524d\u503c", None))
         self.rbt1.setText(QCoreApplication.translate("Form", u"\u6dfb\u52a0\u65b0\u5217", None))
         self.ok_button.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

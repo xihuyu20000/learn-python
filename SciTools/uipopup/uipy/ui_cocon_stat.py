@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -41,7 +40,6 @@ class Ui_Form(object):
         self.listWidget.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.verticalLayout_2.addWidget(self.listWidget)
-
 
         self.horizontalLayout.addWidget(self.frame)
 
@@ -84,7 +82,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
-
         self.verticalLayout.addWidget(self.frame_3)
 
         self.frame_4 = QFrame(self.frame_2)
@@ -105,16 +102,14 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addWidget(self.btn_export)
 
-
         self.verticalLayout.addWidget(self.frame_4)
 
-
         self.horizontalLayout.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
@@ -126,4 +121,3 @@ class Ui_Form(object):
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
         self.btn_export.setText(QCoreApplication.translate("Form", u"\u5bfc\u51fa", None))
     # retranslateUi
-

@@ -2,33 +2,26 @@
 这是工具模块，这里的代码，一定不能依赖其他项目模块
 """
 import collections
-import itertools
 import os
 import re
 import secrets
 import sys
-import time
 import uuid
 from typing import Dict, Union, Set
-from typing import Tuple, List
+from typing import List
 
-import arrow
 import jieba
-import numpy as np
-import pandas as pd
 import requests
 import wmi
 from lxml import etree
-from scipy.stats import zscore
-from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from zhon.hanzi import punctuation
 
-from core.const import Config
-from core.log import logger
+from core.const import Cfg
 
 
 def is_running_as_exe():
     return getattr(sys, 'frozen', False)
+
 
 class DictReader:
     @staticmethod
@@ -55,9 +48,8 @@ class DictReader:
 
         return words_dict
 
-
     @staticmethod
-    def stop_words_file(abs_paths: Union[str, List[str]]) ->Set[str]:
+    def stop_words_file(abs_paths: Union[str, List[str]]) -> Set[str]:
         """
         停用词典
         """
@@ -77,7 +69,7 @@ class DictReader:
         return words_set
 
     @staticmethod
-    def controlled_words_file(abs_paths: Union[str, List[str]]) ->Set[str]:
+    def controlled_words_file(abs_paths: Union[str, List[str]]) -> Set[str]:
         """
         受控词典
         """
@@ -161,7 +153,7 @@ class Utils:
         return "#" + red + green + blue
 
     @staticmethod
-    def replace(line, words_dict:Dict[str, str]):
+    def replace(line, words_dict: Dict[str, str]):
         """
         假设line是'aa;bb;cc;dd'，words_dict是{'aa':1,'cc':2}，返回值是1;bb;2;dd
         :param line:
@@ -173,9 +165,9 @@ class Utils:
 
         keys = words_dict.keys()
         words = [
-            str(words_dict[w]) if w in keys else w for w in line.split(Config.seperator.value)
+            str(words_dict[w]) if w in keys else w for w in line.split(Cfg.seperator.value)
         ]
-        return Config.seperator.value.join(words)
+        return Cfg.seperator.value.join(words)
 
     @staticmethod
     def replace2(line, words_set: Union[List[str], Set[str]]):
@@ -185,7 +177,7 @@ class Utils:
         :param words_set:
         :return:
         """
-        words = [w for w in line.split(Config.seperator.value) if w not in words_set]
+        words = [w for w in line.split(Cfg.seperator.value) if w not in words_set]
         return ";".join(words)
 
     @staticmethod
@@ -210,12 +202,12 @@ class Utils:
     @staticmethod
     def reserve_chars(other_char, line: str):
         rr = []
-        for word in line.split(Config.seperator.value):
+        for word in line.split(Cfg.seperator.value):
             if other_char in word:
                 rr.append(other_char)
             else:
                 rr.append(word)
-        return Config.seperator.value.join(rr)
+        return Cfg.seperator.value.join(rr)
 
     @staticmethod
     def has_Chinese_or_punctuation(ws):
@@ -229,7 +221,7 @@ class Utils:
         :return:
         """
         # 先合并
-        joined = Config.seperator.value.join([row[col] for col in col_names])
+        joined = Cfg.seperator.value.join([row[col] for col in col_names])
         # 再分割
         values = [item.strip() for item in re.split(r"\s+|;", joined) if item.strip()]
         return set(values)
@@ -391,4 +383,6 @@ class MyMachineCode:
         """
         with open(self.licence_path, "w", encoding="utf-8") as f:
             f.write(text)
+
+
 MachineCode = MyMachineCode()

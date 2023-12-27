@@ -1,9 +1,8 @@
-
 from PySide2.QtWidgets import QDialog, QFileDialog
 
-from core.const import ssignal, Config
+from core.const import ssignal, Cfg
+from core.runner import CleanCoconStatThread
 from uipopup.uipy import ui_cocon_stat
-from mrunner import CleanCoconStatThread
 
 
 class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
@@ -23,7 +22,6 @@ class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
     def init_data(self):
         self.listWidget.addItems(self.get_clean_columns())
 
-
     def export_clicked(self):
         names = [line.text() for line in self.listWidget.selectedItems()]
 
@@ -36,7 +34,7 @@ class PopupCoconStat(QDialog, ui_cocon_stat.Ui_Form):
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存统计文件",  # 标题
-            Config.datafiles.value,  # 起始目录
+            Cfg.datafiles.value,  # 起始目录
             "Excel (*.xlsx);;"  # 选择类型过滤项，过滤内容在括号中
         )
 

@@ -4,33 +4,32 @@
 在运行开始、结束、出错时，都要发送信号。
 
 """
+import collections
 import time
 from typing import List, Set
 
 import pandas as pd
 from PySide2 import QtCore
-
 from PySide2.QtCore import QThread
 from PySide2.QtGui import QDesktopServices
-
 from pandas import DataFrame
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from core import CleanBiz
-from core.clean import AnalyzeBiz, Parser
-from core.mgraph import GraphData, Draw
-from core.util import PandasUtil
-from core.util.mutil import Config, DictReader
+from core.clean import Parser
 from core.const import ssignal
 from core.log import logger
+from core.mgraph import GraphData, Draw
+from core.util import PandasUtil
+from core.util.mutil import Cfg, DictReader
 
 
 class WatchDataFilesChaningThread(QThread):
     def run(self) -> None:
         event_handler = WatchDataFilesChaningThread.DataFilesChaningHandler()
         observer = Observer()
-        observer.schedule(event_handler, path=".", recursive=False)
+        observer.schedule(event_handler, path="../..", recursive=False)
         observer.start()
         try:
             while True:
@@ -54,7 +53,6 @@ class CleanParseFileThread(QThread):
 
     def __init__(self, filenames: List[str], format: str, sep: str):
         """
-
         :param filenames: 传入的文件名称（完整路径）
         :param format: 参考FileFormat类定义的格式
         :param sep: 指定csv文件的分隔符
@@ -75,7 +73,7 @@ class CleanParseFileThread(QThread):
             t2 = time.time()
 
             msg = "解析{0}条记录，{1}个列，耗时{2}秒".format(
-                df.shape[0], df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                df.shape[0], df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.reset_cache.emit()
@@ -117,7 +115,7 @@ class CleanSaveDatasetThread(QThread):
             else:
                 raise Exception("没有处理的保存类型 " + self.fpath)
             t2 = time.time()
-            msg = "保存{0}，耗时{1}秒".format(self.fpath, round(t2 - t1, int(Config.precision_point.value)))
+            msg = "保存{0}，耗时{1}秒".format(self.fpath, round(t2 - t1, int(Cfg.precision_point.value)))
             ssignal.info.emit(msg)
         except Exception as e:
             logger.exception(e)
@@ -149,7 +147,7 @@ class CleanMetadataThread(QThread):
 
             t2 = time.time()
             msg = "解析{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             self.dataset.emit(stat_df, pairs)
@@ -180,7 +178,7 @@ class CleanExportCountStatThread(QThread):
 
             t2 = time.time()
             msg = "保存词频统计文件 {0}，耗时{1}秒".format(
-                self.fpath, round(t2 - t1, int(Config.precision_point.value))
+                self.fpath, round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
 
@@ -239,7 +237,7 @@ class CleanReplaceValuesThread(QThread):
 
             t2 = time.time()
             msg = "保存统计文件 {0}，耗时{1}秒".format(
-                self.fpath, round(t2 - t1, int(Config.precision_point.value))
+                self.fpath, round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
 
@@ -264,7 +262,7 @@ class CleanCopyColumnThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -309,7 +307,7 @@ class CleanSplitColumnThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -346,7 +344,7 @@ class CleanReplaceValueThread(QThread):
         try:
             t1 = time.time()
 
-            if self.current_tab_index==0:
+            if self.current_tab_index == 0:
                 df = CleanBiz.repalce_values1(
                     self.df,
                     self.names,
@@ -354,7 +352,7 @@ class CleanReplaceValueThread(QThread):
                     self.new_sep,
                     self.is_new,
                 )
-            if self.current_tab_index==1:
+            if self.current_tab_index == 1:
                 df = CleanBiz.repalce_values2(
                     self.df,
                     self.names,
@@ -365,7 +363,7 @@ class CleanReplaceValueThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -395,7 +393,7 @@ class CleanCombineSynonymThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -424,7 +422,7 @@ class CleanStopWordsThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -450,7 +448,7 @@ class CleanWordCountThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -488,7 +486,7 @@ class CleanWordCountExportThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
 
@@ -542,7 +540,7 @@ class CleanCoconStatThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
         except Exception as e:
@@ -569,7 +567,7 @@ class CleanRowSimilarityThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df_new)
@@ -600,7 +598,7 @@ class CleanVerticalConcatThread(QThread):
             df_new.fillna('', inplace=True)
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                df_new.shape[0], df_new.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                df_new.shape[0], df_new.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df_new)
@@ -625,7 +623,7 @@ class CleanSplitWordsThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -652,7 +650,7 @@ class CleanExtractFeaturesThread(QThread):
 
             t2 = time.time()
             msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
-                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Config.precision_point.value))
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
@@ -662,9 +660,11 @@ class CleanExtractFeaturesThread(QThread):
             msg = "出错:{0}".format(str(e))
             ssignal.error.emit(msg)
 
-import collections
+
 class CleanDrawGraphThread(QThread):
-    ConfigTuple = collections.namedtuple('ConfigTuple', ['chart_style','xlabel','ylabel','stat_threshold', 'orderby','canvas_width','canvas_height'])
+    ConfigTuple = collections.namedtuple('ConfigTuple', ['chart_style', 'xlabel', 'ylabel', 'stat_threshold', 'orderby',
+                                                         'canvas_width', 'canvas_height'])
+
     def __init__(self, df: pd.DataFrame, configTuple: ConfigTuple):
         super(CleanDrawGraphThread, self).__init__()
         self.df = df
@@ -680,9 +680,9 @@ class CleanDrawGraphThread(QThread):
             stat_result = None
 
             if len(self.config.ylabel) == 0:
-                stat_result = AnalyzeBiz.count(self.df, by=self.config.xlabel)
+                stat_result = CleanBiz.count(self.df, by=self.config.xlabel)
             else:
-                stat_result = AnalyzeBiz.count_by(self.df, stat_column=self.config.ylabel, by=self.config.xlabel)
+                stat_result = CleanBiz.count_by(self.df, stat_column=self.config.ylabel, by=self.config.xlabel)
 
             # 过滤阈值
             stat_result = stat_result[stat_result['Count'] >= self.config.stat_threshold].reset_index(
@@ -703,7 +703,7 @@ class CleanDrawGraphThread(QThread):
             logger.info(data)
 
             t2 = time.time()
-            ssignal.info.emit('开始图表数据，耗时{0}秒'.format(round(t2 - t1, int(Config.precision_point.value))))
+            ssignal.info.emit('开始图表数据，耗时{0}秒'.format(round(t2 - t1, int(Cfg.precision_point.value))))
 
             draw = Draw()
             local_file = draw.draw(data)

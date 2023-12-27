@@ -1,6 +1,7 @@
 from PySide2.QtWidgets import QDialog
+
 from core.log import logger
-from mrunner import CleanVerticalConcatThread
+from core.runner import CleanVerticalConcatThread
 from uipopup.uipy import ui_vertical_concat
 
 

@@ -53,7 +53,6 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.column_names)
 
-
         self.horizontalLayout_3.addWidget(self.frame_4)
 
         self.frame_6 = QFrame(self.frame_3)
@@ -95,7 +94,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addWidget(self.vaLable)
 
-
         self.verticalLayout_2.addWidget(self.frame_5)
 
         self.btn_ok = QPushButton(self.frame_6)
@@ -104,27 +102,25 @@ class Ui_Form(object):
 
         self.verticalLayout_2.addWidget(self.btn_ok)
 
-
         self.horizontalLayout_3.addWidget(self.frame_6)
-
 
         self.verticalLayout_3.addWidget(self.frame_3)
 
-
         self.verticalLayout_4.addWidget(self.frame_2)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"\u76f8\u4f3c\u5ea6", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ef\u4ee5\u591a\u9009", None))
-        self.label_4.setText(QCoreApplication.translate("Form", u"\u6309\u7167\u9009\u7684\u5217\uff0c\u8fdb\u884c\u76f8\u4f3c\u5ea6\u5224\u65ad", None))
+        self.label_4.setText(QCoreApplication.translate("Form",
+                                                        u"\u6309\u7167\u9009\u7684\u5217\uff0c\u8fdb\u884c\u76f8\u4f3c\u5ea6\u5224\u65ad",
+                                                        None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u76f8\u4f3c\u5ea6\u9608\u503c", None))
         self.vaLable.setText(QCoreApplication.translate("Form", u"85", None))
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

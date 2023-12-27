@@ -9,7 +9,6 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -40,7 +39,6 @@ class Ui_Form(object):
         self.listWidget.setObjectName(u"listWidget")
 
         self.verticalLayout_2.addWidget(self.listWidget)
-
 
         self.horizontalLayout_5.addWidget(self.frame_4)
 
@@ -76,7 +74,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_3.addWidget(self.widget_group)
 
-
         self.verticalLayout.addWidget(self.frame)
 
         self.frame_2 = QFrame(self.frame_3)
@@ -103,7 +100,6 @@ class Ui_Form(object):
 
         self.horizontalLayout_4.addWidget(self.widget_stat)
 
-
         self.verticalLayout.addWidget(self.frame_2)
 
         self.btn_ok = QPushButton(self.frame_3)
@@ -111,13 +107,12 @@ class Ui_Form(object):
 
         self.verticalLayout.addWidget(self.btn_ok)
 
-
         self.horizontalLayout_5.addWidget(self.frame_3)
-
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
+
     # setupUi
 
     def retranslateUi(self, Form):
@@ -127,4 +122,3 @@ class Ui_Form(object):
         self.label_2.setText(QCoreApplication.translate("Form", u"\u6c47\u603b", None))
         self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
     # retranslateUi
-

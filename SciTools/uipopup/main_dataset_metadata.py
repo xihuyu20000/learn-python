@@ -1,11 +1,8 @@
-
 from PySide2.QtWidgets import QDialog
 
-from uimain.ctx import MasterMainContext
+from core.runner import CleanMetadataThread
+from core.toolkit import TableKit, FrameKit, PandasTableModel
 from uipopup.uipy import ui_dataset_metadata
-
-from mrunner import CleanMetadataThread
-from core.toolkit.mtoolkit import PandasTableModel, TableKit, FrameKit
 
 
 class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
@@ -22,9 +19,7 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
         self.cleanMetadataThread.dataset.connect(self.fill_table_stat)
         self.cleanMetadataThread.start()
 
-
     def fill_table_stat(self, stat_df, pairs):
-
         # 填充表格
         self.tableView.setModel(PandasTableModel(stat_df))
 

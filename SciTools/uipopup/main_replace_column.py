@@ -1,7 +1,7 @@
 from PySide2.QtWidgets import QDialog
 
 from core.const import ssignal
-from mrunner import CleanReplaceValueThread
+from core.runner import CleanReplaceValueThread
 from uipopup.uipy import ui_replace_column
 
 
@@ -19,7 +19,7 @@ class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):
                                                                self.new_lineEdit.text(),
                                                                self.other_linedit.text(),
                                                                self.rbt00.isChecked(),
-                                                               self.rbt1.isChecked(),))
+                                                               self.rbt1.isChecked(), ))
 
     def init_data(self):
         self.column_widget.addItems(self.get_clean_columns())
@@ -44,7 +44,8 @@ class PopupReplaceColumn(QDialog, ui_replace_column.Ui_Form):
         df = self.get_df()
         ssignal.push_cache.emit(self.get_df())
 
-        self.cleanReplaceValueThread = CleanReplaceValueThread(df, names, current_tab_index, old_sep, new_sep, other_char, is_reserved, is_new)
+        self.cleanReplaceValueThread = CleanReplaceValueThread(df, names, current_tab_index, old_sep, new_sep,
+                                                               other_char, is_reserved, is_new)
         self.cleanReplaceValueThread.start()
         self.close()
 

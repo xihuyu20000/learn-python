@@ -4,15 +4,17 @@ import sys
 import loguru
 
 format_info = '<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> ' \
-            '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
+              '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
 
 # 格式里面添加了process和thread记录，方便查看多进程和线程程序
 format_error = '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> ' \
-            '| <magenta>{process}</magenta>:<yellow>{thread}</yellow> ' \
-            '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
+               '| <magenta>{process}</magenta>:<yellow>{thread}</yellow> ' \
+               '| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<yellow>{line}</yellow> - <level>{message}</level>'
 
 # 使用 getattr 检查 sys.frozen 属性,判断脚本是否运行在一个EXE文件中
 _abs_path = os.path.expanduser("~")
+
+
 class MyLogger:
     def __init__(self):
         self.__logger = loguru.logger
@@ -23,12 +25,12 @@ class MyLogger:
         if not getattr(sys, 'frozen', False):
             # 添加控制台输出的格式,sys.stdout为输出到屏幕;关于这些配置还需要自定义请移步官网查看相关参数说明
             self.__logger.add(sys.stdout,
-                            colorize=True,
-                            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "  # 颜色>时间
-                                   "<cyan>{module}</cyan>.<cyan>{function}</cyan>"  # 模块名.方法名
-                                   ":<cyan>{line}</cyan> | "  # 行号
-                                   "<level>{level}</level>: "  # 等级
-                                   "<level>{message}</level>",  # 日志内容
+                              colorize=True,
+                              format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "  # 颜色>时间
+                                     "<cyan>{module}</cyan>.<cyan>{function}</cyan>"  # 模块名.方法名
+                                     ":<cyan>{line}</cyan> | "  # 行号
+                                     "<level>{level}</level>: "  # 等级
+                                     "<level>{message}</level>",  # 日志内容
                               )
 
         self.__logger.add(
@@ -66,7 +68,7 @@ class MyLogger:
     # def error(self, *args):
     #     self.__logger.error(' , '.join(args))
 
+
 logger = MyLogger().get_logger()
 
 logger.debug('日志文件夹 {}', _abs_path)
-

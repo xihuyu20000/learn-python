@@ -1,7 +1,8 @@
 from PySide2.QtWidgets import QDialog, QFileDialog
-from core.const import ssignal, Config
+
+from core.const import ssignal, Cfg
+from core.runner import CleanWordCountThread, CleanWordCountExportThread
 from uipopup.uipy import ui_count_stat
-from mrunner import CleanWordCountThread, CleanWordCountExportThread
 
 
 class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
@@ -52,7 +53,7 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         filePath, _ = QFileDialog.getSaveFileName(
             self,  # 父窗口对象
             "保存词频统计文件",  # 标题
-            Config.datafiles.value,  # 起始目录
+            Cfg.datafiles.value,  # 起始目录
             "Excel (*.xlsx);;",  # 选择类型过滤项，过滤内容在括号中
         )
 

@@ -5,7 +5,7 @@ from PySide2.QtGui import QDrag, QIcon
 from PySide2.QtWidgets import QDialog, QApplication, QHBoxLayout, QToolButton, QWidget, QComboBox, QSizePolicy, \
     QSpacerItem
 
-from core.util.mutil import Config
+from core.const import Cfg
 from uipopup.uipy import ui_group_stat
 
 
@@ -30,7 +30,7 @@ class PopupCleanGroupStat(QWidget, ui_group_stat.Ui_Form):
         self.btn.clicked.connect(lambda: self.close())
 
     def get_value(self):
-        return Config.seperator.join([self.btn.get_value(), self.combox.currentText()])
+        return Cfg.seperator.join([self.btn.get_value(), self.combox.currentText()])
 
 
 class ClosableButton(QToolButton):

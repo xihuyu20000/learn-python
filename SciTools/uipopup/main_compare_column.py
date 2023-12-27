@@ -1,9 +1,9 @@
 import time
 
 from PySide2.QtWidgets import QDialog
-from core.log import logger
 
-from core.const import ssignal, Config
+from core.const import ssignal, Cfg
+from core.log import logger
 from uipopup.uipy import ui_compare_columns
 
 
@@ -18,7 +18,6 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
 
         self.btn_reset.clicked.connect(self.action_reset)
         self.btn_ok.clicked.connect(self.action_ok)
-
 
     def action_reset(self):
         logger.info('列对比')
@@ -55,7 +54,7 @@ class PopupCompareColumns(QDialog, ui_compare_columns.Ui_Form):
         self.close()
 
     def __replace(self, line, words_set):
-        words = [w for w in line.split(Config.seperator.value) if w not in words_set]
+        words = [w for w in line.split(Cfg.seperator.value) if w not in words_set]
         return ';'.join(words)
 
     def get_clean_columns(self):
