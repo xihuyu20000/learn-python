@@ -33,10 +33,10 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
         ssignal.info.emit(msg)
 
     def get_df(self):
-        return self.parent.master_get_clean_df()
+        return self.parent.get_df()
 
     def set_df(self, df):
         self.parent.master_set_clean_df(df)
 
     def get_table(self):
-        return self.parent.master_get_clean_table()
+        return self.parent.get_table_widget()

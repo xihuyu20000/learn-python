@@ -187,12 +187,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         self.menutool_list.append(
             MenuTool(id='delete_row', label='删除行', icon='yichu.png', menubar='menu_edit', show_in_menubar=True,
-                     show_in_toolbar=True, callback=self.clean_do_menu_row_delete)
+                     show_in_toolbar=True, callback=self.clean_do_menu_delete_row)
         )
 
         self.menutool_list.append(
             MenuTool(id='delete_column', label='删除列', icon='yichu2.png', menubar='menu_edit', show_in_menubar=True,
-                     show_in_toolbar=True, callback=self.clean_do_menu_column_delete)
+                     show_in_toolbar=True, callback=self.clean_do_menu_delete_column)
         )
 
         self.menutool_list.append(
@@ -402,11 +402,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_show_permanent(self, msg) -> None:
         self.statusBar().addPermanentWidget(QLabel(msg), stretch=0)
 
-    ####################################################################################33
-
     #######################################################################################33
-    def master_clean_no_data(self) -> bool:
-        return not self.clean_datatable.has_dataset()
 
     def master_set_clean_df(self, df, inplace_index=True, drop_index=True) -> None:
         self.clean_datatable.set_dataset(
@@ -559,7 +555,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_metadata(self):
         logger.info("清洗，元数据")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -569,7 +565,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_graph_config(self):
         logger.info("清洗，图表配置")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -579,7 +575,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_save(self):
         logger.info("清洗，保存")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -592,14 +588,14 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         if filePath:
             self.cleanSaveDatasetThread = CleanSaveDatasetThread(
-                self.master_get_clean_df(), filePath
+                self.context.get_df(), filePath
             )
             self.cleanSaveDatasetThread.start()
 
     def clean_do_menu_rename(self):
         logger.info("清洗，重命名")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -609,7 +605,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_copy_column(self):
         logger.info("清洗，复制列")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -619,7 +615,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_split_column(self):
         logger.info("清洗，拆分列")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -629,7 +625,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_replace_column(self):
         logger.info("清洗，替换值")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -639,7 +635,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_combine_synonym(self):
         logger.info("清洗，合并词")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -649,7 +645,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_stop_words(self):
         logger.info("清洗，停用词")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -659,7 +655,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_wordcount_stat(self):
         logger.info("清洗，词频统计")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -669,7 +665,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_cocon_stat(self):
         logger.info("清洗，共现分析")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -679,7 +675,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_compare_columns(self):
         logger.info("清洗，对比列")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -689,7 +685,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_modify_value(self):
         logger.info("清洗，修改值")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -699,7 +695,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_row_distinct(self):
         logger.info("清洗，行去重")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
@@ -709,37 +705,35 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_row_similarity(self):
         logger.info("清洗，相似度")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
         self.popupSimilarityRows = PopupSimilarityRows(self)
         self.popupSimilarityRows.show()
 
-    def clean_do_menu_row_delete(self):
+    def clean_do_menu_delete_row(self):
         logger.info("清洗，删除行")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
-        df = self.master_get_clean_df()
-        df2 = PandasUtil.delete_rows(df, self.clean_datatable.get_selected_rows())
-        ssignal.push_cache.emit(df2)
-        self.master_set_clean_df(df2)
+        df = self.context.get_df()
+        PandasUtil.delete_rows_by_indexes(df, self.clean_datatable.get_selected_row_indexes())
+        ssignal.push_cache.emit(df)
         ssignal.info.emit("删除行")
 
-    def clean_do_menu_column_delete(self):
+    def clean_do_menu_delete_column(self):
         logger.info("清洗，删除列")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
-        df = self.master_get_clean_df()
-        df2 = PandasUtil.delete_columns(df, self.clean_datatable.get_selected_cols())
-        ssignal.push_cache.emit(df2)
-        self.master_set_clean_df(df2)
+        df = self.context.get_df()
+        PandasUtil.delete_columns_by_indexes(df, self.clean_datatable.get_selected_col_indexes())
+        ssignal.push_cache.emit(df)
         ssignal.info.emit("删除列")
 
     def clean_do_menu_vertical_concat(self):
@@ -769,7 +763,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         logger.info("清洗，分组统计")
         ssignal.error.emit("还没有实现")
 
-        # if self.master_clean_no_data():
+        # if self.context.master_clean_no_data():
         #     ssignal.error.emit('没有数据')
         #     return
 
@@ -779,7 +773,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_split_words(self):
         logger.info("清洗，分词")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit('没有数据')
             return
 
@@ -789,7 +783,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def clean_do_menu_extract_features(self):
         logger.info("清洗，特征提取")
 
-        if self.master_clean_no_data():
+        if self.context.table_no_data():
             ssignal.error.emit('没有数据')
             return
 

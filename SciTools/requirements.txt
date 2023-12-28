@@ -20,3 +20,4 @@ watchdog
 requests
 lxml
 black
+pyinstrument

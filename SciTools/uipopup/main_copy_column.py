@@ -32,10 +32,10 @@ class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):
         self.cleanCopyColumnThread.start()
 
     def get_clean_columns(self):
-        return self.parent.master_get_clean_columns()
+        return self.parent.get_df_columns()
 
     def get_df(self):
-        return self.parent.master_get_clean_df()
+        return self.parent.get_df()
 
     def set_df(self, df):
         self.parent.master_set_clean_df(df)

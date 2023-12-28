@@ -5,12 +5,13 @@ import collections
 import os
 from typing import List
 
+import pendulum
 import pyecharts.options as opts
 from pyecharts.charts import Bar, Line, Pie, WordCloud, Graph, Sankey
 from pyecharts.globals import SymbolType
 
 from core.const import abs_path
-
+from core.log import logger
 
 class GraphData:
     def __init__(self):
@@ -166,7 +167,9 @@ class Draw:
                 g.set_global_opts(title_opts=self.title_opts,
                                   legend_opts=self.legend_opts,
                                   toolbox_opts=self.toolbox_opts)
+                logger.debug('渲染前 {} {}', g, pendulum.now())
                 result = g.render(os.path.join(abs_path, '../chart.html'))
+                logger.debug('渲染后 {}', pendulum.now())
                 return result
 
         raise Exception('不识别的图表类型' + info.label)

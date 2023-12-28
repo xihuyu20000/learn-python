@@ -37,4 +37,4 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
             self.tabWidget.addTab(widget.show(), col_name)
 
     def get_dataset(self):
-        return self.context.master_get_clean_df()
+        return self.context.get_df()

@@ -18,6 +18,8 @@ from PySide2.QtWidgets import (
     QWidget,
     QLCDNumber, QScrollArea, QToolButton, )
 
+from core.log import logger
+
 
 class InfoKit(QWidget):
     def __init__(
@@ -372,48 +374,11 @@ class TableKit(QFrame):
         df = self._model.pub_get_dataset()
         return df
 
-    def remove_rows(self, rows: List[int]):
-        """
-        删除多行
-        """
-        if rows is not None and len(rows) > 0:
-            ds = self.get_dataset()
-            ds.drop(index=ds.index[rows], inplace=True)
-            self.set_dataset(ds)
 
-    def remove_rows_reserve_index(self, indexes: List[int]):
-        """
-        删除行，但是不改变索引
-        """
-        self._model.pub_remove_rows_reserve_index(indexes)
-
-    def remove_columns(self, columns: List[int]):
-        """
-        删除多列
-        """
-        if columns is not None and len(columns) > 0:
-            ds = self.get_dataset()
-            ds.drop(columns=ds.columns[columns], inplace=True)
-            self.set_dataset(ds)
-
-    # def remove_selected_columns(self):
-    #     """
-    #     删除选中列
-    #     """
-    #     col_indexes = [index[1] for index in self._table.pub_selected_indexes()]
-    #     self.remove_columns(col_indexes)
-    #
-    # def remove_selected_rows(self):
-    #     """
-    #     删除选中行
-    #     """
-    #     row_indexes = [index[0] for index in self._table.pub_selected_indexes()]
-    #     self.remove_rows(row_indexes)
-
-    def get_selected_rows(self):
+    def get_selected_row_indexes(self):
         return [index[0] for index in self._table.pub_selected_indexes()]
 
-    def get_selected_cols(self):
+    def get_selected_col_indexes(self):
         return [index[1] for index in self._table.pub_selected_indexes()]
 
     def set_dataset(self, df: pd.DataFrame, inplace_index=True, drop_index=True):
@@ -426,6 +391,8 @@ class TableKit(QFrame):
         )
         # 2、更新表格视图
         self._table.reset()
+        logger.debug('刷新数据模型和视图')
+        logger.debug(df.columns)
 
     def set_bgcolor(self, i, j, color):
         self._model.pub_set_bgcolor(i, j, color)

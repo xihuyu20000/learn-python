@@ -23,10 +23,10 @@ class PopupVerticalConcat(QDialog, ui_vertical_concat.Ui_Form):
         self.close()
 
     def get_df(self):
-        return self.parent.master_get_clean_df()
+        return self.parent.get_df()
 
     def set_df(self, df):
         self.parent.master_set_clean_df(df)
 
     def get_table(self):
-        return self.parent.master_get_clean_table()
+        return self.parent.get_table_widget()

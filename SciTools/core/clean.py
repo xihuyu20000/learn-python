@@ -12,6 +12,7 @@ import jieba
 import numpy as np
 import pandas as pd
 import pendulum
+from jieba import posseg, analyse
 
 from core.const import Cfg
 from core.const import FileFormat
@@ -565,9 +566,9 @@ class CleanBiz:
         # 多列数据合并到一起
         s1 = ' '.join([row[col_name] for col_name in names])
         # 词性标注
-        words = ' '.join([word for word, flag in jieba.posseg.cut(s1) if flag in (speeches)])
+        words = ' '.join([word for word, flag in posseg.cut(s1) if flag in (speeches)])
         # 特征提取
-        words = [word for word, weight in jieba.analyse.extract_tags(words, 5, withWeight=True)]
+        words = [word for word, weight in analyse.extract_tags(words, 5, withWeight=True)]
         # 合并
         result = Cfg.seperator.value.join(words)
         return result

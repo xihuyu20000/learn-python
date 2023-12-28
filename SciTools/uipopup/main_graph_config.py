@@ -56,10 +56,10 @@ class PopupGraphConfig(QDialog, ui_graph_config.Ui_widget):
         self.cleanDrawGraphThread.start()
 
     def get_clean_columns(self):
-        return self.parent.master_get_clean_columns()
+        return self.parent.get_df_columns()
 
     def get_df(self):
-        return self.parent.master_get_clean_df()
+        return self.parent.get_df()
 
     def set_graphdata(self, data):
         self.parent.graph_set_graphdata(data)

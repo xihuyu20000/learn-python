@@ -9,14 +9,14 @@ class MasterMainContext:
     def __init__(self, parent):
         self.parent = parent
 
-    def master_get_clean_df(self) -> pd.DataFrame:
-        return self.parent.clean_datatable.get_dataset()
+    def get_df(self) -> pd.DataFrame:
+        return self.get_table_widget().get_dataset()
 
-    def master_get_clean_columns(self) -> typing.List[str]:
-        return self.parent.master_get_clean_df().columns
+    def get_df_columns(self) -> typing.List[str]:
+        return self.get_df().columns
 
-    def master_get_clean_table(self) -> TableKit:
+    def get_table_widget(self) -> TableKit:
         return self.parent.clean_datatable
 
-    def master_clean_no_data(self) -> bool:
-        return not self.parent.clean_datatable.has_dataset()
+    def table_no_data(self) -> bool:
+        return not self.get_table_widget().has_dataset()

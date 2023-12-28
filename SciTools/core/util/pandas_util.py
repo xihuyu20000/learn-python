@@ -16,23 +16,27 @@ from core.util import Utils
 
 class PandasUtil:
     @staticmethod
-    def delete_rows(df: pd.DataFrame, indexes: List[int]):
+    def delete_rows_by_indexes(df: pd.DataFrame, indexes: List[int])->None:
         """
         删除行
         """
-        df2 = df.copy(True)
-        for i in indexes:
-            df2.drop(index=i, axis=1, inplace=True)
-        return df2
+        df.drop(df.index[indexes], inplace=True)
+
 
     @staticmethod
-    def delete_columns(df: pd.DataFrame, col_names: List[str]):
+    def delete_columns_by_indexes(df: pd.DataFrame, col_indexes: List[int])->None:
         """
         删除列
         """
-        df2 = df.copy(True)
-        df2.drop(labels=col_names, axis=0, inplace=True)
-        return df2
+        df.drop(df.columns[col_indexes], axis=1, inplace=True)
+
+
+    @staticmethod
+    def delete_columns_by_names(df: pd.DataFrame, col_names: List[str])->None:
+        """
+        删除列
+        """
+        df.drop(columns=col_names, inplace=True)
 
     @staticmethod
     def cocon_matrix(df, col_name, threhold, diagonal_values=False):
@@ -309,3 +313,10 @@ class PandasUtil:
     @staticmethod
     def write_parquet(df: pd.DataFrame, fpath: str):
         df.to_parquet(fpath)
+
+
+if __name__ == '__main__':
+    df = pd.DataFrame({'A1':[1,2,3], 'B1':[4,5,6]})
+    print(df)
+    PandasUtil.delete_columns_by_indexes(df, [0])
+    print(df)

@@ -9,6 +9,7 @@ import time
 from typing import List, Set
 
 import pandas as pd
+import pendulum
 from PySide2 import QtCore
 from PySide2.QtCore import QThread
 from PySide2.QtGui import QDesktopServices
@@ -705,10 +706,13 @@ class CleanDrawGraphThread(QThread):
             t2 = time.time()
             ssignal.info.emit('开始图表数据，耗时{0}秒'.format(round(t2 - t1, int(Cfg.precision_point.value))))
 
+            logger.debug('1 {}', pendulum.now())
             draw = Draw()
+            logger.debug('2 {}', pendulum.now())
             local_file = draw.draw(data)
+            logger.debug('3 {}', pendulum.now())
             QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(local_file))
-
+            logger.debug('4 {}', pendulum.now())
         except Exception as e:
             logger.exception(e)
             msg = "出错:{0}".format(str(e))
