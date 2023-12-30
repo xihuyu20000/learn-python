@@ -5,7 +5,9 @@
 
 """
 import collections
+import os
 import time
+import webbrowser
 from typing import List, Set
 
 import pandas as pd
@@ -30,7 +32,7 @@ class WatchDataFilesChaningThread(QThread):
     def run(self) -> None:
         event_handler = WatchDataFilesChaningThread.DataFilesChaningHandler()
         observer = Observer()
-        observer.schedule(event_handler, path="../..", recursive=False)
+        observer.schedule(event_handler, path=Cfg.datafiles.value, recursive=False)
         observer.start()
         try:
             while True:
@@ -39,12 +41,14 @@ class WatchDataFilesChaningThread(QThread):
             observer.stop()
         observer.join()
 
+
     class DataFilesChaningHandler(FileSystemEventHandler):
         def on_any_event(self, event):
             try:
                 ssignal.datafiles_changing.emit()
             except Exception as e:
                 logger.exception(e)
+
 
 
 class CleanParseFileThread(QThread):
@@ -118,6 +122,29 @@ class CleanSaveDatasetThread(QThread):
             t2 = time.time()
             msg = "保存{0}，耗时{1}秒".format(self.fpath, round(t2 - t1, int(Cfg.precision_point.value)))
             ssignal.info.emit(msg)
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
+
+
+class CleanLoadDatasetThread(QThread):
+    def __init__(self, df: pd.DataFrame):
+        super(CleanLoadDatasetThread, self).__init__()
+        self.df = df
+
+    def run(self) -> None:
+        ssignal.info.emit("正在加载数据集，请稍等")
+        try:
+            t1 = time.time()
+
+            t2 = time.time()
+            msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
+            )
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(self.df)
+
         except Exception as e:
             logger.exception(e)
             msg = "出错:{0}".format(str(e))
@@ -713,6 +740,37 @@ class CleanDrawGraphThread(QThread):
             logger.debug('3 {}', pendulum.now())
             QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(local_file))
             logger.debug('4 {}', pendulum.now())
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
+
+
+
+class CleanCompareDatasetThread(QThread):
+    def __init__(self, df1: pd.DataFrame, df2:pd.DataFrame):
+        super(CleanCompareDatasetThread, self).__init__()
+        self.df1 = df1
+        self.df2 = df2
+
+    def run(self) -> None:
+        ssignal.info.emit("正在比较异同，请稍等")
+        try:
+            t1 = time.time()
+
+            html = PandasUtil.diff_pandas(self.df1, self.df2)
+            _abs_path = os.path.join(os.path.expanduser("~"), '.diff.html')
+            with open(_abs_path, 'w', encoding='utf-8') as f:
+                f.write(html)
+
+            t2 = time.time()
+
+            msg = "执行{0}条记录，{1}个列，耗时{2}秒".format(
+                self.df1.shape[0], self.df1.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
+            )
+            ssignal.info.emit(msg)
+
+            webbrowser.open(_abs_path)
         except Exception as e:
             logger.exception(e)
             msg = "出错:{0}".format(str(e))

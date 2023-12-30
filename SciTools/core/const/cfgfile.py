@@ -30,7 +30,7 @@ class CfgHandler:
         self.__init_value(self.workspace)
 
         # 数据文件文件夹
-        self.datafiles = CfgItem(label='datafiles', key='datafiles',
+        self.datafiles:CfgItem = CfgItem(label='datafiles', key='datafiles',
                                  value=os.path.join(self.workspace.value, "datafiles"))
         self.__init_value(self.datafiles)
 

@@ -24,7 +24,6 @@ class PandasCache:
 
     def __init__(self):
         self.index_id = 0
-        self.max_id = 0
         self.current: pd.DataFrame = pd.DataFrame(columns=[])
 
         ssignal.reset_cache.connect(PandasCache.init_cache)
@@ -41,35 +40,12 @@ class PandasCache:
 
         sql = "SELECT last_insert_rowid()"
         resultset = cur.execute(sql).fetchone()
-        self.max_id = resultset[0]
-        self.index_id = self.max_id
+        self.index_id = resultset[0]
         cur.close()
         conn.commit()
-        logger.debug('插入缓存，当前最大索引{}', self.max_id)
+        logger.debug('插入缓存，当前最大索引{}', self.index_id)
         ssignal.update_cache.emit()
         PandasCache.allinfo()
-
-    def undo(self):
-        """
-        撤销
-        """
-        if self.index_id > 1:
-            self.index_id -= 1
-            self.current = self.get(self.index_id)
-            return self.current
-        PandasCache.allinfo()
-        return None
-
-    def redo(self):
-        """
-        恢复
-        """
-        if self.index_id < self.max_id:
-            self.index_id += 1
-            self.current = self.get(self.index_id)
-            return self.current
-        PandasCache.allinfo()
-        return None
 
     def get_current(self):
         return self.current
@@ -107,15 +83,8 @@ class PandasCache:
         resultset = cur.execute(sql).fetchall()
         for row in resultset:
             logger.debug('id={}, name={}, shape={}'.format(row[0], row[1], pickle.loads(row[2]).shape))
+            text1 = pickle.loads(row[2]).to_string(na_rep='', col_space=4).splitlines(keepends=True)
+            with open('{}.txt'.format(row[0]), 'w', encoding='utf8') as writer:
+                writer.writelines(text1)
         cur.close()
         return resultset
-
-
-if __name__ == '__main__':
-    PandasCache.init_cache()
-    cache = PandasCache()
-    df1 = pd.DataFrame({"id": [1, 2], "name": ["a", "b"]})
-    cache.push('aa', df1)
-
-    df2 = pd.DataFrame({"id": [3, 4], "name": ["aa", "bb"]})
-    cache.push('bb', df2)

@@ -1,16 +1,21 @@
+import difflib
+
 import pandas as pd
 
-from core.util import PandasUtil
+from core.util import PandasCache, PandasUtil
 
-pd.set_option('display.max_columns', 1000)
-pd.set_option('display.width', 1000)
-pd.set_option('display.max_colwidth', 1000)
+PandasCache.init_cache()
+cache = PandasCache()
+df1 = pd.DataFrame({"id": [1, 2], "name": ["a", "b"]})
+cache.push('aa', df1)
 
-from core import Parser
+df2 = pd.DataFrame({"id": [3, 4], "name": ["aa", "bb"]})
+cache.push('bb', df2)
 
-raw_df = Parser.parse_cnki(r'C:\Users\Administrator\Desktop\论文\cnki-科学计量\CNKI-科学计量-合并.txt')
-print(raw_df.shape)
-print(raw_df.columns)
-print(raw_df.head())
+df1 = cache.get(1)
+df2 = cache.get(2)
 
-PandasUtil.write_excel(raw_df, 'aaa.xlsx', 'aa', False)
+
+# print(htmlContent)
+with open('diff.html','w') as f:
+    f.write(PandasUtil.diff_pandas(df1, df2))

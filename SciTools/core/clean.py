@@ -68,14 +68,13 @@ class Parser:
 
                 for index, line in enumerate(lines):
                     # logger.debug('{} {}', index, line)
-                    # 新的一行
-                    if line.strip() == "":
+
+                    # 判断是否属于保留符号
+                    flag = line[:2]
+                    if flag == 'RT':
                         if record:
                             ds.append(record)
                         record = {}
-                        continue
-                    # 判断是否属于保留符号
-                    flag = line[:2]
                     if flag not in flags:
                         continue
                     record[flag] = line[2:].strip()

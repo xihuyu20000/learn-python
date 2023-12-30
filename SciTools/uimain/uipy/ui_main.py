@@ -358,8 +358,29 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.listWidget_stack = QListWidget(self.dockWidgetContents_4)
         self.listWidget_stack.setObjectName(u"listWidget_stack")
+        self.listWidget_stack.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.verticalLayout_3.addWidget(self.listWidget_stack)
+
+        self.frame = QFrame(self.dockWidgetContents_4)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_2 = QHBoxLayout(self.frame)
+        self.horizontalLayout_2.setSpacing(0)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.btn_compare_stack = QPushButton(self.frame)
+        self.btn_compare_stack.setObjectName(u"btn_compare_stack")
+
+        self.horizontalLayout_2.addWidget(self.btn_compare_stack)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+
+
+        self.verticalLayout_3.addWidget(self.frame)
 
         self.dockWidget_stack.setWidget(self.dockWidgetContents_4)
         MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget_stack)
@@ -478,7 +499,8 @@ class Ui_MainWindow(object):
         self.btn_controlled_words_dict.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.btn_save_config.setText(QCoreApplication.translate("MainWindow", u"\u4fdd\u5b58", None))
         self.dockWidget_history.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u64cd\u4f5c\u65e5\u5fd7", None))
-        self.dockWidget_stack.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u6808", None))
+        self.dockWidget_stack.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u96c6", None))
+        self.btn_compare_stack.setText(QCoreApplication.translate("MainWindow", u"\u6bd4\u8f83\u5f02\u540c", None))
         self.dockWidget_table.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u8868\u683c", None))
         self.dockWidget_graph.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u56fe\u50cf", None))
         self.clean_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))

@@ -318,34 +318,33 @@ class PandasUtil:
 
     @staticmethod
     def diff_pandas(df1:pd.DataFrame, df2:pd.DataFrame):
-        text1 = df1.to_string(na_rep='', col_space=4).splitlines(keepends=True)
-
-
-        text2 = df2.to_string(na_rep='', col_space=4).splitlines(keepends=True)
-
+        text1 = df1.to_string(index=False, na_rep='', col_space=4).splitlines(keepends=True)
+        text2 = df2.to_string(index=False, na_rep='', col_space=4).splitlines(keepends=True)
+        difflib.HtmlDiff._styles = """
+        table.diff {font-family:Courier; border:medium;}
+        .diff_header {background-color:#e0e0e0}
+        td.diff_header {text-align:right; padding:0 10px;}
+        .diff_next {background-color:#c0c0c0; padding:0 10px;}
+        .diff_add {background-color:#aaffaa}
+        .diff_chg {background-color:#ffff77}
+        .diff_sub {background-color:#ffaaaa}"""
 
         difflib.HtmlDiff._legend = """
             <table class="diff" summary="Legends">
                 <tr> <th colspan="2"> 说明 </th> </tr>
                 <tr> <td> <table border="" summary="Colors">
                               <tr><th> 颜色 </th> </tr>
-                              <tr><td class="diff_add">&nbsp;Added&nbsp;</td></tr>
-                              <tr><td class="diff_chg">Changed</td> </tr>
-                              <tr><td class="diff_sub">Deleted</td> </tr>
+                              <tr><td class="diff_add">添加的</td></tr>
+                              <tr><td class="diff_chg">修改的</td> </tr>
+                              <tr><td class="diff_sub">删除的</td> </tr>
                           </table></td>
                      <td> <table border="" summary="Links">
                               <tr><th colspan="2"> 链接 </th> </tr>
-                              <tr><td>(f)irst change</td> </tr>
-                              <tr><td>(n)ext change</td> </tr>
-                              <tr><td>(t)op</td> </tr>
+                              <tr><td>(f)上一个变化</td> </tr>
+                              <tr><td>(n)下一个变化</td> </tr>
+                              <tr><td>(t)最上面</td> </tr>
                           </table></td> </tr>
             </table>"""
 
         d = difflib.HtmlDiff()
         return d.make_file(text1, text2)
-
-if __name__ == '__main__':
-    df = pd.DataFrame({'A1':[1,2,3], 'B1':[4,5,6]})
-    print(df)
-    PandasUtil.delete_columns_by_indexes(df, [0])
-    print(df)

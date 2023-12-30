@@ -20,6 +20,7 @@ from core.runner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
+from core.runner.mrunner import CleanCompareDatasetThread, CleanLoadDatasetThread
 from core.util import PandasCache, PandasUtil
 from uimain.ctx import MasterMainContext
 from uimain.uipy.ui_main import Ui_MainWindow
@@ -121,11 +122,21 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         """
         action_callback_list = []
 
+        #
         # 数据文件列表，双击
         action_callback_list.append(
             ActionCallback(id='dbclick_parsefile', source=self.datafiles_list, event='itemDoubleClicked',
                            callback=self.master_action_dblclick_datafiles_list))
-
+        # 比较数据集
+        action_callback_list.append(
+            ActionCallback(id='compare_stack', source=self.btn_compare_stack, event='clicked',
+                           callback=self.master_action_btn_compare_stack)
+        )
+        # 双击，加载数据集
+        action_callback_list.append(
+            ActionCallback(id='dbclick_load_dataset', source=self.listWidget_stack, event='itemDoubleClicked',
+                           callback=self.master_action_dblclick_load_dataset)
+        )
         # 配置项，停用词
         action_callback_list.append(
             ActionCallback(id='choose_stop_words', source=self.btn_stop_words_dict, event='clicked',
@@ -173,16 +184,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.menutool_list.append(
             MenuTool(id='save_file', label='保存', icon='xiazai.png', menubar='menu_file', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_save)
-        )
-
-        self.menutool_list.append(
-            MenuTool(id='undo', label='撤回', icon='chexiao.png', menubar='menu_edit', show_in_menubar=True,
-                     show_in_toolbar=True, callback=self.clean_do_menu_undo)
-        )
-
-        self.menutool_list.append(
-            MenuTool(id='redo', label='恢复', icon='huifu.png', menubar='menu_edit', show_in_menubar=True,
-                     show_in_toolbar=True, callback=self.clean_do_menu_redo)
         )
 
         self.menutool_list.append(
@@ -410,6 +411,30 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
     #################################################
+    def master_action_btn_compare_stack(self):
+        logger.info("比较数据栈文件异同")
+
+        selected_fnames = [item.text() for item in self.listWidget_stack.selectedItems()]
+
+        if len(selected_fnames) != 2:
+            ssignal.error.emit(f"错误，请选择2个数据集")
+            return
+
+        ids = [str(item).split('\t')[0] for item in selected_fnames]
+        dfs = [PandasCache.get(int(id)) for id in ids]
+        self.cleanCompareDatasetThread = CleanCompareDatasetThread(dfs[0], dfs[1])
+        self.cleanCompareDatasetThread.start()
+
+    def master_action_dblclick_load_dataset(self, item) -> None:
+        logger.info("加载数据集")
+
+        row = item.text()
+        id = row.split('\t')[0]
+        df = PandasCache.get(int(id))
+
+        self.cleanLoadDatasetThread =CleanLoadDatasetThread(df)
+        self.cleanLoadDatasetThread.start()
+
     def master_action_dblclick_datafiles_list(self, item):
         logger.info("双击数据文件列表，解析数据文件")
 
@@ -445,7 +470,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             for fname in fnames
             if os.path.isfile(os.path.join(Cfg.datafiles.value, fname))
         ]
-
         self.datafiles_list.clear()
         self.datafiles_list.addItems(fnames)
 
@@ -453,7 +477,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.listWidget_stack.clear()
         logger.debug('数据栈显示缓存')
         for id, name, value in PandasCache.allinfo():
-            self.listWidget_stack.addItem(f'{id} {name}')
+            self.listWidget_stack.addItem(f'{id}\t{name}')
 
     def master_action_datafiles_parse(self):
         logger.info("数据文件列表按钮，解析数据文件")
@@ -528,29 +552,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     ########################################################################
 
     #######################################################################
-
-    def clean_do_menu_undo(self):
-        logger.info("清洗，撤销")
-
-        df = self.pandasCache.undo()
-
-        if df is not None:
-            ssignal.set_clean_dataset.emit(df)
-            ssignal.info.emit("撤销")
-        else:
-            ssignal.error.emit("无法撤销")
-
-    def clean_do_menu_redo(self):
-        logger.info("清洗，恢复")
-
-        df = self.pandasCache.redo()
-
-        if df is None:
-            ssignal.error.emit("无法恢复")
-            return
-
-        ssignal.info.emit("恢复")
-        ssignal.set_clean_dataset.emit(df)
 
     def clean_do_menu_delete_row(self):
         logger.info("清洗，删除行")
