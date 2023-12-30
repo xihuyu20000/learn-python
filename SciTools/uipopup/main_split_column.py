@@ -42,7 +42,7 @@ class PopupSplitColumn(QDialog, ui_split_column.Ui_Form):
 
         le2_text = int(le2_text)
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        # ssignal.push_cache.emit(self.get_df())
 
         self.cleanSplitColumnThread = CleanSplitColumnThread(df, name, split_style_text, le1_text, get_style_text,
                                                              le2_text)

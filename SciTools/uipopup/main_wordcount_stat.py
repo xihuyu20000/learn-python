@@ -34,7 +34,7 @@ class PopupWordCountStat(QDialog, ui_count_stat.Ui_Form):
         name = names[0]
 
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        # ssignal.push_cache.emit(self.get_df())
 
         self.cleanWordCountThread = CleanWordCountThread(df, name, threshold)
         self.cleanWordCountThread.start()

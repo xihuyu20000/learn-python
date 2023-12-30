@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QDialog
 
-from core.const import ssignal
+from core.const import ssignal, Actions
 from core.log import logger
 from uipopup.uipy import ui_modify_value
 
@@ -19,7 +19,7 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
 
         self.get_table().set_item_writable(True)
 
-        ssignal.push_cache.emit(self.get_df())
+        ssignal.push_cache.emit(Actions.modify_value.cnself.get_df())
 
         msg = '开始修改'
         ssignal.info.emit(msg)

@@ -26,7 +26,7 @@ class PopupSplitWords(QDialog, ui_split_words.Ui_Form):
             return
 
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        # ssignal.push_cache.emit(self.get_df())
 
         self.cleanSplitWordsThread = CleanSplitWordsThread(df, names)
         self.cleanSplitWordsThread.start()

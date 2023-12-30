@@ -1,6 +1,6 @@
 from PySide2.QtWidgets import QDialog
 
-from core.const import ssignal
+from core.const import ssignal, Actions
 from core.runner import CleanCopyColumnThread
 from uipopup.uipy import ui_copy_column
 
@@ -26,7 +26,6 @@ class PopupCopyColumn(QDialog, ui_copy_column.Ui_Form):
             return
 
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
 
         self.cleanCopyColumnThread = CleanCopyColumnThread(df, names)
         self.cleanCopyColumnThread.start()

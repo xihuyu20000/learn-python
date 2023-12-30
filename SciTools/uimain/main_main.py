@@ -11,7 +11,7 @@ import os.path
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QMainWindow, QFileDialog, QLabel
 
-from core.const import Cfg, ssignal
+from core.const import Cfg, ssignal, Actions
 from core.const import FileFormat
 from core.log import logger
 from core.mgraph import GraphData
@@ -266,7 +266,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         self.menutool_list.append(
-            MenuTool(id='distinct_row', label='去重行', icon='shuzi.png', menubar='menu_clean',
+            MenuTool(id='distinct_row', label='行去重', icon='shuzi.png', menubar='menu_clean',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_row_distinct)
@@ -452,8 +452,8 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
     def master_show_in_stack(self):
         self.listWidget_stack.clear()
         logger.debug('数据栈显示缓存')
-        for id, value in PandasCache.allinfo():
-            self.listWidget_stack.addItem(str(id))
+        for id, name, value in PandasCache.allinfo():
+            self.listWidget_stack.addItem(f'{id} {name}')
 
     def master_action_datafiles_parse(self):
         logger.info("数据文件列表按钮，解析数据文件")
@@ -551,6 +551,32 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         ssignal.info.emit("恢复")
         ssignal.set_clean_dataset.emit(df)
+
+    def clean_do_menu_delete_row(self):
+        logger.info("清洗，删除行")
+
+        if self.context.table_no_data():
+            ssignal.error.emit("没有数据")
+            return
+
+        df = self.context.get_df()
+        PandasUtil.delete_rows_by_indexes(df, self.clean_datatable.get_selected_row_indexes())
+        ssignal.push_cache.emit(Actions.remove_rows.cn, df)
+        ssignal.set_clean_dataset.emit(df)
+        ssignal.info.emit("删除行")
+
+    def clean_do_menu_delete_column(self):
+        logger.info("清洗，删除列")
+
+        if self.context.table_no_data():
+            ssignal.error.emit("没有数据")
+            return
+
+        df = self.context.get_df()
+        PandasUtil.delete_columns_by_indexes(df, self.clean_datatable.get_selected_col_indexes())
+        ssignal.push_cache.emit(Actions.remove_cols.cn, df)
+        ssignal.set_clean_dataset.emit(df)
+        ssignal.info.emit("删除列")
 
     def clean_do_menu_metadata(self):
         logger.info("清洗，元数据")
@@ -703,7 +729,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupRowDistinct.show()
 
     def clean_do_menu_row_similarity(self):
-        logger.info("清洗，相似度")
+        logger.error("清洗，相似度， 有个difflib模块，可以做相似比较")
 
         if self.context.table_no_data():
             ssignal.error.emit("没有数据")
@@ -711,30 +737,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         self.popupSimilarityRows = PopupSimilarityRows(self)
         self.popupSimilarityRows.show()
-
-    def clean_do_menu_delete_row(self):
-        logger.info("清洗，删除行")
-
-        if self.context.table_no_data():
-            ssignal.error.emit("没有数据")
-            return
-
-        df = self.context.get_df()
-        PandasUtil.delete_rows_by_indexes(df, self.clean_datatable.get_selected_row_indexes())
-        ssignal.push_cache.emit(df)
-        ssignal.info.emit("删除行")
-
-    def clean_do_menu_delete_column(self):
-        logger.info("清洗，删除列")
-
-        if self.context.table_no_data():
-            ssignal.error.emit("没有数据")
-            return
-
-        df = self.context.get_df()
-        PandasUtil.delete_columns_by_indexes(df, self.clean_datatable.get_selected_col_indexes())
-        ssignal.push_cache.emit(df)
-        ssignal.info.emit("删除列")
 
     def clean_do_menu_vertical_concat(self):
         logger.info("清洗，数据合并")

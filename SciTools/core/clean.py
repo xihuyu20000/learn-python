@@ -5,6 +5,7 @@
 
 import collections
 import os
+import re
 import time
 from typing import List, Set, Dict, Tuple, Union
 
@@ -14,7 +15,7 @@ import pandas as pd
 import pendulum
 from jieba import posseg, analyse
 
-from core.const import Cfg
+from core.const import Cfg, CNKI_FIELDS_DICT, FieldMapping
 from core.const import FileFormat
 from core.log import logger
 from core.util import PandasUtil, Utils
@@ -48,35 +49,12 @@ class Parser:
             return Parser.parse_pickle(filelist)
 
         raise ValueError('不识别的文件类型' + filestyle)
-
     @staticmethod
     def parse_cnki(filelist: Union[str, List[str]]) -> pd.DataFrame:
         """
         解析cnki的refworks格式的数据
         """
-        flags = (
-            "RT",  # 文献类型
-            "SR",
-            "A1",  # 作者
-            "AD",  # 工作单位
-            "T1",  # 题名
-            "JF",  # 来源
-            "OP",
-            "SN",
-            "DS",
-            "LK",
-            "DO",
-            "IS",
-            "PB",
-            "LA",
-            "CN",
-            "PP",
-            "YR",  # 出版年
-            "FD",  # 出版日期
-            "K1",  # 关键词
-            "AB",  # 摘要
-            "vo"
-        )
+        flags = CNKI_FIELDS_DICT.keys()
 
         ds = []
         if isinstance(filelist, str):
@@ -86,36 +64,25 @@ class Parser:
         for fname in filelist:
             with open(fname, encoding="utf-8") as f:
                 # 所有行，去掉有空格
-                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
+                lines = [line.rstrip() for line in f.readlines()]
 
-                flag = ""
-
-                # 前2行不重要，去掉
-                for index, line in enumerate(lines[2:]):
-                    # 每行的前2个字符
-                    start = line[:2]
+                for index, line in enumerate(lines):
+                    # logger.debug('{} {}', index, line)
+                    # 新的一行
+                    if line.strip() == "":
+                        if record:
+                            ds.append(record)
+                        record = {}
+                        continue
                     # 判断是否属于保留符号
-                    if start in flags:
-                        flag = start
-                        # 是否记录结束
-                        if flag == "A1":
-                            if record:
-                                ds.append(record)
-                            record = {}
-
-                    # 新的字段开始
-                    if flag in record.keys():
-                        record[flag].append(line)
-                    else:
-                        record[flag] = [line[2:]]
-        if record:
-            ds.append(record)
-
-        for record in ds:
-            for flag, values in record.items():
-                record[flag] = ''.join([v.strip() for v in values])
+                    flag = line[:2]
+                    if flag not in flags:
+                        continue
+                    record[flag] = line[2:].strip()
 
         df = pd.DataFrame(ds, dtype=str)
+        # 重命名
+        df.rename(columns=FieldMapping.cnki2core(), inplace=True)
         # 使用 fillna 将 NaN 替换为空字符串
         df.fillna("", inplace=True)
         return df

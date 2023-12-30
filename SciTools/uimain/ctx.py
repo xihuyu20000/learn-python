@@ -20,3 +20,6 @@ class MasterMainContext:
 
     def table_no_data(self) -> bool:
         return not self.get_table_widget().has_dataset()
+
+    def master_set_clean_df(self, df, inplace_index=True, drop_index=True) -> None:
+        self.parent.master_set_clean_df(df, inplace_index, drop_index)

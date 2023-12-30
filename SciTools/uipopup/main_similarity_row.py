@@ -31,7 +31,7 @@ class PopupSimilarityRows(QDialog, ui_similarity_row.Ui_Form):
 
         column_names = [item.text() for item in column_names]
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        # ssignal.push_cache.emit(self.get_df())
 
         # 缩小到[0,1]
         limited = float(limited / 100)

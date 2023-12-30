@@ -21,6 +21,7 @@ class PandasUtil:
         删除行
         """
         df.drop(df.index[indexes], inplace=True)
+        df.reset_index(drop=True, inplace=True)
 
 
     @staticmethod

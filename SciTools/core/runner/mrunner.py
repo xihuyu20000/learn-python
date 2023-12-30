@@ -78,7 +78,7 @@ class CleanParseFileThread(QThread):
             )
             ssignal.info.emit(msg)
             ssignal.reset_cache.emit()
-            ssignal.push_cache.emit(df)
+            ssignal.push_cache.emit(f'解析{self.format}文件', df)
             ssignal.set_clean_dataset.emit(df)
         except Exception as e:
             logger.exception(e)

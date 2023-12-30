@@ -3,7 +3,7 @@ import time
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QDialog, QTableWidgetItem
 
-from core.const import ssignal
+from core.const import ssignal, Actions
 from core.log import logger
 from uipopup.uipy import ui_rename_column
 
@@ -39,7 +39,7 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
 
         t1 = time.time()
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        ssignal.push_cache.emit(Actions.rename_cols.cn, self.get_df())
 
         name_pairs = {}
         for i in range(self.tableWidget.rowCount()):

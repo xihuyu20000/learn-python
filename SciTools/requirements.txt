@@ -2,6 +2,8 @@ pytest
 pyside2
 pyecharts
 d3blocks
+networkx
+pyqtgraph
 numpy
 pandas
 openpyxl
@@ -21,3 +23,5 @@ requests
 lxml
 black
 pyinstrument
+python-docx
+PyMuPDF

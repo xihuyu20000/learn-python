@@ -63,7 +63,6 @@ class PopupExtractFeatures(QDialog, ui_extract_feature.Ui_Form):
         choosed_speeches = [item.en for item in speech_list if item.cn in choosed_speeches]
 
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
 
         self.cleanExtractFeaturesThread = CleanExtractFeaturesThread(df, colnames, choosed_speeches)
         self.cleanExtractFeaturesThread.start()

@@ -19,7 +19,7 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
         self.btn_ok.clicked.connect(self.action_ok)
 
     def action_ok(self):
-        logger.info('列对比')
+        logger.info('去重行')
         names = [item.text() for item in self.column_names.selectedItems()]
         if len(names) == 0:
             ssignal.error.emit('请选择列')
@@ -28,10 +28,11 @@ class PopupRowDistinct(QDialog, ui_distinct_row.Ui_Form):
         t1 = time.time()
 
         df = self.get_df()
-        ssignal.push_cache.emit(self.get_df())
+        # ssignal.push_cache.emit(self.get_df())
 
         shape = df.shape
         df.drop_duplicates(subset=names, keep='first', inplace=True)
+        df.reset_index(drop=True, inplace=True)
         self.set_df(df)
         t2 = time.time()
         msg = '对比{0}条记录，{1}个列，耗时{2}秒'.format(shape[0], len(names), round(t2 - t1, 2))

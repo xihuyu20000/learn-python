@@ -92,6 +92,20 @@ class DictReader:
 
 class Utils:
     @staticmethod
+    def merge_files(source_files: List[str], target_file: str):
+        """
+        多文件合并到一起
+        :param source_files: 多个来源文件，都是绝对路径
+        :param target_file: 目标文件，也是绝对路径
+        """
+        writer = open(target_file, "w", encoding="utf-8")
+        for abs_path in source_files:
+            with open(abs_path, "r", encoding="utf-8") as f:
+                writer.writelines(f.readlines())
+                writer.write("\r\n")
+                writer.flush()
+        writer.close()
+    @staticmethod
     def resort_columns(old_names: List[str], new_names: List[str]):
         """
         新插入的列，位于原有列的后面。
