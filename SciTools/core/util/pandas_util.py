@@ -1,4 +1,5 @@
 import collections
+import difflib
 import itertools
 import time
 from typing import Dict, List, Set, Tuple
@@ -315,6 +316,33 @@ class PandasUtil:
     def write_parquet(df: pd.DataFrame, fpath: str):
         df.to_parquet(fpath)
 
+    @staticmethod
+    def diff_pandas(df1:pd.DataFrame, df2:pd.DataFrame):
+        text1 = df1.to_string(na_rep='', col_space=4).splitlines(keepends=True)
+
+
+        text2 = df2.to_string(na_rep='', col_space=4).splitlines(keepends=True)
+
+
+        difflib.HtmlDiff._legend = """
+            <table class="diff" summary="Legends">
+                <tr> <th colspan="2"> 说明 </th> </tr>
+                <tr> <td> <table border="" summary="Colors">
+                              <tr><th> 颜色 </th> </tr>
+                              <tr><td class="diff_add">&nbsp;Added&nbsp;</td></tr>
+                              <tr><td class="diff_chg">Changed</td> </tr>
+                              <tr><td class="diff_sub">Deleted</td> </tr>
+                          </table></td>
+                     <td> <table border="" summary="Links">
+                              <tr><th colspan="2"> 链接 </th> </tr>
+                              <tr><td>(f)irst change</td> </tr>
+                              <tr><td>(n)ext change</td> </tr>
+                              <tr><td>(t)op</td> </tr>
+                          </table></td> </tr>
+            </table>"""
+
+        d = difflib.HtmlDiff()
+        return d.make_file(text1, text2)
 
 if __name__ == '__main__':
     df = pd.DataFrame({'A1':[1,2,3], 'B1':[4,5,6]})
