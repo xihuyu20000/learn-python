@@ -17,6 +17,9 @@ class MetricsStat:
         :param df:
         :param by: 分组一句
         """
+        if by not in df.columns:
+            raise ValueError(f"没有'{by}'列")
+
         # 分组计数
         tmp = df.groupby(by)[by].count()
         new = tmp.to_frame(name="times")
@@ -37,6 +40,9 @@ class MetricsStat:
         :param by: 统计字段
         :param first_n:
         """
+        if by not in df.columns:
+            raise ValueError(f"没有'{by}'列")
+
         tmp = df[by].str.split(Cfg.seperator.value).tolist()
         tmp = [word.strip() for arr in tmp for word in arr if len(word.strip()) > 0]
         tmp = collections.Counter(tmp)
@@ -54,6 +60,12 @@ class MetricsStat:
         :param item: 统计字段：关键词
         :param first_n:
         """
+        if by not in df.columns:
+            raise ValueError(f"没有'{by}'列")
+
+        if item not in df.columns:
+            raise ValueError(f"没有'{item}'列")
+
         df1 = df.copy(True)
 
         mapping = collections.defaultdict(list)
@@ -71,6 +83,9 @@ class MetricsStat:
         return result
     @staticmethod
     def matrix1(df:pd.DataFrame, item:str, first_freq:int = 100, first_cocon:int=100):
+        if item not in df.columns:
+            raise ValueError(f"没有'{item}'列")
+
         # 对col_name列，拆分，然后计数
         words_count = collections.Counter(
             word.strip() for row in df.loc[:, item].tolist() for word in row.split(Cfg.seperator.value) if
@@ -118,6 +133,12 @@ class MetricsStat:
         :param item2: 统计字段：关键词
         :param first_n:
         """
+        if item1 not in df.columns:
+            raise ValueError(f"没有'{item1}'列")
+
+        if item2 not in df.columns:
+            raise ValueError(f"没有'{item2}'列")
+
         df1 = df.copy(True)
 
         mapping = collections.defaultdict(int)
@@ -137,6 +158,12 @@ class MetricsStat:
         """
         耦合分析
         """
+        if item1 not in df.columns:
+            raise ValueError(f"没有'{item1}'列")
+
+        if kw not in df.columns:
+            raise ValueError(f"没有'{kw}'列")
+
         df1 = df.copy(True)
 
         mapping = collections.defaultdict(list)

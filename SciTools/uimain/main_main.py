@@ -36,7 +36,6 @@ from uipopup.main_graph_config import PopupGraphConfig
 from uipopup.main_group_stat import WinGroupStat
 from uipopup.main_level1_org import PopupLevel1Org
 from uipopup.main_metrics import PopupMetrics
-from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
 from uipopup.main_rename_column import PopupCleanRename
 from uipopup.main_replace_column import PopupReplaceColumn
@@ -224,13 +223,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_compare_columns)
-        )
-
-        self.menutool_list.append(
-            MenuTool(id='modify_value', label='修改值', icon='riqi.png', menubar='menu_edit',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_modify_value)
         )
 
         self.menutool_list.append(
@@ -730,16 +722,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         self.popupCompareColumns = PopupCompareColumns(self)
         self.popupCompareColumns.show()
-
-    def clean_do_menu_modify_value(self):
-        logger.info("清洗，修改值")
-
-        if self.context.table_no_data():
-            ssignal.error.emit("没有数据")
-            return
-
-        self.popupModifyValues = PopupModifyValues(self)
-        self.popupModifyValues.show()
 
     def clean_do_menu_row_deduplicate(self):
         logger.info("清洗，行去重")

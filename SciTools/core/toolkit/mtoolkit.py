@@ -16,7 +16,7 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QWidget,
-    QLCDNumber, QScrollArea, QToolButton, )
+    QLCDNumber, QScrollArea, QToolButton, QItemDelegate, QLineEdit, )
 
 from core.log import logger
 
@@ -432,7 +432,7 @@ class TableKit(QFrame):
             # 存储背景颜色，key是i_j
             self._backgrounds = {}
             # 是否允许修改
-            self._cell_writable = False
+            self._cell_writable = True
 
         def rowCount(self, index):
             """
@@ -487,6 +487,7 @@ class TableKit(QFrame):
                 # 在这里保存修改后的数据
                 self._data.iloc[index.row(), index.column()] = value
                 self.dataChanged.emit(index, index)
+
                 return True
             return False
 
@@ -534,8 +535,9 @@ class TableKit(QFrame):
     class InnerTable(QTableView):
         def __init__(self):
             super().__init__()
-            # 不可编辑
-            self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self.setEditTriggers(QTableView.DoubleClicked)
+            self.setItemDelegate(TableKit.EditDelegate())
+
             # 选中
             self.setSelectionBehavior(QAbstractItemView.SelectItems)
 
@@ -547,6 +549,25 @@ class TableKit(QFrame):
 
         def sortByColumn(self, column, order):
             print("视图排序")
+
+    class EditDelegate(QItemDelegate):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+
+        def createEditor(self, parent, option, index):
+            editor = QLineEdit(parent)
+            return editor
+
+        def setEditorData(self, editor, index):
+            value = index.model().data(index, Qt.DisplayRole)
+            editor.setText(str(value))
+
+        def setModelData(self, editor, model, index):
+            value = editor.text()
+            model.setData(index, value, Qt.EditRole)
+
+        def updateEditorGeometry(self, editor, option, index):
+            editor.setGeometry(option.rect)
 
 
 class ScrollWidget(QtWidgets.QFrame):
