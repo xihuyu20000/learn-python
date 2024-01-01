@@ -39,7 +39,6 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
 
         t1 = time.time()
         df = self.get_df()
-        ssignal.push_cache.emit(Actions.rename_cols.cn, self.get_df())
 
         name_pairs = {}
         for i in range(self.tableWidget.rowCount()):
@@ -57,6 +56,9 @@ class PopupCleanRename(QDialog, ui_rename_column.Ui_Form):
 
         msg = '重命名列，耗时{0}秒'.format(round(t2 - t1, 2))
         ssignal.info.emit(msg)
+
+        ssignal.push_cache.emit(Actions.rename_cols.cn, self.get_df())
+
         self.close()
 
     def get_clean_columns(self):

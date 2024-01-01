@@ -5,7 +5,6 @@
 
 import collections
 import os
-import re
 import time
 from typing import List, Set, Dict, Tuple, Union
 
@@ -17,6 +16,7 @@ from jieba import posseg, analyse
 
 from core.const import Cfg, CNKI_FIELDS_DICT, FieldMapping
 from core.const import FileFormat
+from core.const.types import WANFANG_FIELDS_DICT, WEIPU_FIELDS_DICT
 from core.log import logger
 from core.util import PandasUtil, Utils
 
@@ -49,6 +49,7 @@ class Parser:
             return Parser.parse_pickle(filelist)
 
         raise ValueError('不识别的文件类型' + filestyle)
+
     @staticmethod
     def parse_cnki(filelist: Union[str, List[str]]) -> pd.DataFrame:
         """
@@ -137,73 +138,42 @@ class Parser:
         """
         解析weipu的refworks格式的数据
         """
-        flags = (
-            "RT",  # 文献类型
-            "SR",
-            "A1",  # 作者
-            "AD",  # 工作单位
-            "T1",  # 题名
-            "JF",  # 来源
-            "OP",
-            "SN",
-            "DS",
-            "LK",
-            "DO",
-            "IS",
-            "PB",
-            "LA",
-            "CN",
-            "PP",
-            "YR",  # 出版年
-            "FD",  # 出版日期
-            "K1",  # 关键词
-            "AB",  # 摘要
-            "VO",
-            "CL",
-            "NO"
-        )
+        flags = WEIPU_FIELDS_DICT.keys()
 
         ds = []
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        record = {}
-        for filename in filelist:
-            with open(filename, encoding="utf-8") as f:
+        record = collections.defaultdict(list)
+        for fname in filelist:
+            with open(fname, encoding="utf-8") as f:
                 # 所有行，去掉有空格
-                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
-
-                flag = ""
+                lines = [line.rstrip() for line in f.readlines()]
 
                 for index, line in enumerate(lines):
-                    # 每行的前2个字符
-                    start = line[:2]
+                    # logger.debug('{} {}', index, line)
+
                     # 判断是否属于保留符号
-                    if start in flags:
-                        flag = start
-                        # 是否记录结束
-                        if flag == "A1":
-                            if record:
-                                ds.append(record)
-                            record = {}
+                    flag = line[:2]
+                    if flag == 'RT':
+                        if record:
+                            ds.append(record)
+                        record = {}
+                    if flag not in flags:
+                        continue
 
-                        record[flag] = line[2:]
-                        # 单独处理NO字段
-                        if flag == 'NO':
-                            arr = line[2:].split(';')
-                            record['作者个数'] = arr[0][6:]
-                            record['第一作者'] = arr[1][6:]
-
-                    # elif start.strip() == "":
-                    #     # 还是属于上一个字段的内容
-                    #     record[flag].append(line[3:])
+                    if 'AD' == flag:
+                        if 'AD' in record:
+                            v = record[flag]
+                            record[flag] = Cfg.seperator.value.join([v, line[2:].strip().split(',')[0]])
+                        else:
+                            record[flag] = line[2:].strip().split(',')[0]
                     else:
-                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
-
-        if record:
-            ds.append(record)
+                        record[flag] = line[2:].strip()
 
         df = pd.DataFrame(ds, dtype=str)
+        # 重命名
+        df.rename(columns=FieldMapping.weipu2core(), inplace=True)
         # 使用 fillna 将 NaN 替换为空字符串
         df.fillna("", inplace=True)
         return df
@@ -213,75 +183,38 @@ class Parser:
         """
         解析wanfang的refworks格式的数据
         """
-        flags = (
-            "RT",  # 文献类型
-            "SR",
-            "A1",  # 作者
-            "AD",  # 工作单位
-            "T1",  # 题名
-            "JF",  # 来源
-            "OP",
-            "SN",
-            "DS",
-            "LK",
-            "DO",
-            "IS",
-            "PB",
-            "LA",
-            "CN",
-            "PP",
-            "YR",  # 出版年
-            "FD",  # 出版日期
-            "K1",  # 关键词
-            "AB",  # 摘要
-            "VO",
-            "CL",
-            "NO",
-            "T2",
-            "基金项目"
-        )
+        flags = WANFANG_FIELDS_DICT.keys()
 
         ds = []
         if isinstance(filelist, str):
             filelist = [filelist]
 
-        record = {}
-        for filename in filelist:
-            with open(filename, encoding="utf-8") as f:
+        record = collections.defaultdict(list)
+        for fname in filelist:
+            with open(fname, encoding="utf-8") as f:
                 # 所有行，去掉有空格
-                lines = [line.rstrip() for line in f.readlines() if line.rstrip()]
-
-                flag = ""
+                lines = [line.rstrip() for line in f.readlines()]
 
                 for index, line in enumerate(lines):
-                    # 每行的前2个字符
-                    start = line[:2]
-                    start2 = line[:4]
+                    # logger.debug('{} {}', index, line)
 
                     # 判断是否属于保留符号
-                    if start in flags:
-                        flag = start
-                        # 是否记录结束
-                        if flag == "A1":
-                            if record:
-                                ds.append(record)
-                            record = {}
-
-                        # 新的字段开始
-                        record[flag] = line[2:]
-
-                    # elif start.strip() == "":
-                    #     # 还是属于上一个字段的内容
-                    #     record[flag].append(line[3:])
-                    elif start2 in flags:
-                        record[start2] = line[5:]
+                    flag = line[:2]
+                    if flag == 'RT':
+                        if record:
+                            ds.append(record)
+                        record = {}
+                    if flag not in flags:
+                        continue
+                    if line[:2].strip() == 'K1':
+                        record[flag] = line[2:].strip().replace(r' ', Cfg.seperator.value)
                     else:
-                        raise Exception(f"第{index}行，出现新的字段类型{start} 完整行{line}")
+                        record[flag] = line[2:].strip()
 
-        if record:
-            ds.append(record)
 
         df = pd.DataFrame(ds, dtype=str)
+        # 重命名
+        df.rename(columns=FieldMapping.wanfang2core(), inplace=True)
         # 使用 fillna 将 NaN 替换为空字符串
         df.fillna("", inplace=True)
         return df
@@ -421,13 +354,28 @@ class CleanBiz:
             sorted_counter_word = sorted(counter_word.items(), key=lambda x: x[1], reverse=True)
             # 转成数据框
             item_df = pd.DataFrame(sorted_counter_word, columns=["词语", "频次"])
-
+            # 增加序号列
+            item_df['序号'] = item_df.index + 1
+            # 增加占比列
+            item_df['占比'] = round(item_df['序号']/item_df.shape[0]*100, 2)
+            item_df['占比'] = item_df['占比'].map(lambda x:"%.1f%%" % (x))
+            # 列排序
+            item_df = item_df[['序号', '占比', '词语', '频次']]
             #########################################################################
 
             counter_freq = collections.Counter(item_df['频次'])
             sorted_counter_freq = sorted(counter_freq.items(), key=lambda x: x[1], reverse=True)
             # 转成数据框
             freq_df = pd.DataFrame(sorted_counter_freq, columns=["词语频次", "频次"])
+            # 增加序号列
+            freq_df['序号'] = freq_df.index + 1
+            # 增加占比列
+            freq_df['占比'] = round(freq_df['序号']/freq_df.shape[0]*100, 2)
+            freq_df['占比'] = freq_df['占比'].map(lambda x:"%.1f%%" % (x))
+            # 列排序
+            freq_df = freq_df[['序号', '占比', '词语频次', '频次']]
+
+
             freq_stat_pair[col_name] = (item_df, freq_df)
 
             time2 = time.time()
@@ -672,7 +620,6 @@ class CleanBiz:
 
     @staticmethod
     def jieba_cut(stop_words, line):
-        logger.debug(stop_words)
         return [w.strip() for w in jieba.cut(line, cut_all=False) if w.strip() and w not in stop_words]
 
     @staticmethod
@@ -693,7 +640,7 @@ class CleanBiz:
         new_names = []
         for col in names:
             new_names.append(col + "-切词")
-            df[col + "-切词"] = df[col].astype(str).apply(lambda x: CleanBiz.jieba_cut(stop_words, x))
+            df[col + "-切词"] = df[col].astype(str).apply(lambda x: Cfg.seperator.value.join(CleanBiz.jieba_cut(stop_words, x)))
 
         old_names = df.columns.tolist()
         new_names = Utils.resort_columns(old_names, new_names)

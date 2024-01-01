@@ -24,6 +24,7 @@ class PandasCache:
 
     def __init__(self):
         self.index_id = 0
+        self.max_id = 0
         self.current: pd.DataFrame = pd.DataFrame(columns=[])
 
         ssignal.reset_cache.connect(PandasCache.init_cache)
@@ -40,12 +41,35 @@ class PandasCache:
 
         sql = "SELECT last_insert_rowid()"
         resultset = cur.execute(sql).fetchone()
-        self.index_id = resultset[0]
+        self.max_id = resultset[0]
+        self.index_id = self.max_id
         cur.close()
         conn.commit()
-        logger.debug('插入缓存，当前最大索引{}', self.index_id)
+        logger.debug('插入缓存，当前最大索引{}', self.max_id)
         ssignal.update_cache.emit()
         PandasCache.allinfo()
+
+    def undo(self):
+        """
+        撤销
+        """
+        if self.index_id > 1:
+            self.index_id -= 1
+            self.current = self.get(self.index_id)
+            return self.current
+        PandasCache.allinfo()
+        return None
+
+    def redo(self):
+        """
+        恢复
+        """
+        if self.index_id < self.max_id:
+            self.index_id += 1
+            self.current = self.get(self.index_id)
+            return self.current
+        PandasCache.allinfo()
+        return None
 
     def get_current(self):
         return self.current

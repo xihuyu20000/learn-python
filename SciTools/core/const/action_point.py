@@ -1,12 +1,9 @@
 import collections
 
-import strenum
-
 ActionItem = collections.namedtuple('ActionItem', ['id', 'en', 'cn'])
+
+
 class Actions:
-
-
-
     parse_cnki = ActionItem('parse_cnki', 'parse cnki', '解析知网')
     parse_weipu = ActionItem('parse_weipu', 'parse weipu', '解析维普')
     parse_wanfang = ActionItem('parse_wanfang', 'parse wanfang', '解析万方')
@@ -19,9 +16,13 @@ class Actions:
     remove_rows = ActionItem('remove_rows', 'remove rows', '删除行')
     remove_cols = ActionItem('remove_cols', 'remove cols', '删除列')
 
-
     replace_value = ActionItem('replace_value', 'replace value', '替换值')
     rename_cols = ActionItem('rename_cols', 'rename cols', '重命名')
     modify_value = ActionItem('modify_value', 'modify value', '修改值')
     copy_column = ActionItem('copy_column', 'copy column', '复制列')
+    row_deduplicate = ActionItem('row_deduplicate', 'row deduplicate', '行去重')
     combine_synonym = ActionItem('combine_synonym', 'combine synonym', '合并同义词')
+
+    cut_words = ActionItem('cut_words', 'cut words', '切词')
+    word_count = ActionItem('word_count', 'word count', '词频统计')
+    cocon_stat = ActionItem('cocon_stat', 'cocon stat', '共词分析')

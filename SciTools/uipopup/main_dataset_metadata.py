@@ -1,3 +1,4 @@
+from PySide2 import QtWidgets
 from PySide2.QtWidgets import QDialog
 
 from core.runner import CleanMetadataThread
@@ -13,6 +14,7 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
         self.context = parent.context
 
         self.tableView.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:#abfaa6;}}");
+        self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         # 数据统计
         df = self.get_dataset()
         self.cleanMetadataThread = CleanMetadataThread(df)
@@ -23,14 +25,23 @@ class PopupCleanMetadata(QDialog, ui_dataset_metadata.Ui_Form):
         # 填充表格
         self.tableView.setModel(PandasTableModel(stat_df))
 
+
         ###############################################################################
 
         for col_name, vlist in pairs.items():
-            table1 = TableKit(vertical_header_hide=True)
-            table1.set_dataset(vlist[0])
+            table1 = QtWidgets.QTableView()
+            table1.setModel(PandasTableModel(vlist[0]))
+            table1.verticalHeader().hide()
+            table1.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:#abfaa6;}}");
+            table1.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
-            table2 = TableKit(vertical_header_hide=True)
-            table2.set_dataset(vlist[1])
+
+            table2 = QtWidgets.QTableView()
+            table2.setModel(PandasTableModel(vlist[1]))
+            table2.verticalHeader().hide()
+            table2.horizontalHeader().setStyleSheet(f"QHeaderView::section{{background:#abfaa6;}}");
+            table2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+
 
             widget = FrameKit()
             widget.add_widgets(table1, table2)

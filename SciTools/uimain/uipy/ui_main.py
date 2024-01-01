@@ -179,6 +179,8 @@ class Ui_MainWindow(object):
         self.menu_window.setObjectName(u"menu_window")
         self.menu_help = QMenu(self.menubar)
         self.menu_help.setObjectName(u"menu_help")
+        self.menu_metrics = QMenu(self.menubar)
+        self.menu_metrics.setObjectName(u"menu_metrics")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -356,12 +358,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.listWidget_stack = QListWidget(self.dockWidgetContents_4)
-        self.listWidget_stack.setObjectName(u"listWidget_stack")
-        self.listWidget_stack.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
-        self.verticalLayout_3.addWidget(self.listWidget_stack)
-
         self.frame = QFrame(self.dockWidgetContents_4)
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.StyledPanel)
@@ -381,6 +377,12 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_3.addWidget(self.frame)
+
+        self.listWidget_stack = QListWidget(self.dockWidgetContents_4)
+        self.listWidget_stack.setObjectName(u"listWidget_stack")
+        self.listWidget_stack.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+        self.verticalLayout_3.addWidget(self.listWidget_stack)
 
         self.dockWidget_stack.setWidget(self.dockWidgetContents_4)
         MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget_stack)
@@ -416,6 +418,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menu_edit.menuAction())
         self.menubar.addAction(self.menu_clean.menuAction())
         self.menubar.addAction(self.menu_analysis.menuAction())
+        self.menubar.addAction(self.menu_metrics.menuAction())
         self.menubar.addAction(self.menu_window.menuAction())
         self.menubar.addAction(self.menu_help.menuAction())
         self.menu_window.addAction(self.menu_window_file)
@@ -485,6 +488,7 @@ class Ui_MainWindow(object):
         self.menu_analysis.setTitle(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
         self.menu_window.setTitle(QCoreApplication.translate("MainWindow", u"\u7a97\u53e3", None))
         self.menu_help.setTitle(QCoreApplication.translate("MainWindow", u"\u5e2e\u52a9", None))
+        self.menu_metrics.setTitle(QCoreApplication.translate("MainWindow", u"\u8ba1\u91cf", None))
         self.dockWidget_datafiles.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
         self.dockWidget_config.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u53c2\u6570\u914d\u7f6e", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))

@@ -105,6 +105,7 @@ class Utils:
                 writer.write("\r\n")
                 writer.flush()
         writer.close()
+
     @staticmethod
     def resort_columns(old_names: List[str], new_names: List[str]):
         """
@@ -344,7 +345,6 @@ class Utils:
         resp = requests.get(url, headers=headers)
         assert resp.status_code == 200
         return etree.HTML(resp.text)
-
 
 
 class MyMachineCode:

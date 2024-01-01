@@ -17,24 +17,38 @@ from core.util import Utils
 
 class PandasUtil:
     @staticmethod
-    def delete_rows_by_indexes(df: pd.DataFrame, indexes: List[int])->None:
+    def delete_rows_by_indexes(df: pd.DataFrame, indexes: List[int]) -> None:
         """
         删除行
         """
         df.drop(df.index[indexes], inplace=True)
         df.reset_index(drop=True, inplace=True)
 
+    @staticmethod
+    def delete_rows_by_emptystr(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+        """
+        删除行
+        """
+        df = df[df[col_name] != '']
+        df.reset_index(drop=True, inplace=True)
+        return df
 
     @staticmethod
-    def delete_columns_by_indexes(df: pd.DataFrame, col_indexes: List[int])->None:
+    def delete_rows_by_contains(df: pd.DataFrame, col_name: str, s: str) -> pd.DataFrame:
+        tougao_cnt = df[col_name].str.contains(s, case=False)
+        df = df.loc[~ tougao_cnt]
+        df.reset_index(drop=True, inplace=True)
+        return df
+
+    @staticmethod
+    def delete_columns_by_indexes(df: pd.DataFrame, col_indexes: List[int]) -> None:
         """
         删除列
         """
         df.drop(df.columns[col_indexes], axis=1, inplace=True)
 
-
     @staticmethod
-    def delete_columns_by_names(df: pd.DataFrame, col_names: List[str])->None:
+    def delete_columns_by_names(df: pd.DataFrame, col_names: List[str]) -> None:
         """
         删除列
         """
@@ -317,7 +331,7 @@ class PandasUtil:
         df.to_parquet(fpath)
 
     @staticmethod
-    def diff_pandas(df1:pd.DataFrame, df2:pd.DataFrame):
+    def diff_pandas(df1: pd.DataFrame, df2: pd.DataFrame):
         text1 = df1.to_string(index=False, na_rep='', col_space=4).splitlines(keepends=True)
         text2 = df2.to_string(index=False, na_rep='', col_space=4).splitlines(keepends=True)
         difflib.HtmlDiff._styles = """
@@ -340,7 +354,7 @@ class PandasUtil:
                           </table></td>
                      <td> <table border="" summary="Links">
                               <tr><th colspan="2"> 链接 </th> </tr>
-                              <tr><td>(f)上一个变化</td> </tr>
+                              <tr><td>(f)第一个变化</td> </tr>
                               <tr><td>(n)下一个变化</td> </tr>
                               <tr><td>(t)最上面</td> </tr>
                           </table></td> </tr>

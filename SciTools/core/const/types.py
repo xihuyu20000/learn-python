@@ -37,21 +37,49 @@ INNER_FIELDS_DICT['source'] = Field('来源', 'source', 50)
 
 # CNKI期刊论文字段字典
 CNKI_FIELDS_DICT = collections.defaultdict(Field)
-CNKI_FIELDS_DICT["RT"]=INNER_FIELDS_DICT['doctype']  # 文献类型
-CNKI_FIELDS_DICT["A1"]=INNER_FIELDS_DICT['authors']  # 作者
-CNKI_FIELDS_DICT["AD"]=INNER_FIELDS_DICT['org']  # 工作单位
-CNKI_FIELDS_DICT["T1"]=INNER_FIELDS_DICT['title']  # 题名
-CNKI_FIELDS_DICT["JF"]=INNER_FIELDS_DICT['source']  # 来源
-CNKI_FIELDS_DICT["YR"]=INNER_FIELDS_DICT['pubyear']  # 出版年
-CNKI_FIELDS_DICT["K1"]=INNER_FIELDS_DICT['kws']  # 关键词
-CNKI_FIELDS_DICT["AB"]=INNER_FIELDS_DICT['abs']  # 摘要
+CNKI_FIELDS_DICT["RT"] = INNER_FIELDS_DICT['doctype']  # 文献类型
+CNKI_FIELDS_DICT["A1"] = INNER_FIELDS_DICT['authors']  # 作者
+CNKI_FIELDS_DICT["AD"] = INNER_FIELDS_DICT['org']  # 工作单位
+CNKI_FIELDS_DICT["T1"] = INNER_FIELDS_DICT['title']  # 题名
+CNKI_FIELDS_DICT["JF"] = INNER_FIELDS_DICT['source']  # 来源
+CNKI_FIELDS_DICT["YR"] = INNER_FIELDS_DICT['pubyear']  # 出版年
+CNKI_FIELDS_DICT["K1"] = INNER_FIELDS_DICT['kws']  # 关键词
+CNKI_FIELDS_DICT["AB"] = INNER_FIELDS_DICT['abs']  # 摘要
+
+# 万方期刊论文字段字典
+WANFANG_FIELDS_DICT = collections.defaultdict(Field)
+WANFANG_FIELDS_DICT["RT"] = INNER_FIELDS_DICT['doctype']  # 文献类型
+WANFANG_FIELDS_DICT["A1"] = INNER_FIELDS_DICT['authors']  # 作者
+WANFANG_FIELDS_DICT["AD"] = INNER_FIELDS_DICT['org']  # 工作单位
+WANFANG_FIELDS_DICT["T1"] = INNER_FIELDS_DICT['title']  # 题名
+WANFANG_FIELDS_DICT["JF"] = INNER_FIELDS_DICT['source']  # 来源
+WANFANG_FIELDS_DICT["YR"] = INNER_FIELDS_DICT['pubyear']  # 出版年
+WANFANG_FIELDS_DICT["K1"] = INNER_FIELDS_DICT['kws']  # 关键词
+WANFANG_FIELDS_DICT["AB"] = INNER_FIELDS_DICT['abs']  # 摘要
+
+# 维普期刊论文字段字典
+WEIPU_FIELDS_DICT = collections.defaultdict(Field)
+WEIPU_FIELDS_DICT["RT"] = INNER_FIELDS_DICT['doctype']  # 文献类型
+WEIPU_FIELDS_DICT["A1"] = INNER_FIELDS_DICT['authors']  # 作者
+WEIPU_FIELDS_DICT["AD"] = INNER_FIELDS_DICT['org']  # 工作单位
+WEIPU_FIELDS_DICT["T1"] = INNER_FIELDS_DICT['title']  # 题名
+WEIPU_FIELDS_DICT["JF"] = INNER_FIELDS_DICT['source']  # 来源
+WEIPU_FIELDS_DICT["YR"] = INNER_FIELDS_DICT['pubyear']  # 出版年
+WEIPU_FIELDS_DICT["K1"] = INNER_FIELDS_DICT['kws']  # 关键词
+WEIPU_FIELDS_DICT["AB"] = INNER_FIELDS_DICT['abs']  # 摘要
 
 class FieldMapping:
     @staticmethod
     def cnki2core():
-        return {k:v.cn_name for k,v in CNKI_FIELDS_DICT.items() }
+        return {k: v.cn_name for k, v in CNKI_FIELDS_DICT.items()}
 
+    @staticmethod
+    def weipu2core():
+        return {k: v.cn_name for k, v in WEIPU_FIELDS_DICT.items()}
 
+    @staticmethod
+    def wanfang2core():
+        return {k: v.cn_name for k, v in WANFANG_FIELDS_DICT.items()}
 class NormStyle(strenum.StrEnum):
     """
     归一化的方法

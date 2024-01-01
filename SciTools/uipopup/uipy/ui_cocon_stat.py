@@ -9,6 +9,7 @@
 ################################################################################
 
 from PySide2.QtCore import *
+from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -40,6 +41,7 @@ class Ui_Form(object):
         self.listWidget.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.verticalLayout_2.addWidget(self.listWidget)
+
 
         self.horizontalLayout.addWidget(self.frame)
 
@@ -82,6 +84,7 @@ class Ui_Form(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
+
         self.verticalLayout.addWidget(self.frame_3)
 
         self.frame_4 = QFrame(self.frame_2)
@@ -92,32 +95,29 @@ class Ui_Form(object):
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.btn_ok = QPushButton(self.frame_4)
-        self.btn_ok.setObjectName(u"btn_ok")
-
-        self.horizontalLayout_3.addWidget(self.btn_ok)
-
         self.btn_export = QPushButton(self.frame_4)
         self.btn_export.setObjectName(u"btn_export")
 
         self.horizontalLayout_3.addWidget(self.btn_export)
 
+
         self.verticalLayout.addWidget(self.frame_4)
 
+
         self.horizontalLayout.addWidget(self.frame_2)
+
 
         self.retranslateUi(Form)
 
         QMetaObject.connectSlotsByName(Form)
-
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"\u5171\u73b0\u5206\u6790", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"\u5171\u8bcd\u5206\u6790", None))
         self.label.setText(QCoreApplication.translate("Form", u"\u53ea\u80fd\u9009\u62e91\u5217", None))
         self.label_3.setText("")
         self.label_4.setText("")
         self.label_2.setText(QCoreApplication.translate("Form", u"\u7edf\u8ba1\u9608\u503c>=", None))
-        self.btn_ok.setText(QCoreApplication.translate("Form", u"OK", None))
         self.btn_export.setText(QCoreApplication.translate("Form", u"\u5bfc\u51fa", None))
     # retranslateUi
+

@@ -19,8 +19,6 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
 
         self.get_table().set_item_writable(True)
 
-        ssignal.push_cache.emit(Actions.modify_value.cnself.get_df())
-
         msg = '开始修改'
         ssignal.info.emit(msg)
 
@@ -31,6 +29,7 @@ class PopupModifyValues(QDialog, ui_modify_value.Ui_Form):
 
         msg = '停止修改'
         ssignal.info.emit(msg)
+        ssignal.push_cache.emit(Actions.modify_value.cnself.get_df())
 
     def get_df(self):
         return self.parent.get_df()

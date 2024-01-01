@@ -374,7 +374,6 @@ class TableKit(QFrame):
         df = self._model.pub_get_dataset()
         return df
 
-
     def get_selected_row_indexes(self):
         return [index[0] for index in self._table.pub_selected_indexes()]
 

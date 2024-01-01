@@ -11,7 +11,7 @@ import os.path
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QMainWindow, QFileDialog, QLabel
 
-from core.const import Cfg, ssignal, Actions
+from core.const import Cfg, ssignal
 from core.const import FileFormat
 from core.log import logger
 from core.mgraph import GraphData
@@ -20,8 +20,9 @@ from core.runner import (
     CleanParseFileThread,
     WatchDataFilesChaningThread,
 )
-from core.runner.mrunner import CleanCompareDatasetThread, CleanLoadDatasetThread
-from core.util import PandasCache, PandasUtil
+from core.runner.mrunner import CleanCompareDatasetThread, CleanLoadDatasetThread, CleanDeleteRowsThread, \
+    CleanDeleteColumnsThread
+from core.util import PandasCache
 from uimain.ctx import MasterMainContext
 from uimain.uipy.ui_main import Ui_MainWindow
 from uipopup.main_cocon_stat import PopupCoconStat
@@ -30,12 +31,14 @@ from uipopup.main_compare_column import PopupCompareColumns
 from uipopup.main_copy_column import PopupCopyColumn
 from uipopup.main_dataset_metadata import PopupCleanMetadata
 from uipopup.main_extract_features import PopupExtractFeatures
+from uipopup.main_filter_row import PopupFilterRows
 from uipopup.main_graph_config import PopupGraphConfig
+from uipopup.main_group_stat import PopupCleanGroupStat, WinGroupStat
 from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
 from uipopup.main_rename_column import PopupCleanRename
 from uipopup.main_replace_column import PopupReplaceColumn
-from uipopup.main_row_distinct import PopupRowDistinct
+from uipopup.main_row_deduplicate import PopupRowDeduplicate
 from uipopup.main_similarity_row import PopupSimilarityRows
 from uipopup.main_split_column import PopupSplitColumn
 from uipopup.main_split_words import PopupSplitWords
@@ -187,6 +190,16 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         self.menutool_list.append(
+            MenuTool(id='undo', label='撤回', icon='chexiao.png', menubar='menu_edit', show_in_menubar=True,
+                     show_in_toolbar=True, callback=self.clean_do_menu_undo)
+        )
+
+        self.menutool_list.append(
+            MenuTool(id='redo', label='恢复', icon='huifu.png', menubar='menu_edit', show_in_menubar=True,
+                     show_in_toolbar=True, callback=self.clean_do_menu_redo)
+        )
+
+        self.menutool_list.append(
             MenuTool(id='delete_row', label='删除行', icon='yichu.png', menubar='menu_edit', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_delete_row)
         )
@@ -232,46 +245,40 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         self.menutool_list.append(
-            MenuTool(id='compare_column', label='比较列', icon='lieziduan.png', menubar='menu_clean',
+            MenuTool(id='compare_column', label='比较列', icon='lieziduan.png', menubar='menu_edit',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_compare_columns)
         )
 
         self.menutool_list.append(
-            MenuTool(id='modify_value', label='修改值', icon='riqi.png', menubar='menu_clean',
+            MenuTool(id='modify_value', label='修改值', icon='riqi.png', menubar='menu_edit',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_modify_value)
         )
 
         self.menutool_list.append(
-            MenuTool(id='vertical_concat', label='合并列', icon='vertical_concat.png', menubar='menu_clean',
+            MenuTool(id='vertical_concat', label='合并文件', icon='vertical_concat.png', menubar='menu_edit',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_vertical_concat)
         )
 
         self.menutool_list.append(
-            MenuTool(id='fill_value', label='补全值', icon='jiekoupeizhi.png', menubar='menu_clean',
+            MenuTool(id='distinct_row', label='行去重', icon='shuzi.png', menubar='menu_clean',
                      show_in_menubar=True,
                      show_in_toolbar=True,
-                     callback=self.clean_do_menu_clean_fill_value)
+                     callback=self.clean_do_menu_row_deduplicate)
         )
 
         self.menutool_list.append(
-            MenuTool(id='combine_synonym', label='合并词', icon='shujufenxi.png', menubar='menu_clean',
+            MenuTool(id='combine_synonym', label='同义词', icon='shujufenxi.png', menubar='menu_clean',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_combine_synonym)
         )
 
-        self.menutool_list.append(
-            MenuTool(id='distinct_row', label='行去重', icon='shuzi.png', menubar='menu_clean',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_row_distinct)
-        )
 
         self.menutool_list.append(
             MenuTool(id='stop_words', label='停用词', icon='wenben.png', menubar='menu_clean',
@@ -281,7 +288,16 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         self.menutool_list.append(
-            MenuTool(id='split_words', label='切分词', icon='xianshi.png', menubar='menu_clean',
+            MenuTool(id='filter_row', label='过滤行', icon='tubiaozhutu.png', menubar='menu_clean',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_clean_filter)
+        )
+
+
+
+        self.menutool_list.append(
+            MenuTool(id='split_words', label='切分词', icon='xianshi.png', menubar='menu_analysis',
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_split_words)
@@ -315,12 +331,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_group_stat)
         )
 
-        self.menutool_list.append(
-            MenuTool(id='filter_row', label='过滤行', icon='biaochaxun.png', menubar='menu_analysis',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_clean_filter)
-        )
 
         self.menutool_list.append(
             MenuTool(id='extract_feature', label='特征提取', icon='zhenshikexin.png', menubar='menu_analysis',
@@ -420,7 +430,9 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             ssignal.error.emit(f"错误，请选择2个数据集")
             return
 
+        # 提取id
         ids = [str(item).split('\t')[0] for item in selected_fnames]
+        # 提取DataFrame
         dfs = [PandasCache.get(int(id)) for id in ids]
         self.cleanCompareDatasetThread = CleanCompareDatasetThread(dfs[0], dfs[1])
         self.cleanCompareDatasetThread.start()
@@ -432,7 +444,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         id = row.split('\t')[0]
         df = PandasCache.get(int(id))
 
-        self.cleanLoadDatasetThread =CleanLoadDatasetThread(df)
+        self.cleanLoadDatasetThread = CleanLoadDatasetThread(df)
         self.cleanLoadDatasetThread.start()
 
     def master_action_dblclick_datafiles_list(self, item):
@@ -553,6 +565,29 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
     #######################################################################
 
+    def clean_do_menu_undo(self):
+        logger.info("清洗，撤销")
+
+        df = self.pandasCache.undo()
+
+        if df is not None:
+            ssignal.set_clean_dataset.emit(df)
+            ssignal.info.emit("撤销")
+        else:
+            ssignal.error.emit("无法撤销")
+
+    def clean_do_menu_redo(self):
+        logger.info("清洗，恢复")
+
+        df = self.pandasCache.redo()
+
+        if df is None:
+            ssignal.error.emit("无法恢复")
+            return
+
+        ssignal.info.emit("恢复")
+        ssignal.set_clean_dataset.emit(df)
+
     def clean_do_menu_delete_row(self):
         logger.info("清洗，删除行")
 
@@ -561,10 +596,8 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             return
 
         df = self.context.get_df()
-        PandasUtil.delete_rows_by_indexes(df, self.clean_datatable.get_selected_row_indexes())
-        ssignal.push_cache.emit(Actions.remove_rows.cn, df)
-        ssignal.set_clean_dataset.emit(df)
-        ssignal.info.emit("删除行")
+        self.cleanDeleteRowsThread = CleanDeleteRowsThread(df, self.clean_datatable.get_selected_row_indexes())
+        self.cleanDeleteRowsThread.start()
 
     def clean_do_menu_delete_column(self):
         logger.info("清洗，删除列")
@@ -574,10 +607,8 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             return
 
         df = self.context.get_df()
-        PandasUtil.delete_columns_by_indexes(df, self.clean_datatable.get_selected_col_indexes())
-        ssignal.push_cache.emit(Actions.remove_cols.cn, df)
-        ssignal.set_clean_dataset.emit(df)
-        ssignal.info.emit("删除列")
+        self.cleanDeleteColsThread = CleanDeleteColumnsThread(df, self.clean_datatable.get_selected_col_indexes())
+        self.cleanDeleteColsThread.start()
 
     def clean_do_menu_metadata(self):
         logger.info("清洗，元数据")
@@ -660,7 +691,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupReplaceColumn.show()
 
     def clean_do_menu_combine_synonym(self):
-        logger.info("清洗，合并词")
+        logger.info("清洗，同义词")
 
         if self.context.table_no_data():
             ssignal.error.emit("没有数据")
@@ -690,7 +721,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupWordCountStat.show()
 
     def clean_do_menu_cocon_stat(self):
-        logger.info("清洗，共现分析")
+        logger.info("清洗，共词分析")
 
         if self.context.table_no_data():
             ssignal.error.emit("没有数据")
@@ -719,14 +750,14 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupModifyValues = PopupModifyValues(self)
         self.popupModifyValues.show()
 
-    def clean_do_menu_row_distinct(self):
+    def clean_do_menu_row_deduplicate(self):
         logger.info("清洗，行去重")
 
         if self.context.table_no_data():
             ssignal.error.emit("没有数据")
             return
 
-        self.popupRowDistinct = PopupRowDistinct(self)
+        self.popupRowDistinct = PopupRowDeduplicate(self)
         self.popupRowDistinct.show()
 
     def clean_do_menu_row_similarity(self):
@@ -764,14 +795,13 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
     def clean_do_menu_group_stat(self):
         logger.info("清洗，分组统计")
-        ssignal.error.emit("还没有实现")
 
-        # if self.context.master_clean_no_data():
-        #     ssignal.error.emit('没有数据')
-        #     return
+        if self.context.table_no_data():
+            ssignal.error.emit('没有数据')
+            return
 
-        # self.popupCleanGroupStat = PopupCleanGroupStat(self)
-        # self.popupCleanGroupStat.show()
+        self.popupCleanGroupStat = WinGroupStat(self)
+        self.popupCleanGroupStat.show()
 
     def clean_do_menu_split_words(self):
         logger.info("清洗，分词")
@@ -794,12 +824,11 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupExtractFeatures.show()
 
     def clean_do_menu_clean_filter(self):
-        logger.info("清洗，过滤")
-        ssignal.error.emit("还没有实现")
+        logger.debug("清洗，过滤行")
 
-    def clean_do_menu_clean_fill_value(self):
-        logger.info("清洗，补全值")
-        ssignal.error.emit("还没有实现")
+        self.popupFilterRows = PopupFilterRows(self)
+        self.popupFilterRows.show()
+
 
     #######################################################################
     def clean_do_menu_window_savestore(self):

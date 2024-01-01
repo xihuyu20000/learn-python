@@ -13,6 +13,7 @@ from pyecharts.globals import SymbolType
 from core.const import abs_path
 from core.log import logger
 
+
 class GraphData:
     def __init__(self):
         self._canvas_width = '900px'
