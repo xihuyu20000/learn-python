@@ -515,7 +515,7 @@
     <number>4</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_5">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -532,7 +532,41 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="TableKit" name="clean_datatable"/>
+      <widget class="QTabWidget" name="tabWidget_table">
+       <property name="tabsClosable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>默认</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="TableKit" name="clean_datatable"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_2">
+        <attribute name="title">
+         <string>Tab 2</string>
+        </attribute>
+       </widget>
+      </widget>
      </item>
     </layout>
    </widget>

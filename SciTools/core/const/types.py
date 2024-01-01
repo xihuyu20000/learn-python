@@ -27,9 +27,9 @@ Field = collections.namedtuple("Field", ['cn_name', 'en_name', 'order'])
 # 内部字段字典
 INNER_FIELDS_DICT = collections.defaultdict(Field)
 INNER_FIELDS_DICT['doctype'] = Field('文献类型', 'doctype', 100)
-INNER_FIELDS_DICT['authors'] = Field('全部作者', 'authors', 20)
+INNER_FIELDS_DICT['authors'] = Field('作者', 'authors', 20)
 INNER_FIELDS_DICT['pubyear'] = Field('年份', 'pubyear', 1)
-INNER_FIELDS_DICT['org'] = Field('作者单位', 'org', 30)
+INNER_FIELDS_DICT['org'] = Field('机构', 'org', 30)
 INNER_FIELDS_DICT['kws'] = Field('关键字', 'keywords', 40)
 INNER_FIELDS_DICT['title'] = Field('标题', 'title', 10)
 INNER_FIELDS_DICT['abs'] = Field('摘要', 'abstract', 60)
@@ -99,6 +99,11 @@ class DistanceStyle(strenum.StrEnum):
     """
     聚类计算方法
     """
+    # 相关系数
     correlation = 'correlation'
+    # 欧式距离
     euclidean = 'euclidean'
+    # 余弦
     cosine = 'cosine'
+    # z-score
+    zscore = 'zscore'

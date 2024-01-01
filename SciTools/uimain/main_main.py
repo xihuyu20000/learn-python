@@ -33,7 +33,7 @@ from uipopup.main_dataset_metadata import PopupCleanMetadata
 from uipopup.main_extract_features import PopupExtractFeatures
 from uipopup.main_filter_row import PopupFilterRows
 from uipopup.main_graph_config import PopupGraphConfig
-from uipopup.main_group_stat import PopupCleanGroupStat, WinGroupStat
+from uipopup.main_group_stat import WinGroupStat
 from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
 from uipopup.main_rename_column import PopupCleanRename
@@ -178,6 +178,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
     def master_init_menubar(self):
         self.menutool_list = []
+        ## 文件 ####################################################################################################
 
         self.menutool_list.append(
             MenuTool(id='parse_file', label='解析', icon='aislogo.png', menubar='menu_file', show_in_menubar=True,
@@ -188,6 +189,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
             MenuTool(id='save_file', label='保存', icon='xiazai.png', menubar='menu_file', show_in_menubar=True,
                      show_in_toolbar=True, callback=self.clean_do_menu_save)
         )
+        ## 编辑 ####################################################################################################
 
         self.menutool_list.append(
             MenuTool(id='undo', label='撤回', icon='chexiao.png', menubar='menu_edit', show_in_menubar=True,
@@ -238,13 +240,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
 
         self.menutool_list.append(
-            MenuTool(id='metadata', label='元数据', icon='biaoge.png', menubar='menu_clean',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_metadata)
-        )
-
-        self.menutool_list.append(
             MenuTool(id='compare_column', label='比较列', icon='lieziduan.png', menubar='menu_edit',
                      show_in_menubar=True,
                      show_in_toolbar=True,
@@ -264,6 +259,14 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_vertical_concat)
         )
+        ## 清洗 ####################################################################################################
+
+        self.menutool_list.append(
+            MenuTool(id='metadata', label='元数据', icon='biaoge.png', menubar='menu_clean',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_metadata)
+        )
 
         self.menutool_list.append(
             MenuTool(id='distinct_row', label='行去重', icon='shuzi.png', menubar='menu_clean',
@@ -279,7 +282,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_combine_synonym)
         )
 
-
         self.menutool_list.append(
             MenuTool(id='stop_words', label='停用词', icon='wenben.png', menubar='menu_clean',
                      show_in_menubar=True,
@@ -294,7 +296,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_clean_filter)
         )
 
-
+        ## 分析 ####################################################################################################
 
         self.menutool_list.append(
             MenuTool(id='split_words', label='切分词', icon='xianshi.png', menubar='menu_analysis',
@@ -331,7 +333,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_group_stat)
         )
 
-
         self.menutool_list.append(
             MenuTool(id='extract_feature', label='特征提取', icon='zhenshikexin.png', menubar='menu_analysis',
                      show_in_menubar=True,
@@ -345,7 +346,20 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      show_in_toolbar=True,
                      callback=self.clean_do_menu_graph_config)
         )
-
+        ## 计量 ####################################################################################################
+        self.menutool_list.append(
+            MenuTool(id='metrics_yearly_stat', label='年份统计', icon='app.png', menubar='menu_metrics',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_window_savestore)
+        )
+        self.menutool_list.append(
+            MenuTool(id='metrics_build_matrix', label='矩阵构建', icon='app.png', menubar='menu_metrics',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_window_savestore)
+        )
+        ## 窗口 ####################################################################################################
         self.menutool_list.append(
             MenuTool(id='window_savestore', label='保存布局', icon='app.png', menubar='menu_window',
                      show_in_menubar=True,
@@ -828,7 +842,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         self.popupFilterRows = PopupFilterRows(self)
         self.popupFilterRows.show()
-
 
     #######################################################################
     def clean_do_menu_window_savestore(self):
