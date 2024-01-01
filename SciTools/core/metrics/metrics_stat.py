@@ -131,6 +131,33 @@ class MetricsStat:
 
         cocon_thin_matrix = pd.DataFrame(arr, columns=['field1', 'field2', 'times'])
         return cocon_thin_matrix
+
+    @staticmethod
+    def coupled_matrix(df:pd.DataFrame, item1:str, kw:str, first_n: int = 100):
+        """
+        耦合分析
+        """
+        df1 = df.copy(True)
+
+        mapping = collections.defaultdict(list)
+        for i, row in df1.iterrows():
+            for k in [k.strip() for k in row[item1].split(Cfg.seperator.value) if k.strip()]:
+                for v in [v.strip() for v in row[kw].split(Cfg.seperator.value) if v.strip]:
+                    mapping[k].append(v)
+        items = list(mapping.items())
+
+        result = []
+        for i, pair1 in enumerate(items):
+            for pair2 in items[i:]:
+                a1 = pair1[0]
+                a2 = pair2[0]
+                v = len(set(pair1[1])&set(pair2[1]))
+                if v:
+                    result.append([a1, a2, v])
+
+        return pd.DataFrame(result, columns=['field1', 'field2', 'times'])
+
+
     @staticmethod
     def distance(df: pd.DataFrame, style:DistanceStyle):
         """

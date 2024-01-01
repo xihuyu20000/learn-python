@@ -34,6 +34,7 @@ from uipopup.main_extract_features import PopupExtractFeatures
 from uipopup.main_filter_row import PopupFilterRows
 from uipopup.main_graph_config import PopupGraphConfig
 from uipopup.main_group_stat import WinGroupStat
+from uipopup.main_metrics import PopupMetrics
 from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
 from uipopup.main_rename_column import PopupCleanRename
@@ -130,11 +131,11 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         action_callback_list.append(
             ActionCallback(id='dbclick_parsefile', source=self.datafiles_list, event='itemDoubleClicked',
                            callback=self.master_action_dblclick_datafiles_list))
-        # 比较数据集
-        action_callback_list.append(
-            ActionCallback(id='compare_stack', source=self.btn_compare_stack, event='clicked',
-                           callback=self.master_action_btn_compare_stack)
-        )
+        # TODO 比较数据集
+        # action_callback_list.append(
+        #     ActionCallback(id='compare_stack', source=self.btn_compare_stack, event='clicked',
+        #                    callback=self.master_action_btn_compare_stack)
+        # )
         # 双击，加载数据集
         action_callback_list.append(
             ActionCallback(id='dbclick_load_dataset', source=self.listWidget_stack, event='itemDoubleClicked',
@@ -348,17 +349,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         )
         ## 计量 ####################################################################################################
         self.menutool_list.append(
-            MenuTool(id='metrics_yearly_stat', label='年份统计', icon='app.png', menubar='menu_metrics',
+            MenuTool(id='metrics_stat', label='计量统计', icon='app.png', menubar='menu_metrics',
                      show_in_menubar=True,
                      show_in_toolbar=True,
-                     callback=self.clean_do_menu_window_savestore)
+                     callback=self.metrics_do_menu_stat)
         )
-        self.menutool_list.append(
-            MenuTool(id='metrics_build_matrix', label='矩阵构建', icon='app.png', menubar='menu_metrics',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_window_savestore)
-        )
+
         ## 窗口 ####################################################################################################
         self.menutool_list.append(
             MenuTool(id='window_savestore', label='保存布局', icon='app.png', menubar='menu_window',
@@ -396,7 +392,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                 button.setText(menutool.label)
                 button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
                 button.setProperty('id', menutool.id)
-                self.clean_toolbar.addWidget(button)
+                self.toolBar.addWidget(button)
                 button.clicked.connect(self.__menutool_callback)
 
     def __menutool_callback(self):
@@ -643,6 +639,17 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
 
         self.popSizeDistance = PopupGraphConfig(self)
         self.popSizeDistance.show()
+
+    def metrics_do_menu_stat(self):
+        logger.info("清洗，年份统计")
+
+        if self.context.table_no_data():
+            ssignal.error.emit("没有数据")
+            return
+
+        self.popupMetrics = PopupMetrics(self)
+        self.popupMetrics.show()
+
 
     def clean_do_menu_save(self):
         logger.info("清洗，保存")

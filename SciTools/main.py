@@ -15,5 +15,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)  # 创建GUI
 
     ui = MasterMainWindows()  # 创建PyQt设计的窗体对象
-    ui.show()  # 显示窗体
+    # ui.show()  # 显示窗体
+    ui.showMaximized()
     sys.exit(app.exec_())  # 程序关闭时退出进程

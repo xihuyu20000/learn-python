@@ -427,7 +427,7 @@ class CleanReplaceValueThread(QThread):
             )
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
-            ssignal.push_cache.emit(Actions.replace_value.cn, self.get_df())
+            ssignal.push_cache.emit(Actions.replace_value.cn, df)
 
         except Exception as e:
             logger.exception(e)
@@ -459,7 +459,7 @@ class CleanCombineSynonymThread(QThread):
             ssignal.info.emit(msg)
 
             ssignal.set_clean_dataset.emit(df)
-            ssignal.push_cache.emit(Actions.combine_synonym.cn, self.get_df())
+            ssignal.push_cache.emit(Actions.combine_synonym.cn, df)
 
         except Exception as e:
             logger.exception(e)
@@ -517,7 +517,7 @@ class CleanWordCountThread(QThread):
             ssignal.info.emit(msg)
             ssignal.set_clean_dataset.emit(df)
 
-            ssignal.push_cache.emit(Actions.word_count.cn,df)
+            ssignal.push_cache.emit(Actions.word_count.cn, df)
         except Exception as e:
             logger.exception(e)
             msg = "出错:{0}".format(str(e))
