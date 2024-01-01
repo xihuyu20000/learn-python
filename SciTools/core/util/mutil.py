@@ -346,6 +346,28 @@ class Utils:
         assert resp.status_code == 200
         return etree.HTML(resp.text)
 
+    @staticmethod
+    def org1(ss:str):
+        """
+        提取一级机构
+        """
+        result = []
+        for word in ss.split(Cfg.seperator.value):
+            if '中国科学院' in word:
+                word = word.split('研究所')[0] + '研究所' if '研究所' in word else word
+                word = word.split('中心')[0] + '中心' if '中心' in word else word
+                word = word.split('大学')[0] + '大学' if '大学' in word else word
+            else:
+                word = word.split('大学')[0] + '大学' if '大学' in word else word
+                word = word.split('学院')[0] + '学院' if '学院' in word else word
+                word = word.split('研究院')[0] + '研究院' if '研究院' in word else word
+                word = word.split('研究会')[0] + '研究会' if '研究会' in word else word
+                word = word.split('委员会')[0] + '委员会' if '委员会' in word else word
+
+            if len(word)>0 and word not in result:
+                result.append(word)
+
+        return Cfg.seperator.value.join(result)
 
 class MyMachineCode:
     def __init__(self):

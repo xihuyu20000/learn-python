@@ -25,7 +25,7 @@ from core.const import ssignal, Actions
 from core.log import logger
 from core.mgraph import GraphData, Draw
 from core.util import PandasUtil
-from core.util.mutil import Cfg, DictReader
+from core.util.mutil import Cfg, DictReader, Utils
 
 
 class WatchDataFilesChaningThread(QThread):
@@ -332,6 +332,30 @@ class CleanCopyColumnThread(QThread):
             msg = "出错:{0}".format(str(e))
             ssignal.error.emit(msg)
 
+class CleanLevel1OrgThread(QThread):
+    def __init__(self, df: pd.DataFrame, name: str):
+        super(CleanLevel1OrgThread, self).__init__()
+        self.df = df
+        self.name = name
+
+    def run(self) -> None:
+        ssignal.info.emit("提取一级机构，请稍等")
+        try:
+            t1 = time.time()
+
+            self.df['一级机构'] = self.df[self.name].apply(Utils.org1)
+
+            t2 = time.time()
+            msg = "处理{0}条记录，{1}个列，耗时{2}秒".format(
+                self.df.shape[0], self.df.shape[1], round(t2 - t1, int(Cfg.precision_point.value))
+            )
+            ssignal.info.emit(msg)
+            ssignal.set_clean_dataset.emit(self.df)
+
+        except Exception as e:
+            logger.exception(e)
+            msg = "出错:{0}".format(str(e))
+            ssignal.error.emit(msg)
 
 class CleanSplitColumnThread(QThread):
     def __init__(

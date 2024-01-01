@@ -16,6 +16,8 @@ class PopupMetrics(QDialog, ui_metrics.Ui_Form):
         self.setupUi(self)
         self.parent = parent.context
 
+        self.btn_2_matrix.clicked.connect(self.to_matrix)
+        ##########################################################
         self.btn_stat_yearly.clicked.connect(self.stat_yearly)
         self.btn_stat_kw.clicked.connect(self.stat_kw)
         self.btn_graph.clicked.connect(self.export_clicked)
@@ -42,6 +44,23 @@ class PopupMetrics(QDialog, ui_metrics.Ui_Form):
         self.btn_coupled_country_kw.clicked.connect(self.coupled_country_kw)
         self.btn_coupled_subject_kw.clicked.connect(self.coupled_subject_kw)
 
+    def to_matrix(self):
+        try:
+            df = self.frame_tablekit.get_dataset()
+            # 列转行，形成共现矩阵
+            logger.debug('形成共现矩阵')
+            df = df.pivot_table(index=self.lineEdit_axis_X.text().strip(), columns=self.lineEdit_axis_Y.text().strip(), values=self.lineEdit_value.text().strip())
+            # 填充空值
+            df.fillna(0, inplace=True)
+            # 类型转换
+            df = df.astype(int)
+            df = df.reset_index()
+            self.frame_tablekit.set_dataset(df)
+            self.show_info('转矩阵')
+        except Exception as e:
+            logger.exception(e)
+            msg = "解析出错:{0}".format(str(e))
+            self.show_error(msg)
 
     def stat_yearly(self):
         try:

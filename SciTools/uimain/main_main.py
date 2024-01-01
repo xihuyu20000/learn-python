@@ -34,6 +34,7 @@ from uipopup.main_extract_features import PopupExtractFeatures
 from uipopup.main_filter_row import PopupFilterRows
 from uipopup.main_graph_config import PopupGraphConfig
 from uipopup.main_group_stat import WinGroupStat
+from uipopup.main_level1_org import PopupLevel1Org
 from uipopup.main_metrics import PopupMetrics
 from uipopup.main_modify_values import PopupModifyValues
 from uipopup.main_parse_datafiles import PopupDatafilesParse
@@ -96,28 +97,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         ssignal.datafiles_changing.emit()
 
         self.master_show_permanent("欢迎使用本软件，祝您有愉快的一天")
-
-    def master_init_dock(self):
-        logger.info('恢复布局')
-        # 移除中间部件
-        self.takeCentralWidget()
-        # 启用嵌套布局
-        self.setDockNestingEnabled(True);
-        # 先左右布局
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dockWidget_datafiles)
-        self.splitDockWidget(self.dockWidget_datafiles, self.dockWidget_table, QtCore.Qt.Orientation.Horizontal)
-        self.splitDockWidget(self.dockWidget_table, self.dockWidget_config, QtCore.Qt.Orientation.Horizontal)
-        # 然后左侧，上下布局
-        self.splitDockWidget(self.dockWidget_datafiles, self.dockWidget_stack, QtCore.Qt.Orientation.Vertical)
-        # 然后中间，上下布局
-        self.splitDockWidget(self.dockWidget_table, self.dockWidget_graph, QtCore.Qt.Orientation.Vertical)
-        self.tabifyDockWidget(self.dockWidget_table, self.dockWidget_graph)
-        self.dockWidget_table.raise_()
-        # 然后右侧，上下布局
-        self.splitDockWidget(self.dockWidget_config, self.dockWidget_history, QtCore.Qt.Orientation.Vertical)
-        # 大小设置
-        self.resizeDocks([self.dockWidget_datafiles, self.dockWidget_table, self.dockWidget_config], [2, 5, 1],
-                         QtCore.Qt.Orientation.Horizontal)
 
     def master_init_actions(self) -> None:
         """
@@ -297,6 +276,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_clean_filter)
         )
 
+        self.menutool_list.append(
+            MenuTool(id='level1_org', label='一级机构', icon='tubiaozhutu.png', menubar='menu_clean',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.clean_do_menu_clean_level1_org)
+        )
         ## 分析 ####################################################################################################
 
         self.menutool_list.append(
@@ -353,21 +338,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      show_in_menubar=True,
                      show_in_toolbar=True,
                      callback=self.metrics_do_menu_stat)
-        )
-
-        ## 窗口 ####################################################################################################
-        self.menutool_list.append(
-            MenuTool(id='window_savestore', label='保存布局', icon='app.png', menubar='menu_window',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_window_savestore)
-        )
-
-        self.menutool_list.append(
-            MenuTool(id='window_restore', label='恢复布局', icon='app.png', menubar='menu_window',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.master_init_dock)
         )
 
         ######################################################################################################
@@ -850,12 +820,17 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupFilterRows = PopupFilterRows(self)
         self.popupFilterRows.show()
 
-    #######################################################################
-    def clean_do_menu_window_savestore(self):
-        logger.info('保存布局')
+    def clean_do_menu_clean_level1_org(self):
+        logger.debug("清洗，提取一级机构")
 
-        Cfg.set('geometry', self.saveGeometry())
-        Cfg.set('windowState', self.saveState())
+        self.popupLevel1Org = PopupLevel1Org(self)
+        self.popupLevel1Org.show()
+    #######################################################################
+    # def clean_do_menu_window_savestore(self):
+    #     logger.info('保存布局')
+    #
+    #     Cfg.set('geometry', self.saveGeometry())
+    #     Cfg.set('windowState', self.saveState())
 
     #######################################################################
 
