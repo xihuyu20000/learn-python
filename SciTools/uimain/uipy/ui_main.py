@@ -13,7 +13,7 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 from core.toolkit import TableKit
-from PySide2.QtWebEngineWidgets import QWebEngineView
+from uipopup.main_metrics import PopupMetrics
 
 
 class Ui_MainWindow(object):
@@ -226,27 +226,27 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.addWidget(self.clean_datatable)
 
         self.mainTabWidget.addTab(self.tab_clean, "")
-        self.tab_analyze = QWidget()
-        self.tab_analyze.setObjectName(u"tab_analyze")
-        self.tab2_layout = QVBoxLayout(self.tab_analyze)
+        self.tab_metadata = QWidget()
+        self.tab_metadata.setObjectName(u"tab_metadata")
+        self.tab2_layout = QVBoxLayout(self.tab_metadata)
         self.tab2_layout.setSpacing(0)
         self.tab2_layout.setObjectName(u"tab2_layout")
         self.tab2_layout.setContentsMargins(0, 0, 0, 0)
-        self.frame = QFrame(self.tab_analyze)
+        self.frame = QFrame(self.tab_metadata)
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
 
         self.tab2_layout.addWidget(self.frame)
 
-        self.mainTabWidget.addTab(self.tab_analyze, "")
-        self.tab_graph = QWidget()
-        self.tab_graph.setObjectName(u"tab_graph")
-        self.horizontalLayout_3 = QHBoxLayout(self.tab_graph)
+        self.mainTabWidget.addTab(self.tab_metadata, "")
+        self.tab_stat = QWidget()
+        self.tab_stat.setObjectName(u"tab_stat")
+        self.horizontalLayout_3 = QHBoxLayout(self.tab_stat)
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.right_widget = QFrame(self.tab_graph)
+        self.right_widget = PopupMetrics(self.tab_stat)
         self.right_widget.setObjectName(u"right_widget")
         self.right_widget.setFrameShape(QFrame.StyledPanel)
         self.right_widget.setFrameShadow(QFrame.Raised)
@@ -254,15 +254,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_10.setSpacing(0)
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.verticalLayout_10.setContentsMargins(0, 0, 0, 0)
-        self.browser = QWebEngineView(self.right_widget)
-        self.browser.setObjectName(u"browser")
-
-        self.verticalLayout_10.addWidget(self.browser)
-
 
         self.horizontalLayout_3.addWidget(self.right_widget)
 
-        self.mainTabWidget.addTab(self.tab_graph, "")
+        self.mainTabWidget.addTab(self.tab_stat, "")
         self.tab_config = QWidget()
         self.tab_config.setObjectName(u"tab_config")
         self.horizontalLayout_17 = QHBoxLayout(self.tab_config)
@@ -489,7 +484,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.mainTabWidget.setCurrentIndex(0)
+        self.mainTabWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -536,8 +531,8 @@ class Ui_MainWindow(object):
         self.menu_clean_graph_config.setText(QCoreApplication.translate("MainWindow", u"\u56fe\u8868\u914d\u7f6e", None))
         self.menu_clean_extract_feature.setText(QCoreApplication.translate("MainWindow", u"\u7279\u5f81\u63d0\u53d6", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_clean), QCoreApplication.translate("MainWindow", u"\u6e05\u6d17", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_analyze), QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_graph), QCoreApplication.translate("MainWindow", u"\u56fe\u8868", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_metadata), QCoreApplication.translate("MainWindow", u"\u5143\u6570\u636e", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_stat), QCoreApplication.translate("MainWindow", u"\u7edf\u8ba1", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u5b57\u4f53", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"\u89e3\u6790\u6570\u636e\u6587\u4ef6\u53c2\u6570", None))

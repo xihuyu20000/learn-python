@@ -174,7 +174,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tab_clean">
            <attribute name="title">
@@ -201,9 +201,9 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_analyze">
+          <widget class="QWidget" name="tab_metadata">
            <attribute name="title">
-            <string>分析</string>
+            <string>元数据</string>
            </attribute>
            <layout class="QVBoxLayout" name="tab2_layout">
             <property name="spacing">
@@ -233,9 +233,9 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_graph">
+          <widget class="QWidget" name="tab_stat">
            <attribute name="title">
-            <string>图表</string>
+            <string>统计</string>
            </attribute>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <property name="spacing">
@@ -253,36 +253,6 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item>
-             <widget class="QFrame" name="right_widget">
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_10">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QWebEngineView" name="browser" native="true"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="tab_config">
@@ -897,12 +867,6 @@
    <class>TableKit</class>
    <extends>QTableView</extends>
    <header>core.toolkit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header>PySide2.QtWebEngineWidgets.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

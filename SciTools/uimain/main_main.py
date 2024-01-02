@@ -318,12 +318,6 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.clean_do_menu_extract_features)
         )
 
-        self.menutool_list.append(
-            MenuTool(id='graph_config', label='图表配置', icon='app.png', menubar='menu_analysis',
-                     show_in_menubar=True,
-                     show_in_toolbar=True,
-                     callback=self.clean_do_menu_graph_config)
-        )
         ## 计量 ####################################################################################################
         self.menutool_list.append(
             MenuTool(id='metrics_stat', label='计量统计', icon='app.png', menubar='menu_metrics',
@@ -332,6 +326,12 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
                      callback=self.metrics_do_menu_stat)
         )
 
+        self.menutool_list.append(
+            MenuTool(id='graph_config', label='图表配置', icon='app.png', menubar='menu_metrics',
+                     show_in_menubar=True,
+                     show_in_toolbar=True,
+                     callback=self.metrics_do_menu_graph_config)
+        )
         ######################################################################################################
 
         idset = set([menutool.id for menutool in self.menutool_list])
@@ -592,7 +592,7 @@ class MasterMainWindows(QMainWindow, Ui_MainWindow):
         self.popupCleanMetadata = PopupCleanMetadata(self)
         self.popupCleanMetadata.show()
 
-    def clean_do_menu_graph_config(self):
+    def metrics_do_menu_graph_config(self):
         logger.info("清洗，图表配置")
 
         if self.context.table_no_data():
